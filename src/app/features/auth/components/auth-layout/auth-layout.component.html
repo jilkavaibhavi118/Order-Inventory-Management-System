@@ -1,0 +1,97 @@
+<div class="auth-layout-container">
+  <!-- Left Side: Enterprise Brand Showcase (Desktop & Tablet) -->
+  <aside class="auth-brand-pane" aria-label="Brand overview">
+    <div class="brand-ambient-glow brand-ambient-glow-top" aria-hidden="true"></div>
+    <div class="brand-ambient-glow brand-ambient-glow-bottom" aria-hidden="true"></div>
+
+    <div class="brand-content-wrapper">
+      <!-- Logo & Brand Name Header -->
+      <header class="brand-header">
+        <div class="brand-logo-container">
+          <svg class="brand-logo-svg" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect width="40" height="40" rx="10" fill="url(#brand-logo-grad)" />
+            <path d="M12 15L20 10L28 15V25L20 30L12 25V15Z" stroke="#FFFFFF" stroke-width="2" stroke-linejoin="round" />
+            <path d="M20 10V20M20 20L28 15M20 20L12 15" stroke="#FFFFFF" stroke-width="2" stroke-linejoin="round" />
+            <path d="M20 20V30" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" />
+            <circle cx="20" cy="20" r="2.5" fill="#818CF8" />
+            <defs>
+              <linearGradient id="brand-logo-grad" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#4F46E5" />
+                <stop offset="1" stop-color="#312E81" />
+              </linearGradient>
+            </defs>
+          </svg>
+          <div class="brand-title-group">
+            <span class="brand-name">{{ brandName() }}</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Headline & Value Proposition -->
+      <div class="brand-hero-section">
+        <h1 class="brand-headline">{{ headline() }}</h1>
+        <p class="brand-description">{{ description() }}</p>
+      </div>
+
+      <!-- Feature Highlight Badges -->
+      <div class="brand-features-list" role="list">
+        <div class="feature-item" role="listitem">
+          <div class="feature-icon-wrapper" aria-hidden="true">
+            <i class="pi pi-sync feature-icon"></i>
+          </div>
+          <div class="feature-text-group">
+            <span class="feature-title">Real-Time Inventory Sync</span>
+            <span class="feature-subtitle">Continuous multi-warehouse stock coordination &amp; automated alert triggers</span>
+          </div>
+        </div>
+
+        <div class="feature-item" role="listitem">
+          <div class="feature-icon-wrapper" aria-hidden="true">
+            <i class="pi pi-bolt feature-icon"></i>
+          </div>
+          <div class="feature-text-group">
+            <span class="feature-title">Automated Order Routing</span>
+            <span class="feature-subtitle">Dynamic dispatch rules minimize delivery turnaround and shipping overhead</span>
+          </div>
+        </div>
+
+        <div class="feature-item" role="listitem">
+          <div class="feature-icon-wrapper" aria-hidden="true">
+            <i class="pi pi-shield feature-icon"></i>
+          </div>
+          <div class="feature-text-group">
+            <span class="feature-title">Enterprise-Grade Security</span>
+            <span class="feature-subtitle">Role-based access controls for Admins and Customers with strict isolation</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Right Side: Interactive Form Container -->
+  <main class="auth-form-pane" id="main-content">
+    <!-- Mobile Brand Header (shown only on small screens) -->
+    <header class="mobile-brand-bar">
+      <div class="brand-logo-container">
+        <svg class="brand-logo-svg mobile-logo" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect width="40" height="40" rx="8" fill="url(#mobile-logo-grad)" />
+          <path d="M12 15L20 10L28 15V25L20 30L12 25V15Z" stroke="#FFFFFF" stroke-width="2" stroke-linejoin="round" />
+          <path d="M20 10V20M20 20L28 15M20 20L12 15" stroke="#FFFFFF" stroke-width="2" stroke-linejoin="round" />
+          <path d="M20 20V30" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" />
+          <defs>
+            <linearGradient id="mobile-logo-grad" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#4F46E5" />
+              <stop offset="1" stop-color="#312E81" />
+            </linearGradient>
+          </defs>
+        </svg>
+        <span class="brand-name mobile-brand-name">{{ brandName() }}</span>
+      </div>
+    </header>
+
+    <!-- Center Card for Projected Form -->
+    <div class="form-wrapper-center">
+      <ng-content></ng-content>
+    </div>
+  </main>
+</div>

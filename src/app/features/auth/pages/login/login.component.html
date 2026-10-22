@@ -1,0 +1,215 @@
+<app-auth-layout
+  headline="Manage Orders. Simplify Operations."
+  description="Sign in to OrderFlow to monitor warehouse operations, process orders, and orchestrate distribution channels with real-time accuracy.">
+
+  <div class="auth-card">
+    <!-- Header Block -->
+    <div class="auth-card-header">
+      <h1 class="auth-title">Welcome back</h1>
+      <p class="auth-subtitle">Enter your credentials to securely access your workspace.</p>
+    </div>
+
+    <!-- Status / Feedback Banner -->
+    @if (submissionStatus() !== 'idle' && statusMessage()) {
+      <div
+        class="feedback-banner"
+        [class.feedback-success]="submissionStatus() === 'success'"
+        [class.feedback-error]="submissionStatus() === 'error'"
+        role="status"
+        aria-live="polite">
+        <div class="feedback-icon-wrapper" aria-hidden="true">
+          @if (submissionStatus() === 'success') {
+            <i class="pi pi-check-circle"></i>
+          } @else {
+            <i class="pi pi-times-circle"></i>
+          }
+        </div>
+        <div class="feedback-text">
+          <p class="feedback-title">
+            {{ submissionStatus() === 'success' ? 'Request Dispatched' : 'Authentication Notice' }}
+          </p>
+          <p class="feedback-message">{{ statusMessage() }}</p>
+        </div>
+      </div>
+    }
+
+    <!-- Login Form -->
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate class="auth-form" id="login-form">
+      <!-- Email Field -->
+      <div class="form-group" [class.has-error]="isFieldInvalid(emailCtrl)">
+        <div class="label-row">
+          <label for="login-email" class="form-label">
+            Email address <span class="required-mark" aria-hidden="true">*</span>
+          </label>
+        </div>
+
+        <div class="input-container">
+          <div class="input-prefix-icon" aria-hidden="true">
+            <i class="pi pi-envelope"></i>
+          </div>
+
+          <input
+            id="login-email"
+            type="email"
+            formControlName="email"
+            class="form-input with-prefix"
+            placeholder="name@company.com"
+            autocomplete="email"
+            autocapitalize="none"
+            spellcheck="false"
+            [attr.aria-invalid]="isFieldInvalid(emailCtrl)"
+            [attr.aria-describedby]="isFieldInvalid(emailCtrl) ? 'email-error' : null"
+          />
+        </div>
+
+        @if (isFieldInvalid(emailCtrl)) {
+          <div id="email-error" class="validation-message" role="alert">
+            <i class="pi pi-exclamation-circle error-icon" aria-hidden="true"></i>
+            @if (emailCtrl.hasError('required')) {
+              <span>Email address is required.</span>
+            } @else if (emailCtrl.hasError('email') || emailCtrl.hasError('pattern')) {
+              <span>Please enter a valid email format (e.g., name&#64;company.com).</span>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Password Field -->
+      <div class="form-group" [class.has-error]="isFieldInvalid(passwordCtrl)">
+        <div class="label-row">
+          <label for="login-password" class="form-label">
+            Password <span class="required-mark" aria-hidden="true">*</span>
+          </label>
+        </div>
+
+        <div class="input-container">
+          <div class="input-prefix-icon" aria-hidden="true">
+            <i class="pi pi-lock"></i>
+          </div>
+
+          <input
+            id="login-password"
+            [type]="showPassword() ? 'text' : 'password'"
+            formControlName="password"
+            class="form-input with-prefix with-suffix"
+            placeholder="••••••••••••"
+            autocomplete="current-password"
+            [attr.aria-invalid]="isFieldInvalid(passwordCtrl)"
+            [attr.aria-describedby]="isFieldInvalid(passwordCtrl) ? 'password-error' : null"
+          />
+
+          <button
+            type="button"
+            class="password-toggle-btn"
+            (click)="togglePasswordVisibility()"
+            [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
+            [attr.aria-pressed]="showPassword()"
+            tabindex="0">
+            @if (showPassword()) {
+              <i class="pi pi-eye-slash" aria-hidden="true"></i>
+            } @else {
+              <i class="pi pi-eye" aria-hidden="true"></i>
+            }
+          </button>
+        </div>
+
+        @if (isFieldInvalid(passwordCtrl)) {
+          <div id="password-error" class="validation-message" role="alert">
+            <i class="pi pi-exclamation-circle error-icon" aria-hidden="true"></i>
+            <span>Password is required.</span>
+          </div>
+        }
+      </div>
+
+      <!-- Remember Me & Forgot Password Row -->
+      <div class="form-utilities-row">
+        <label class="checkbox-container">
+          <input
+            id="login-remember-me"
+            type="checkbox"
+            formControlName="rememberMe"
+            class="checkbox-input"
+          />
+          <span class="checkbox-custom" aria-hidden="true">
+            <i class="pi pi-check check-icon" aria-hidden="true"></i>
+          </span>
+          <span class="checkbox-label-text">Remember me</span>
+        </label>
+
+        <a
+          href="#forgot-password"
+          class="forgot-password-link"
+          (click)="openForgotPassword($event)"
+          tabindex="0">
+          Forgot password?
+        </a>
+      </div>
+
+      <!-- Submit Button -->
+      <button
+        id="login-submit-btn"
+        type="submit"
+        class="btn-primary"
+        [disabled]="isLoading()"
+        [attr.aria-busy]="isLoading()">
+        @if (isLoading()) {
+          <span class="spinner" aria-hidden="true"></span>
+          <span>Signing in...</span>
+        } @else {
+          <span>Sign In</span>
+          <i class="pi pi-arrow-right btn-arrow-icon" aria-hidden="true"></i>
+        }
+      </button>
+    </form>
+
+    <!-- Card Footer / Link to Registration -->
+    <div class="auth-card-footer">
+      <p class="switch-auth-text">
+        Don't have an account?
+        <a routerLink="/register" class="switch-auth-link" id="link-to-register">Create customer account</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- Forgot Password Accessible Dialog Modal -->
+  @if (showForgotPasswordModal()) {
+    <div
+      class="modal-backdrop"
+      (click)="closeForgotPassword()"
+      (keydown.escape)="closeForgotPassword()"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="forgot-modal-title">
+      <div class="modal-dialog" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <div class="modal-icon-badge" aria-hidden="true">
+            <i class="pi pi-lock"></i>
+          </div>
+          <h2 id="forgot-modal-title" class="modal-title">Reset Your Password</h2>
+          <button
+            type="button"
+            class="modal-close-btn"
+            (click)="closeForgotPassword()"
+            aria-label="Close dialog">
+            <i class="pi pi-times" aria-hidden="true"></i>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <p class="modal-explanation">
+            To reset your OrderFlow enterprise password, please enter your registered corporate email address. Your organization's identity manager will dispatch a secure single-use recovery link.
+          </p>
+          <div class="info-callout">
+            <strong>Self-Service Security:</strong> Administrative accounts must undergo two-factor authentication recovery if access has been revoked.
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" (click)="closeForgotPassword()">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</app-auth-layout>
