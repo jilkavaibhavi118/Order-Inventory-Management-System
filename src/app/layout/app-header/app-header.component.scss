@@ -1,0 +1,106 @@
+:host {
+  display: block;
+}
+
+.topbar {
+  display: flex;
+  min-height: 72px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.page-context,
+.user-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.sidebar-toggle {
+  display: grid;
+  width: 2.5rem;
+  height: 2.5rem;
+  place-items: center;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  color: var(--color-body);
+  font-size: 1rem;
+}
+
+.sidebar-toggle:hover {
+  border-color: var(--color-border);
+  background: var(--color-surface-muted);
+  color: var(--color-primary);
+}
+
+.user-summary {
+  gap: 0.6rem;
+}
+
+.theme-toggle {
+  display: grid;
+  width: 2.25rem;
+  height: 2.25rem;
+  place-items: center;
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  background: var(--color-surface);
+  color: var(--color-body);
+}
+
+.theme-toggle:hover {
+  background: var(--color-surface-muted);
+  color: var(--color-primary);
+}
+
+.page-context {
+  color: var(--color-muted);
+  font-size: 0.85rem;
+}
+
+.context-kicker {
+  color: var(--color-heading);
+  font-weight: 700;
+}
+
+.context-divider {
+  color: var(--color-subtle);
+}
+
+.user-avatar {
+  display: grid;
+  width: 2.25rem;
+  height: 2.25rem;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.user-copy {
+  display: grid;
+  gap: 0.1rem;
+  color: var(--color-heading);
+  font-size: 0.78rem;
+}
+
+.user-copy small {
+  color: var(--color-muted);
+  font-size: 0.7rem;
+}
+
+@media (max-width: 700px) {
+  .topbar {
+    min-height: 62px;
+    padding: 0 1rem;
+  }
+
+  .user-copy {
+    display: none;
+  }
+}

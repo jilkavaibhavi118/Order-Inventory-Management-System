@@ -1,0 +1,144 @@
+<section class="warehouses-page">
+  <div class="page-heading">
+    <h1>Warehouses</h1>
+    <button type="button" class="button button-primary" (click)="openCreateWarehouse()">
+      <i class="pi pi-plus" aria-hidden="true"></i>
+      Add warehouse
+    </button>
+  </div>
+
+  <section class="panel" aria-label="Warehouses">
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Location</th>
+            <th>Status</th>
+            <th class="actions-column">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (loading()) {
+            <tr><td colspan="4" class="table-message">Loading warehouses…</td></tr>
+          } @else if (warehouses().length === 0) {
+            <tr><td colspan="4" class="table-message">No warehouses found. Add your first warehouse to get started.</td></tr>
+          } @else {
+            @for (warehouse of visibleWarehouses(); track warehouse.id) {
+              <tr>
+                <td class="warehouse-name">{{ warehouse.name }}</td>
+                <td>{{ warehouse.location }}</td>
+                <td>
+                  <span class="status-pill" [class.status-inactive]="!warehouse.isActive">
+                    {{ warehouse.isActive ? 'Active' : 'Inactive' }}
+                  </span>
+                </td>
+                <td>
+                  <div class="row-actions">
+                    <button
+                      type="button"
+                      class="icon-button"
+                      [disabled]="saving()"
+                      [attr.aria-label]="'Edit ' + warehouse.name"
+                      (click)="openEditWarehouse(warehouse)"
+                    >
+                      <i class="pi pi-pencil" aria-hidden="true"></i>
+                    </button>
+                    <button
+                      type="button"
+                      class="icon-button delete-action"
+                      [disabled]="saving()"
+                      [attr.aria-label]="'Delete ' + warehouse.name"
+                      (click)="requestDelete(warehouse)"
+                    >
+                      <i class="pi pi-trash" aria-hidden="true"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+    <div class="pagination">
+      <p-paginator
+        (onPageChange)="onPageChange($event)"
+        [first]="(page() - 1) * pageSize()"
+        [rows]="pageSize()"
+        [totalRecords]="warehouses().length"
+        [rowsPerPageOptions]="[10, 20, 30]"
+        [appendTo]="'body'"
+      />
+    </div>
+  </section>
+</section>
+
+@if (dialogOpen()) {
+  <div class="dialog-backdrop" (click)="closeDialog()">
+    <section
+      class="dialog-card"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="warehouse-dialog-title"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="dialog-heading">
+        <h2 id="warehouse-dialog-title">{{ editingWarehouseId() ? 'Edit warehouse' : 'Add warehouse' }}</h2>
+        <button type="button" class="icon-button" aria-label="Close dialog" (click)="closeDialog()">
+          <i class="pi pi-times" aria-hidden="true"></i>
+        </button>
+      </div>
+      <form [formGroup]="warehouseForm" (ngSubmit)="saveWarehouse()">
+        <div class="form-grid">
+          <label>
+            Name
+            <input type="text" formControlName="name" autocomplete="organization" />
+          </label>
+          <label>
+            Location
+            <input type="text" formControlName="location" autocomplete="street-address" />
+          </label>
+          <label class="active-checkbox">
+            <input type="checkbox" formControlName="isActive" />
+            Active warehouse
+          </label>
+        </div>
+        @if (warehouseForm.invalid && warehouseForm.touched) {
+          <p class="form-hint">Enter a warehouse name and location.</p>
+        }
+        <div class="dialog-actions">
+          <button type="button" class="button button-secondary" (click)="closeDialog()">Cancel</button>
+          <button type="submit" class="button button-primary" [disabled]="saving()">
+            {{ saving() ? 'Saving…' : (editingWarehouseId() ? 'Save changes' : 'Create warehouse') }}
+          </button>
+        </div>
+      </form>
+    </section>
+  </div>
+}
+
+@if (warehousePendingDeletion(); as warehouse) {
+  <div class="dialog-backdrop" (click)="cancelDelete()">
+    <section
+      class="dialog-card confirmation-card"
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="delete-warehouse-title"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="dialog-heading">
+        <h2 id="delete-warehouse-title">Delete warehouse?</h2>
+      </div>
+      <p>Are you sure you want to delete {{ warehouse.name }}? This action cannot be undone.</p>
+      <div class="dialog-actions">
+        <button type="button" class="button button-secondary" [disabled]="saving()" (click)="cancelDelete()">
+          Cancel
+        </button>
+        <button type="button" class="button button-danger" [disabled]="saving()" (click)="confirmDelete()">
+          {{ saving() ? 'Deleting…' : 'Delete warehouse' }}
+        </button>
+      </div>
+    </section>
+  </div>
+}

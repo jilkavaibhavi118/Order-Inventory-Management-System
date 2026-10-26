@@ -1,0 +1,387 @@
+<section class="inventory-page">
+  <div class="page-heading">
+    <div>
+      <h1>Inventory</h1>
+      <p class="page-description">Monitor stock levels and manage warehouse adjustments.</p>
+    </div>
+    <div class="heading-actions">
+      <button type="button" class="button button-primary" (click)="openAdjustment()">
+        <i class="pi pi-sliders-h" aria-hidden="true"></i>
+        Adjust stock
+      </button>
+    </div>
+  </div>
+
+  <nav class="section-tabs" role="tablist" aria-label="Inventory views">
+    <button
+      id="inventory-overview-tab"
+      type="button"
+      role="tab"
+      [attr.aria-selected]="activeTab() === 'overview'"
+      [class.active]="activeTab() === 'overview'"
+      (click)="selectTab('overview')"
+    >
+      Stock overview
+    </button>
+    <button
+      id="inventory-movements-tab"
+      type="button"
+      role="tab"
+      [attr.aria-selected]="activeTab() === 'movements'"
+      [class.active]="activeTab() === 'movements'"
+      (click)="selectTab('movements')"
+    >
+      Stock movements
+    </button>
+  </nav>
+
+  @if (activeTab() === 'overview') {
+  <div class="summary-grid">
+    <article class="summary-card">
+      <span class="summary-icon icon-purple"><i class="pi pi-box" aria-hidden="true"></i></span>
+      <div><span class="summary-label">Inventory records</span><strong>{{ totalInventoryCount() }}</strong></div>
+    </article>
+    <article class="summary-card">
+      <span class="summary-icon icon-green"><i class="pi pi-tags" aria-hidden="true"></i></span>
+      <div><span class="summary-label">Products</span><strong>{{ products().length }}</strong></div>
+    </article>
+    <article class="summary-card">
+      <span class="summary-icon icon-amber"><i class="pi pi-exclamation-triangle" aria-hidden="true"></i></span>
+      <div><span class="summary-label">Low stock</span><strong>{{ lowStock().length }}</strong></div>
+    </article>
+  </div>
+
+  <section class="panel" aria-labelledby="stock-title">
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>SKU</th>
+            <th>Warehouse</th>
+            <th>Quantity</th>
+            <th>Min. stock</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (inventoryLoading()) {
+            <tr><td colspan="7" class="table-message">Loading inventory…</td></tr>
+          } @else if (inventory().length === 0) {
+            <tr>
+              <td colspan="7" class="table-message">
+                <span class="empty-icon"><i class="pi pi-inbox" aria-hidden="true"></i></span>
+                <strong>No inventory records yet</strong>
+                <span>Use “Adjust stock” to record a quantity for a product and warehouse.</span>
+              </td>
+            </tr>
+          } @else {
+            @for (item of inventory(); track item.id ?? item.productId + (item.warehouseId ?? '')) {
+              <tr>
+                <td class="product-cell">{{ item.productName }}</td>
+                <td><span class="sku">{{ item.productSku }}</span></td>
+                <td>{{ item.warehouseName ?? '—' }}</td>
+                <td class="quantity-cell">{{ item.quantity ?? item.totalQuantity ?? 0 }}</td>
+                <td>{{ item.minStock ?? '—' }}</td>
+                <td>
+                  <span class="status-pill" [class.status-low]="(item.quantity ?? item.totalQuantity ?? 0) <= (item.minStock ?? -1)">
+                    {{ (item.quantity ?? item.totalQuantity ?? 0) <= (item.minStock ?? -1) ? 'Low stock' : 'In stock' }}
+                  </span>
+                </td>
+                <td>
+                  <button
+                    type="button"
+                    class="icon-button"
+                    [disabled]="!item.id"
+                    [attr.aria-label]="'View inventory details for ' + item.productName"
+                    (click)="openInventoryDetails(item)"
+                  >
+                    <i class="pi pi-eye" aria-hidden="true"></i>
+                  </button>
+                  <button
+                    type="button"
+                    class="icon-button"
+                    [disabled]="!item.productId"
+                    [attr.aria-label]="'View movement history for ' + item.productName"
+                    (click)="viewHistory(item)"
+                  >
+                    <i class="pi pi-history" aria-hidden="true"></i>
+                  </button>
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+    <div class="pagination">
+      <p-paginator (onPageChange)="onPageChange($event)" [first]="firstRow()" [rows]="pageSize()" [totalRecords]="totalInventoryCount()" [rowsPerPageOptions]="[10, 20, 30]" [appendTo]="'body'" />
+    </div>
+  </section>
+
+  <section class="panel low-stock-panel" aria-labelledby="low-stock-title">
+    <div class="panel-heading">
+      <div>
+        <h2 id="low-stock-title">Low-stock products</h2>
+        <p>Products at or below their minimum stock threshold.</p>
+      </div>
+      <span class="count-badge">{{ lowStock().length }}</span>
+    </div>
+    @if (lowStockLoading()) {
+      <p class="inline-message">Loading low-stock products…</p>
+    } @else if (lowStock().length === 0) {
+      <p class="inline-message">No low-stock products reported.</p>
+    } @else {
+      <div class="low-stock-list">
+        @for (product of lowStock(); track product.productId) {
+          <article class="low-stock-item">
+            <span class="warning-mark"><i class="pi pi-exclamation-triangle" aria-hidden="true"></i></span>
+            <div class="low-stock-name">
+              <strong>{{ product.productName }}</strong>
+              <span>{{ product.productSku }} · {{ product.warehouseCount }} warehouse{{ product.warehouseCount === 1 ? '' : 's' }}</span>
+            </div>
+            <div class="stock-values">
+              <strong>{{ product.totalQuantity }}</strong>
+              <span>of {{ product.minStock }} min.</span>
+            </div>
+          </article>
+        }
+      </div>
+    }
+  </section>
+  } @else {
+    <section class="panel movements-panel" aria-labelledby="movements-title">
+      <header class="panel-heading">
+        <div>
+          <h2 id="movements-title">Stock movements</h2>
+          <p>Filter and review recorded stock changes.</p>
+        </div>
+      </header>
+
+      <form class="movement-filters" [formGroup]="movementFilterForm" (ngSubmit)="applyMovementFilters()">
+        <label>Product
+          <select formControlName="productId">
+            <option value="">All products</option>
+            @for (product of products(); track product.id) {
+              <option [value]="product.id">{{ product.name }} ({{ product.sku }})</option>
+            }
+          </select>
+        </label>
+        <label>Warehouse
+          <select formControlName="warehouseId">
+            <option value="">All warehouses</option>
+            @for (warehouse of warehouses(); track warehouse.id) {
+              <option [value]="warehouse.id">{{ warehouse.name }}</option>
+            }
+          </select>
+        </label>
+        <label>Movement type
+          <select formControlName="type">
+            <option value="">All types</option>
+            <option value="IN">IN</option>
+            <option value="OUT">OUT</option>
+          </select>
+        </label>
+        <label>From date
+          <input type="date" formControlName="fromDate" />
+        </label>
+        <label>To date
+          <input type="date" formControlName="toDate" />
+        </label>
+        <div class="filter-actions">
+          <button type="button" class="button button-secondary" (click)="resetMovementFilters()">Reset</button>
+          <button type="submit" class="button button-primary">Apply filters</button>
+        </div>
+      </form>
+      @if (movementDateError()) {
+        <p class="movement-date-error" role="alert">{{ movementDateError() }}</p>
+      }
+
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Product</th>
+              <th>Warehouse</th>
+              <th>Type</th>
+              <th>Quantity change</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @if (transactionsLoading()) {
+              <tr><td colspan="6" class="table-message">Loading stock movements…</td></tr>
+            } @else if (transactionsError()) {
+              <tr>
+                <td colspan="6" class="table-message error-state">
+                  {{ transactionsError() }}
+                  <button type="button" class="button button-secondary button-small" (click)="retryTransactions()">Retry</button>
+                </td>
+              </tr>
+            } @else if (transactions().length === 0) {
+              <tr><td colspan="6" class="table-message">No stock movements found.</td></tr>
+            } @else {
+              @for (transaction of transactions(); track transaction.id) {
+                <tr>
+                  <td>{{ transaction.createdAt | date:'medium' }}</td>
+                  <td>
+                    <strong>{{ transaction.productName }}</strong><br>
+                    <span class="sku">SKU:{{ transaction.productSku }}</span>
+                  </td>
+                  <td>{{ transaction.warehouseName }}</td>
+                  <td><span class="status-pill">{{ transaction.type }}</span></td>
+                  <td>{{ transaction.quantityChanged }}</td>
+                  <td>
+                    <button
+                      type="button"
+                      class="icon-button"
+                      [attr.aria-label]="'View stock movement details for ' + transaction.productName"
+                      (click)="openTransactionDetails(transaction)"
+                    >
+                      <i class="pi pi-eye" aria-hidden="true"></i>
+                    </button>
+                  </td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination">
+        <p-paginator
+          (onPageChange)="onTransactionsPageChange($event)"
+          [first]="(transactionsPage() - 1) * transactionsPageSize()"
+          [rows]="transactionsPageSize()"
+          [totalRecords]="transactionsTotalCount()"
+          [rowsPerPageOptions]="[10, 20, 30]"
+          [appendTo]="'body'"
+        />
+      </div>
+    </section>
+  }
+</section>
+
+@if (detailRecord(); as record) {
+  <div class="dialog-backdrop" (click)="closeInventoryDetails()">
+    <section
+      class="dialog-card details-dialog"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="inventory-details-title"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="dialog-heading">
+        <div>
+          <h2 id="inventory-details-title">Inventory record details</h2>
+          <p>{{ record.productName }} · {{ record.warehouseName ?? 'Warehouse' }}</p>
+        </div>
+        <button type="button" class="icon-button" aria-label="Close details" (click)="closeInventoryDetails()">
+          <i class="pi pi-times" aria-hidden="true"></i>
+        </button>
+      </div>
+      @if (detailLoading()) {
+        <p class="inline-message" role="status">Loading inventory details…</p>
+      } @else if (detailError()) {
+        <div class="details-error" role="alert">
+          <p>{{ detailError() }}</p>
+          <button type="button" class="button button-secondary" (click)="retryInventoryDetails()">Retry</button>
+        </div>
+      } @else {
+        <pre class="details-payload">{{ formatPayload(detailPayload()) }}</pre>
+      }
+    </section>
+  </div>
+}
+
+@if (transactionDetailsId()) {
+  <div class="dialog-backdrop" (click)="closeTransactionDetails()">
+    <section
+      class="dialog-card details-dialog"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="transaction-details-title"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="dialog-heading">
+        <div>
+          <h2 id="transaction-details-title">Stock movement details</h2>
+          @if (transactionDetailsRow(); as transaction) {
+            <p>{{ transaction.productName }} · {{ transaction.warehouseName }}</p>
+          }
+        </div>
+        <button type="button" class="icon-button" aria-label="Close movement details" (click)="closeTransactionDetails()">
+          <i class="pi pi-times" aria-hidden="true"></i>
+        </button>
+      </div>
+      @if (transactionDetailsLoading()) {
+        <p class="inline-message" role="status">Loading movement details…</p>
+      } @else if (transactionDetailsError()) {
+        <div class="details-error" role="alert">
+          <p>{{ transactionDetailsError() }}</p>
+          <button type="button" class="button button-secondary" (click)="retryTransactionDetails()">Retry</button>
+        </div>
+      } @else {
+        <pre class="details-payload">{{ formatPayload(transactionDetailsPayload()) }}</pre>
+      }
+    </section>
+  </div>
+}
+
+@if (adjustmentDialogOpen()) {
+  <div class="dialog-backdrop" (click)="closeAdjustment()">
+    <section class="dialog-card" role="dialog" aria-modal="true" aria-labelledby="adjustment-dialog-title" (click)="$event.stopPropagation()">
+      <div class="dialog-heading">
+        <div>
+          <h2 id="adjustment-dialog-title">Adjust inventory</h2>
+        </div>
+        <button type="button" class="icon-button" aria-label="Close dialog" (click)="closeAdjustment()"><i class="pi pi-times" aria-hidden="true"></i></button>
+      </div>
+      <p class="dialog-description">Record a stock change for a product and active warehouse.</p>
+      <form [formGroup]="adjustmentForm" (ngSubmit)="adjustStock()">
+        <div class="form-grid">
+          <label class="full-width">Product
+            <select formControlName="productId">
+              <option value="">Choose a product</option>
+              @for (product of products(); track product.id) {
+                <option [value]="product.id">{{ product.name }} ({{ product.sku }})</option>
+              }
+            </select>
+          </label>
+          <label class="full-width">Warehouse
+            <select formControlName="warehouseId">
+              <option value="">Choose a warehouse</option>
+              @for (warehouse of warehouses(); track warehouse.id) {
+                @if (warehouse.isActive) {
+                  <option [value]="warehouse.id">{{ warehouse.name }} — {{ warehouse.location }}</option>
+                }
+              }
+            </select>
+          </label>
+          <label>Quantity
+            <input type="number" min="1" step="1" formControlName="quantity" />
+          </label>
+          <label>Adjustment type (API value)
+            <input type="text" maxlength="20" placeholder="Enter backend adjustment type" formControlName="adjustmentType" />
+          </label>
+          <label class="full-width">Reason
+            <textarea rows="3" maxlength="250" formControlName="reason"></textarea>
+          </label>
+        </div>
+        @if (warehouses().length === 0) {
+          <p class="form-hint error-text">No active warehouses are available. Add or activate a warehouse before adjusting stock.</p>
+        }
+        @if (adjustmentForm.invalid && adjustmentForm.touched) {
+          <p class="form-hint error-text">Complete all required fields. Quantity must be at least 1 and reason at least 3 characters.</p>
+        }
+        <div class="dialog-actions">
+          <button type="button" class="button button-secondary" (click)="closeAdjustment()">Cancel</button>
+          <button type="submit" class="button button-primary" [disabled]="saving() || warehouses().length === 0">
+            {{ saving() ? 'Submitting…' : 'Save adjustment' }}
+          </button>
+        </div>
+      </form>
+    </section>
+  </div>
+}

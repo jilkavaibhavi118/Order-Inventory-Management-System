@@ -1,5 +1,5 @@
 import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
-import { PasswordRule, PasswordStrength } from '../models/auth.models';
+import { PasswordRule, PasswordStrength } from '../../../models/auth.models';
 
 /**
  * Validates that the confirm password control value matches the password control value.
