@@ -1,0 +1,44 @@
+<aside class="sidebar" aria-label="Main navigation">
+  <a class="brand" routerLink="/inventory" aria-label="OrderFlow home">
+    <span class="brand-mark"><i class="pi pi-box" aria-hidden="true"></i></span>
+    <span>OrderFlow</span>
+  </a>
+
+  <nav class="navigation-links">
+    <a routerLink="/dashboard" routerLinkActive="active" class="navigation-link">
+      <i class="pi pi-chart-bar" aria-hidden="true"></i>
+      <span>Dashboard</span>
+    </a>
+    <a
+      routerLink="/inventory"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: true }"
+      class="navigation-link">
+      <i class="pi pi-warehouse" aria-hidden="true"></i>
+      <span>Inventory</span>
+    </a>
+    <a routerLink="/products" routerLinkActive="active" class="navigation-link">
+      <i class="pi pi-box" aria-hidden="true"></i>
+      <span>Products</span>
+    </a>
+    <a routerLink="/suppliers" routerLinkActive="active" class="navigation-link">
+      <i class="pi pi-truck" aria-hidden="true"></i>
+      <span>Suppliers</span>
+    </a>
+    <a routerLink="/warehouses" routerLinkActive="active" class="navigation-link">
+      <i class="pi pi-warehouse" aria-hidden="true"></i>
+      <span>Warehouses</span>
+    </a>
+    <a routerLink="/orders" routerLinkActive="active" class="navigation-link">
+      <i class="pi pi-shopping-cart" aria-hidden="true"></i>
+      <span>Orders</span>
+    </a>
+  </nav>
+
+  <div class="sidebar-bottom">
+    <button type="button" class="logout-button" (click)="logout()">
+      <i class="pi pi-sign-out" aria-hidden="true"></i>
+      <span>Logout</span>
+    </button>
+  </div>
+</aside>

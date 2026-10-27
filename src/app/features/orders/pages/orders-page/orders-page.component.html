@@ -1,0 +1,193 @@
+<section class="orders-page">
+  <div class="page-heading">
+    <div>
+      <h1>Orders</h1>
+    </div>
+    <div class="heading-actions">
+      <button type="button" class="button button-primary" (click)="openCreateOrder()">
+        <i class="pi pi-plus" aria-hidden="true"></i>
+        Create order
+      </button>
+    </div>
+  </div>
+
+  <section class="panel filters-panel" aria-label="Filter orders">
+    <div class="filters-grid">
+      <label>Status
+        <input type="text" [value]="statusFilter()" (input)="setStatusFilter($event)" maxlength="20" placeholder="Any status" />
+      </label>
+      <label>From date
+        <input type="date" [value]="fromDateFilter()" (input)="setFromDateFilter($event)" />
+      </label>
+      <label>To date
+        <input type="date" [value]="toDateFilter()" (input)="setToDateFilter($event)" />
+      </label>
+      <div class="filter-actions">
+        <button type="button" class="button button-secondary" (click)="clearFilters()">Clear</button>
+        <button type="button" class="button button-primary" (click)="applyFilters()">Apply filters</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="orders-title">
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Order</th>
+            <th><button type="button" class="sort-button" (click)="sortBy('customer')">Customer <i class="pi pi-sort-alt" aria-hidden="true"></i></button></th>
+            <th>Warehouse</th>
+            <th>Items</th>
+            <th><button type="button" class="sort-button" (click)="sortBy('orderDate')">Date <i class="pi pi-sort-alt" aria-hidden="true"></i></button></th>
+            <th><button type="button" class="sort-button" (click)="sortBy('total')">Total <i class="pi pi-sort-alt" aria-hidden="true"></i></button></th>
+            <th><button type="button" class="sort-button" (click)="sortBy('status')">Status <i class="pi pi-sort-alt" aria-hidden="true"></i></button></th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (loading()) {
+            <tr><td colspan="8" class="table-message">Loading orders…</td></tr>
+          } @else if (orders().length === 0) {
+            <tr><td colspan="8" class="table-message">No orders found. Create an order to get started.</td></tr>
+          } @else {
+            @for (order of sortedOrders(); track order.id ?? order.orderId ?? $index) {
+              <tr>
+                <td class="order-id">{{ displayOrderId(order) }}</td>
+                <td>{{ displayCustomer(order) }}</td>
+                <td>{{ displayWarehouse(order) }}</td>
+                <td class="items-cell">{{ displayItems(order) }}</td>
+                <td>{{ displayOrderDate(order) }}</td>
+                <td>{{ order.totalAmount === undefined ? '—' : (order.totalAmount | number:'1.2-2') }}</td>
+                <td><span class="status-pill">{{ order.status || '—' }}</span></td>
+                <td>
+                  <div class="row-actions">
+                    <button type="button" class="icon-button" [disabled]="saving() || loading()" [attr.aria-label]="'Edit ' + displayOrderId(order)" (click)="openEditOrder(order)">
+                      <i class="pi pi-pencil" aria-hidden="true"></i>
+                    </button>
+                    <button type="button" class="icon-button" [disabled]="saving() || loading()" [attr.aria-label]="'Change status for ' + displayOrderId(order)" (click)="openStatusDialog(order)">
+                      <i class="pi pi-tag" aria-hidden="true"></i>
+                    </button>
+                    <button type="button" class="icon-button delete-action" [disabled]="saving() || loading()" [attr.aria-label]="'Delete ' + displayOrderId(order)" (click)="deleteOrder(order)">
+                      <i class="pi pi-trash" aria-hidden="true"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+    <div class="pagination">
+      <p-paginator
+        (onPageChange)="onPageChange($event)"
+        [first]="(page() - 1) * pageSize()"
+        [rows]="pageSize()"
+        [totalRecords]="totalCount()"
+        [rowsPerPageOptions]="[10, 20, 30]"
+        [appendTo]="'body'"
+      />
+    </div>
+  </section>
+</section>
+
+@if (orderDialogOpen()) {
+  <div class="dialog-backdrop" (click)="closeOrderDialog()">
+    <section class="dialog-card" role="dialog" aria-modal="true" aria-labelledby="order-dialog-title" (click)="$event.stopPropagation()">
+      <div class="dialog-heading">
+        <div>
+          <h2 id="order-dialog-title">{{ editingOrderId() ? 'Edit order' : 'Create order' }}</h2>
+          <p>Customer ID is taken from your account.</p>
+        </div>
+        <button type="button" class="icon-button" aria-label="Close dialog" (click)="closeOrderDialog()"><i class="pi pi-times" aria-hidden="true"></i></button>
+      </div>
+      <form [formGroup]="orderForm" (ngSubmit)="saveOrder()">
+        <div class="form-grid">
+          <label>Customer ID (UUID)
+            <input type="text" formControlName="customerId" />
+          </label>
+          <label>Warehouse
+            <select formControlName="warehouseId">
+              <option value="">Choose a warehouse</option>
+              @for (warehouse of warehouses(); track warehouse.id) {
+                <option [value]="warehouse.id">{{ warehouse.name }}</option>
+              }
+            </select>
+          </label>
+        </div>
+        @if (orderForm.controls.customerId.invalid && orderForm.controls.customerId.touched) {
+          <p class="form-hint error-text">Enter a valid customer UUID.</p>
+        }
+        @if (warehouses().length === 0) {
+          <p class="form-hint">No active warehouses are available. Add a warehouse before creating an order.</p>
+        }
+
+        <div class="items-heading">
+          <h3>Order items</h3>
+          <button type="button" class="button button-secondary" (click)="addOrderItem()">
+            <i class="pi pi-plus" aria-hidden="true"></i>
+            Add item
+          </button>
+        </div>
+        <div formArrayName="items" class="order-items">
+          @for (itemForm of orderForm.controls.items.controls; track $index; let index = $index) {
+            <div class="item-row" [formGroup]="itemForm">
+              <label>Product
+                <select formControlName="productId">
+                  <option value="">Choose a product</option>
+                  @for (product of products(); track product.id) {
+                    <option [value]="product.id">{{ product.name }} ({{ product.sku }})</option>
+                  }
+                </select>
+              </label>
+              <label>Quantity
+                <input type="number" min="1" max="2147483647" step="1" formControlName="quantity" />
+              </label>
+              <button type="button" class="icon-button delete-action remove-item" [disabled]="orderForm.controls.items.length <= 1" [attr.aria-label]="'Remove item ' + (index + 1)" (click)="removeOrderItem(index)">
+                <i class="pi pi-trash" aria-hidden="true"></i>
+              </button>
+            </div>
+          }
+        </div>
+        @if (products().length === 0) {
+          <p class="form-hint">No products are available. Add an active product before creating an order.</p>
+        }
+        @if (orderForm.controls.items.invalid && orderForm.controls.items.touched) {
+          <p class="form-hint error-text">Choose a product for each item and enter a quantity of at least one.</p>
+        }
+        <div class="dialog-actions">
+          <button type="button" class="button button-secondary" (click)="closeOrderDialog()">Cancel</button>
+          <button type="submit" class="button button-primary" [disabled]="saving() || products().length === 0 || warehouses().length === 0">
+            {{ saving() ? 'Saving…' : (editingOrderId() ? 'Save changes' : 'Create order') }}
+          </button>
+        </div>
+      </form>
+    </section>
+  </div>
+}
+
+@if (statusDialogOpen()) {
+  <div class="dialog-backdrop" (click)="closeStatusDialog()">
+    <section class="dialog-card status-dialog" role="dialog" aria-modal="true" aria-labelledby="status-dialog-title" (click)="$event.stopPropagation()">
+      <div class="dialog-heading">
+        <div>
+          <h2 id="status-dialog-title">Update order status</h2>
+          <p>Enter a status supported by your API (up to 20 characters).</p>
+        </div>
+        <button type="button" class="icon-button" aria-label="Close dialog" (click)="closeStatusDialog()"><i class="pi pi-times" aria-hidden="true"></i></button>
+      </div>
+      <form [formGroup]="statusForm" (ngSubmit)="saveStatus()">
+        <label class="status-label">Status
+          <input type="text" formControlName="status" maxlength="20" autocomplete="off" />
+        </label>
+        @if (statusForm.controls.status.invalid && statusForm.controls.status.touched) {
+          <p class="form-hint error-text">Enter a status of no more than 20 characters.</p>
+        }
+        <div class="dialog-actions">
+          <button type="button" class="button button-secondary" (click)="closeStatusDialog()">Cancel</button>
+          <button type="submit" class="button button-primary" [disabled]="saving()">{{ saving() ? 'Saving…' : 'Update status' }}</button>
+        </div>
+      </form>
+    </section>
+  </div>
+}
