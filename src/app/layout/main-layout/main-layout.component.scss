@@ -1,0 +1,31 @@
+:host {
+  display: block;
+  min-height: 100vh;
+}
+
+.workspace-layout {
+  display: flex;
+  min-height: 100vh;
+  background: var(--color-bg);
+}
+
+.workspace-main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.workspace-content {
+  flex: 1;
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+@media (max-width: 700px) {
+  .workspace-content {
+    padding: 1rem;
+  }
+}

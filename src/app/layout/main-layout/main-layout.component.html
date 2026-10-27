@@ -1,0 +1,10 @@
+<div class="workspace-layout">
+  <app-sidebar [collapsed]="sidebarCollapsed()" />
+  <div class="workspace-main">
+    <app-header (sidebarToggle)="toggleSidebar()" />
+    <main class="workspace-content" id="main-content">
+      <router-outlet />
+    </main>
+  </div>
+</div>
+<p-toast position="top-right" />

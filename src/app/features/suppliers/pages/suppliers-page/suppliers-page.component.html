@@ -1,0 +1,146 @@
+<section class="suppliers-page">
+  <div class="page-heading">
+    <h1>Suppliers</h1>
+    <button type="button" class="button button-primary" (click)="openCreateSupplier()">
+      <i class="pi pi-plus" aria-hidden="true"></i>
+      Add supplier
+    </button>
+  </div>
+
+  <section class="panel" aria-label="Suppliers">
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Address</th>
+            <th class="actions-column">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (loading()) {
+            <tr><td colspan="5" class="table-message">Loading suppliers…</td></tr>
+          } @else if (suppliers().length === 0) {
+            <tr><td colspan="5" class="table-message">No suppliers found.</td></tr>
+          } @else {
+            @for (supplier of visibleSuppliers(); track supplier.id) {
+              <tr>
+                <td class="supplier-name">{{ supplier.name }}</td>
+                <td>{{ supplier.email || '—' }}</td>
+                <td>{{ supplier.phone || '—' }}</td>
+                <td class="address-cell">{{ supplier.address || '—' }}</td>
+                <td>
+                  <div class="row-actions">
+                    <button
+                      type="button"
+                      class="icon-button"
+                      [disabled]="saving()"
+                      [attr.aria-label]="'Edit ' + supplier.name"
+                      (click)="openEditSupplier(supplier)"
+                    >
+                      <i class="pi pi-pencil" aria-hidden="true"></i>
+                    </button>
+                    <button
+                      type="button"
+                      class="icon-button delete-action"
+                      [disabled]="saving()"
+                      [attr.aria-label]="'Delete ' + supplier.name"
+                      (click)="requestDelete(supplier)"
+                    >
+                      <i class="pi pi-trash" aria-hidden="true"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+    <div class="pagination">
+      <p-paginator
+        (onPageChange)="onPageChange($event)"
+        [first]="(page() - 1) * pageSize()"
+        [rows]="pageSize()"
+        [totalRecords]="suppliers().length"
+        [rowsPerPageOptions]="[10, 20, 30]"
+        [appendTo]="'body'"
+      />
+    </div>
+  </section>
+</section>
+
+@if (dialogOpen()) {
+  <div class="dialog-backdrop" (click)="closeDialog()">
+    <section
+      class="dialog-card"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="supplier-dialog-title"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="dialog-heading">
+        <h2 id="supplier-dialog-title">{{ editingSupplierId() ? 'Edit supplier' : 'Add supplier' }}</h2>
+        <button type="button" class="icon-button" aria-label="Close dialog" (click)="closeDialog()">
+          <i class="pi pi-times" aria-hidden="true"></i>
+        </button>
+      </div>
+      <form [formGroup]="supplierForm" (ngSubmit)="saveSupplier()">
+        <div class="form-grid">
+          <label>
+            Name
+            <input type="text" formControlName="name" autocomplete="organization" />
+          </label>
+          <label>
+            Email
+            <input type="email" formControlName="email" autocomplete="email" />
+          </label>
+          <label>
+            Phone
+            <input type="tel" formControlName="phone" autocomplete="tel" />
+          </label>
+          <label>
+            Address
+            <textarea formControlName="address" rows="3" autocomplete="street-address"></textarea>
+          </label>
+        </div>
+        @if (supplierForm.invalid && supplierForm.touched) {
+          <p class="form-hint">Enter a name, valid email, phone number, and address.</p>
+        }
+        <div class="dialog-actions">
+          <button type="button" class="button button-secondary" (click)="closeDialog()">Cancel</button>
+          <button type="submit" class="button button-primary" [disabled]="saving()">
+            {{ saving() ? 'Saving…' : (editingSupplierId() ? 'Save changes' : 'Create supplier') }}
+          </button>
+        </div>
+      </form>
+    </section>
+  </div>
+}
+
+@if (supplierPendingDeletion(); as supplier) {
+  <div class="dialog-backdrop" (click)="cancelDelete()">
+    <section
+      class="dialog-card confirmation-card"
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="delete-supplier-title"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="dialog-heading">
+        <h2 id="delete-supplier-title">Delete supplier?</h2>
+      </div>
+      <p>Are you sure you want to delete {{ supplier.name }}? This action cannot be undone.</p>
+      <div class="dialog-actions">
+        <button type="button" class="button button-secondary" [disabled]="saving()" (click)="cancelDelete()">
+          Cancel
+        </button>
+        <button type="button" class="button button-danger" [disabled]="saving()" (click)="confirmDelete()">
+          {{ saving() ? 'Deleting…' : 'Delete supplier' }}
+        </button>
+      </div>
+    </section>
+  </div>
+}

@@ -1,0 +1,148 @@
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+import { MessageService } from 'primeng/api';
+import { of } from 'rxjs';
+import { vi } from 'vitest';
+import { InventoryService } from '../../../../core/services/inventory.service';
+import { ProductsPageComponent } from './products-page.component';
+
+describe('ProductsPageComponent', () => {
+  let fixture: ComponentFixture<ProductsPageComponent>;
+  let component: ProductsPageComponent;
+  let mockInventoryService: {
+    getProducts: ReturnType<typeof vi.fn>;
+    getProductInventory: ReturnType<typeof vi.fn>;
+    getSuppliers: ReturnType<typeof vi.fn>;
+    createProduct: ReturnType<typeof vi.fn>;
+    updateProduct: ReturnType<typeof vi.fn>;
+    deleteProduct: ReturnType<typeof vi.fn>;
+  };
+  const messageService = { add: vi.fn() };
+
+  beforeEach(async () => {
+    mockInventoryService = {
+      getProducts: vi.fn().mockReturnValue(of([])),
+      getProductInventory: vi.fn().mockReturnValue(of([{ warehouseId: 'warehouse-id', quantity: 4 }])),
+      getSuppliers: vi.fn().mockReturnValue(of([{ id: 'supplier-id', name: 'Supplier' }])),
+      createProduct: vi.fn().mockReturnValue(of({ message: 'Product created successfully.' })),
+      updateProduct: vi.fn().mockReturnValue(of({})),
+      deleteProduct: vi.fn().mockReturnValue(of({}))
+    };
+
+    await TestBed.configureTestingModule({
+      imports: [ProductsPageComponent],
+      providers: [
+        provideRouter([]),
+        { provide: InventoryService, useValue: mockInventoryService },
+        { provide: MessageService, useValue: messageService }
+      ]
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(ProductsPageComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('loads products in the dedicated product page', () => {
+    expect(mockInventoryService.getProducts).toHaveBeenCalled();
+    expect(mockInventoryService.getSuppliers).toHaveBeenCalled();
+    expect(fixture.nativeElement.querySelector('h1').textContent).toBe('Products');
+  });
+
+  it('creates products from the product page form', () => {
+    component.productForm.setValue({
+      sku: 'SKU-100',
+      name: 'Sample item',
+      category: 'General',
+      supplierId: 'supplier-id',
+      costPrice: 5,
+      sellPrice: 10,
+      minStock: 2,
+      isActive: true
+    });
+
+    component.saveProduct();
+
+    expect(mockInventoryService.createProduct).toHaveBeenCalledWith({
+      sku: 'SKU-100',
+      name: 'Sample item',
+      category: 'General',
+      supplierId: 'supplier-id',
+      costPrice: 5,
+      sellPrice: 10,
+      minStock: 2,
+      isActive: true
+    });
+    expect(messageService.add).toHaveBeenCalledWith(expect.objectContaining({
+      severity: 'success',
+      detail: 'Product created successfully.'
+    }));
+  });
+
+  it('asks for confirmation before deleting a product', () => {
+    const product = {
+      id: 'product-id',
+      sku: 'SKU-100',
+      name: 'Sample item',
+      category: 'General',
+      supplierId: 'supplier-id',
+      costPrice: 5,
+      sellPrice: 10,
+      minStock: 2,
+      isActive: true
+    };
+
+    component.deleteProduct(product);
+
+    expect(component.productPendingDeletion()).toEqual(product);
+    expect(mockInventoryService.deleteProduct).not.toHaveBeenCalled();
+
+    component.cancelDeleteConfirmation();
+    expect(component.productPendingDeletion()).toBeNull();
+    expect(mockInventoryService.deleteProduct).not.toHaveBeenCalled();
+
+    component.deleteProduct(product);
+    component.confirmDeleteProduct();
+
+    expect(component.productPendingDeletion()).toBeNull();
+    expect(mockInventoryService.deleteProduct).toHaveBeenCalledWith('product-id');
+  });
+
+  it('shows the selected page of products', () => {
+    component.products.set(Array.from({ length: 12 }, (_, index) => ({
+      id: `product-${index + 1}`,
+      sku: `SKU-${index + 1}`,
+      name: `Product ${index + 1}`,
+      category: 'General',
+      supplierId: 'supplier-id',
+      costPrice: 1,
+      sellPrice: 2,
+      minStock: 1,
+      isActive: true
+    })));
+
+    component.onPageChange({ first: 10, rows: 10 });
+
+    expect(component.visibleProducts()).toHaveLength(2);
+    expect(component.visibleProducts()[0].id).toBe('product-11');
+  });
+
+  it('loads stock details using the selected product ID', () => {
+    const product = {
+      id: 'product-id',
+      sku: 'SKU-100',
+      name: 'Sample item',
+      category: 'General',
+      supplierId: 'supplier-id',
+      costPrice: 5,
+      sellPrice: 10,
+      minStock: 2,
+      isActive: true
+    };
+
+    component.viewStock(product);
+
+    expect(mockInventoryService.getProductInventory).toHaveBeenCalledWith('product-id');
+    expect(component.stockPayload()).toEqual([{ warehouseId: 'warehouse-id', quantity: 4 }]);
+  });
+});
