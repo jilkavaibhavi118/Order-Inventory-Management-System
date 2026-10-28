@@ -21,7 +21,9 @@
       <span class="summary-icon icon-purple"><i class="pi pi-box" aria-hidden="true"></i></span>
       <a class="summary-copy" routerLink="/products">
         <span class="summary-label">Total products</span>
-        @if (productsError()) {
+        @if (productsLoading()) {
+
+        } @else if (productsError()) {
           <span class="summary-error">{{ productsError() }}</span>
         } @else {
           <strong class="summary-value">{{ productsCount() }}</strong>
@@ -35,7 +37,9 @@
       <span class="summary-icon icon-green"><i class="pi pi-shopping-cart" aria-hidden="true"></i></span>
       <a class="summary-copy" routerLink="/orders">
         <span class="summary-label">Total orders</span>
-        @if (ordersError()) {
+        @if (ordersLoading()) {
+
+        } @else if (ordersError()) {
           <span class="summary-error">{{ ordersError() }}</span>
         } @else {
           <strong class="summary-value">{{ ordersCount() }}</strong>
@@ -49,7 +53,9 @@
       <span class="summary-icon icon-blue"><i class="pi pi-warehouse" aria-hidden="true"></i></span>
       <a class="summary-copy" routerLink="/warehouses">
         <span class="summary-label">Warehouses</span>
-        @if (warehousesError()) {
+        @if (warehousesLoading()) {
+
+        } @else if (warehousesError()) {
           <span class="summary-error">{{ warehousesError() }}</span>
         } @else {
           <strong class="summary-value">{{ warehousesCount() }}</strong>
@@ -63,7 +69,9 @@
       <span class="summary-icon icon-amber"><i class="pi pi-exclamation-triangle" aria-hidden="true"></i></span>
       <a class="summary-copy" routerLink="/inventory">
         <span class="summary-label">Low-stock products</span>
-        @if (lowStockError()) {
+        @if (lowStockLoading()) {
+     
+        } @else if (lowStockError()) {
           <span class="summary-error">{{ lowStockError() }}</span>
         } @else {
           <strong class="summary-value">{{ lowStockCount() }}</strong>
@@ -95,17 +103,17 @@
         <div class="table-scroll">
           <table>
             <thead>
-              <tr><th>Product</th><th>Stock</th><th>Minimum</th></tr>
+              <tr><th>Product</th><th class="text-right">Stock</th><th class="text-right">Minimum</th></tr>
             </thead>
             <tbody>
               @for (product of lowStockPreview(); track product.productId) {
                 <tr>
                   <td>
-                    <strong>{{ product.productName }}</strong>
-                    <span class="subtle">{{ product.productSku }}</span>
+                    <strong>{{ product.productName }}</strong>&nbsp;
+                    <span class="sku">{{ product.productSku }}</span>
                   </td>
-                  <td>{{ product.totalQuantity }}</td>
-                  <td>{{ product.minStock }}</td>
+                  <td class="text-right tabular-nums" style="color: var(--color-warning-text); font-weight: 600;">{{ product.totalQuantity }}</td>
+                  <td class="text-right tabular-nums" style="color: var(--color-muted);">{{ product.minStock }}</td>
                 </tr>
               }
             </tbody>
@@ -133,22 +141,24 @@
         <div class="table-scroll">
           <table>
             <thead>
-              <tr><th>Date</th><th>Product</th><th>Type</th><th>Quantity</th><th>Details</th></tr>
+              <tr><th>Date</th><th>Product</th><th>Type</th><th class="text-right">Quantity</th><th class="text-right">Details</th></tr>
             </thead>
             <tbody>
               @for (transaction of transactionsPreview(); track transaction.id) {
                 <tr>
-                  <td>{{ transaction.createdAt | date:'short' }}</td>
+                  <td style="color: var(--color-muted); font-size: 0.8125rem;">{{ transaction.createdAt | date:'short' }}</td>
                   <td>{{ transaction.productName }}</td>
-                  <td>{{ transaction.type }}</td>
-                  <td>{{ transaction.quantityChanged }}</td>
                   <td>
+                    <span class="status-pill" [class.status-inactive]="transaction.type === 'OUT'">{{ transaction.type }}</span>
+                  </td>
+                  <td class="text-right tabular-nums" style="font-weight: 600;">{{ transaction.quantityChanged }}</td>
+                  <td class="text-right">
                     <a
                       class="details-link"
                       [routerLink]="['/inventory']"
                       [queryParams]="{ tab: 'movements', transactionId: transaction.id }"
                     >
-                      View details
+                      View details &rarr;
                     </a>
                   </td>
                 </tr>

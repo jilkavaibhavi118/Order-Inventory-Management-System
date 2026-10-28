@@ -1,10 +1,15 @@
-import { Component, inject, OnDestroy, signal } from '@angular/core';
-import { NavigationCancel, NavigationEnd, NavigationError, NavigationStart, Router, RouterOutlet } from '@angular/router';
-import { Subscription } from 'rxjs';
-import { AppFooterComponent } from '../app-footer/app-footer.component';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import {
+  NavigationCancel,
+  NavigationEnd,
+  NavigationError,
+  NavigationStart,
+  Router,
+  RouterOutlet
+} from '@angular/router';
 import { AppHeaderComponent } from '../app-header/app-header.component';
 import { AppSidebarComponent } from '../app-sidebar/app-sidebar.component';
-
 
 @Component({
   selector: 'app-main-layout',
@@ -13,27 +18,29 @@ import { AppSidebarComponent } from '../app-sidebar/app-sidebar.component';
   templateUrl: './main-layout.component.html',
   styleUrl: './main-layout.component.scss'
 })
-export class MainLayoutComponent implements OnDestroy {
+export class MainLayoutComponent {
   private readonly router = inject(Router);
-  private readonly routerSubscription: Subscription;
+  private readonly destroyRef = inject(DestroyRef);
+
   readonly sidebarCollapsed = signal(false);
-  readonly routeLoading = signal(false);
+  readonly isNavigating = signal(false);
 
   constructor() {
-    this.routerSubscription = this.router.events.subscribe(event => {
+    this.router.events.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(event => {
       if (event instanceof NavigationStart) {
-        this.routeLoading.set(true);
-      } else if (event instanceof NavigationEnd || event instanceof NavigationCancel || event instanceof NavigationError) {
-        this.routeLoading.set(false);
+        this.isNavigating.set(true);
+      } else if (
+        event instanceof NavigationEnd ||
+        event instanceof NavigationCancel ||
+        event instanceof NavigationError
+      ) {
+        setTimeout(() => this.isNavigating.set(false), 200);
       }
     });
-  }
-
-  ngOnDestroy(): void {
-    this.routerSubscription.unsubscribe();
   }
 
   toggleSidebar(): void {
     this.sidebarCollapsed.update(collapsed => !collapsed);
   }
 }
+

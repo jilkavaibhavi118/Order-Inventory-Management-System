@@ -1,13 +1,16 @@
 :host {
   display: block;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .workspace-layout {
   display: flex;
-  align-items: flex-start;
-  min-height: 100vh;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
   background: var(--color-bg);
+  position: relative;
 }
 
 .workspace-main {
@@ -15,15 +18,56 @@
   flex: 1;
   flex-direction: column;
   min-width: 0;
+  height: 100vh;
+  overflow-y: auto;
+  position: relative;
 }
 
 .workspace-content {
   position: relative;
   flex: 1;
   width: 100%;
-  max-width: 1600px;
+  max-width: 1440px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 1.5rem 1.75rem 2.5rem;
+}
+
+/* Page / Route Navigation Loader */
+.top-nav-loader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: transparent;
+  z-index: 99999;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.top-nav-loader-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, var(--color-primary), #818cf8, var(--color-primary));
+  box-shadow: 0 0 8px var(--color-primary);
+  animation: indeterminate-nav-bar 1.2s infinite ease-in-out;
+}
+
+@keyframes indeterminate-nav-bar {
+  0% {
+    left: 0%;
+    right: 100%;
+  }
+  50% {
+    left: 20%;
+    right: 20%;
+  }
+  100% {
+    left: 100%;
+    right: 0%;
+  }
 }
 
 .route-loader {
@@ -59,6 +103,8 @@
 
 @media (max-width: 700px) {
   .workspace-content {
-    padding: 1rem;
+    padding: 1rem 0.875rem 2rem;
   }
 }
+
+

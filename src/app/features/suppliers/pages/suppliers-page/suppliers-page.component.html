@@ -1,10 +1,15 @@
 <section class="suppliers-page">
   <div class="page-heading">
-    <h1>Suppliers</h1>
-    <button type="button" class="button button-primary" (click)="openCreateSupplier()">
-      <i class="pi pi-plus" aria-hidden="true"></i>
-      Add supplier
-    </button>
+    <div>
+      <h1>Suppliers</h1>
+      <p class="page-description">Maintain vendor directories, contact details, and procurement partners.</p>
+    </div>
+    <div class="heading-actions">
+      <button type="button" class="button button-primary" (click)="openCreateSupplier()">
+        <i class="pi pi-plus" aria-hidden="true"></i>
+        Add supplier
+      </button>
+    </div>
   </div>
 
   <section class="panel" aria-label="Suppliers">
@@ -16,8 +21,7 @@
             <th>Email</th>
             <th>Phone</th>
             <th>Address</th>
-            <th>Created At</th>
-            <th class="actions-column">Actions</th>
+            <th class="text-right">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -27,17 +31,23 @@
             @for (supplier of visibleSuppliers(); track supplier.id) {
               <tr>
                 <td class="supplier-name">{{ supplier.name }}</td>
-                <td>{{ supplier.email || '—' }}</td>
-                <td>{{ supplier.phone || '—' }}</td>
-                <td class="address-cell">{{ supplier.address || '—' }}</td>
-                <td>{{ formatDate(supplier.createdAt) }}</td>
                 <td>
-                  <div class="row-actions">
+                  @if (supplier.email) {
+                    <a [href]="'mailto:' + supplier.email" style="color: var(--color-primary); text-decoration: none;">{{ supplier.email }}</a>
+                  } @else {
+                    <span style="color: var(--color-subtle);">—</span>
+                  }
+                </td>
+                <td>{{ supplier.phone || '—' }}</td>
+                <td class="address-cell" style="color: var(--color-muted);">{{ supplier.address || '—' }}</td>
+                <td class="text-right">
+                  <div class="row-actions" style="justify-content: flex-end;">
                     <button
                       type="button"
                       class="icon-button"
                       [disabled]="saving()"
                       [attr.aria-label]="'Edit ' + supplier.name"
+                      title="Edit"
                       (click)="openEditSupplier(supplier)"
                     >
                       <i class="pi pi-pencil" aria-hidden="true"></i>
@@ -47,6 +57,7 @@
                       class="icon-button delete-action"
                       [disabled]="saving()"
                       [attr.aria-label]="'Delete ' + supplier.name"
+                      title="Delete"
                       (click)="requestDelete(supplier)"
                     >
                       <i class="pi pi-trash" aria-hidden="true"></i>
