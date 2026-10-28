@@ -8,7 +8,7 @@ import { AppSidebarComponent } from '../app-sidebar/app-sidebar.component';
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [RouterOutlet, AppHeaderComponent, AppFooterComponent, AppSidebarComponent],
+  imports: [RouterOutlet, AppHeaderComponent, AppSidebarComponent],
   templateUrl: './main-layout.component.html',
   styleUrl: './main-layout.component.scss'
 })
