@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, inject, OnDestroy, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -7,8 +7,9 @@ import { PaginatorModule } from 'primeng/paginator';
 import type { PaginatorState } from 'primeng/types/paginator';
 import { MessageService } from 'primeng/api';
 import { finalize, Subscription } from 'rxjs';
-import { Product, ProductRequest, Supplier } from '../../../../models/inventory.models';
+import { Product, Supplier } from '../../../../models/inventory.models';
 import { InventoryService } from '../../../../core/services/inventory.service';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-products-page',
@@ -21,6 +22,7 @@ export class ProductsPageComponent implements OnDestroy {
   private readonly inventoryService = inject(InventoryService);
   private readonly messageService = inject(MessageService);
   private readonly router = inject(Router);
+  private readonly http = inject(HttpClient);
 
   readonly products = signal<Product[]>([]);
   readonly page = signal(1);
@@ -35,7 +37,11 @@ export class ProductsPageComponent implements OnDestroy {
   readonly stockPayload = signal<unknown>(null);
   readonly stockLoading = signal(false);
   readonly stockError = signal<string | null>(null);
+  readonly selectedProductImage = signal<File | null>(null);
+  readonly productImageUrls = signal<Record<string, string>>({});
   private stockRequest?: Subscription;
+  private readonly imageSubscriptions: Subscription[] = [];
+  private readonly imageObjectUrls: string[] = [];
   readonly visibleProducts = computed(() => {
     const start = (this.page() - 1) * this.pageSize();
     return this.products().slice(start, start + this.pageSize());
@@ -49,6 +55,7 @@ export class ProductsPageComponent implements OnDestroy {
     costPrice: new FormControl(0.01, { nonNullable: true, validators: [Validators.required, Validators.min(0.01), Validators.max(999999999)] }),
     sellPrice: new FormControl(0.01, { nonNullable: true, validators: [Validators.required, Validators.min(0.01), Validators.max(999999999)] }),
     minStock: new FormControl(0, { nonNullable: true, validators: [Validators.required, Validators.min(0)] }),
+    description: new FormControl('', { nonNullable: true, validators: [Validators.maxLength(1000)] }),
     isActive: new FormControl(true, { nonNullable: true })
   });
 
@@ -62,10 +69,42 @@ export class ProductsPageComponent implements OnDestroy {
 
   ngOnDestroy(): void {
     this.stockRequest?.unsubscribe();
+    this.imageSubscriptions.forEach(subscription => subscription.unsubscribe());
+    this.imageObjectUrls.forEach(url => URL.revokeObjectURL(url));
   }
 
   supplierName(supplierId: string): string {
     return this.suppliers().find(supplier => supplier.id === supplierId)?.name ?? 'Unknown supplier';
+  }
+
+  getProductImageUrl(product: Product): string | null {
+    if (this.productImageUrls()[product.id]) {
+      return this.productImageUrls()[product.id];
+    }
+    return product.imageUrl ? this.productImageUrl(product.imageUrl) : null;
+  }
+
+  productImageUrl(imageUrl: string): string {
+    if (/^(https?:|data:|blob:)/i.test(imageUrl)) {
+      return imageUrl;
+    }
+
+    if (imageUrl.startsWith('/')) {
+      return `${environment.apiUrl}${imageUrl}`;
+    }
+
+    return `${environment.apiUrl}/${imageUrl}`;
+  }
+
+  hideBrokenImage(event: Event): void {
+    const image = event.currentTarget as HTMLImageElement;
+    image.style.display = 'none';
+
+    const placeholder = document.createElement('div');
+    placeholder.className = 'product-image-placeholder';
+    placeholder.setAttribute('aria-label', 'Image unavailable');
+    placeholder.innerHTML = '<i class="pi pi-image" aria-hidden="true"></i>';
+    image.replaceWith(placeholder);
   }
 
   get pageCount(): number {
@@ -135,6 +174,7 @@ export class ProductsPageComponent implements OnDestroy {
         next: products => {
           this.products.set(products);
           this.page.set(Math.min(this.page(), Math.max(1, Math.ceil(products.length / this.pageSize()))));
+          this.loadProductImages(products);
         },
         error: error => this.showApiError(error)
       });
@@ -150,8 +190,10 @@ export class ProductsPageComponent implements OnDestroy {
       costPrice: 0.01,
       sellPrice: 0.01,
       minStock: 0,
+      description: '',
       isActive: true
     });
+    this.selectedProductImage.set(null);
     this.dialogOpen.set(true);
   }
 
@@ -165,13 +207,21 @@ export class ProductsPageComponent implements OnDestroy {
       costPrice: product.costPrice,
       sellPrice: product.sellPrice,
       minStock: product.minStock,
+      description: product.description ?? '',
       isActive: product.isActive
     });
+    this.selectedProductImage.set(null);
     this.dialogOpen.set(true);
+  }
+
+  onImageSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.selectedProductImage.set(input.files?.item(0) ?? null);
   }
 
   closeDialog(): void {
     this.dialogOpen.set(false);
+    this.selectedProductImage.set(null);
     this.productForm.markAsUntouched();
   }
 
@@ -181,7 +231,23 @@ export class ProductsPageComponent implements OnDestroy {
       return;
     }
 
-    const request: ProductRequest = this.productForm.getRawValue();
+    const formValue = this.productForm.getRawValue();
+    const request = new FormData();
+    request.append('SKU', formValue.sku);
+    request.append('Name', formValue.name);
+    request.append('Category', formValue.category);
+    request.append('SupplierId', formValue.supplierId);
+    request.append('CostPrice', String(formValue.costPrice));
+    request.append('SellPrice', String(formValue.sellPrice));
+    request.append('MinStock', String(formValue.minStock));
+    request.append('Description', formValue.description.trim());
+    request.append('IsActive', String(formValue.isActive));
+
+    const image = this.selectedProductImage();
+    if (image) {
+      request.append('Image', image, image.name);
+    }
+
     const id = this.editingProductId();
     this.saving.set(true);
     const request$ = id
@@ -201,6 +267,36 @@ export class ProductsPageComponent implements OnDestroy {
       },
       error: error => this.showApiError(error)
     });
+  }
+
+  private loadProductImages(products: Product[]): void {
+    this.imageSubscriptions.forEach(subscription => subscription.unsubscribe());
+    this.imageObjectUrls.forEach(url => URL.revokeObjectURL(url));
+    this.imageSubscriptions.length = 0;
+    this.imageObjectUrls.length = 0;
+    this.productImageUrls.set({});
+
+    if (typeof URL.createObjectURL !== 'function') {
+      return;
+    }
+
+    for (const product of products) {
+      if (!product.imageUrl) {
+        continue;
+      }
+
+      const subscription = this.http
+        .get(this.productImageUrl(product.imageUrl), { responseType: 'blob' })
+        .subscribe({
+          next: blob => {
+            const objectUrl = URL.createObjectURL(blob);
+            this.imageObjectUrls.push(objectUrl);
+            this.productImageUrls.update(urls => ({ ...urls, [product.id]: objectUrl }));
+          },
+          error: () => undefined
+        });
+      this.imageSubscriptions.push(subscription);
+    }
   }
 
   deleteProduct(product: Product): void {

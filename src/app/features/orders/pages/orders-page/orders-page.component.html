@@ -34,31 +34,33 @@
       <table>
         <thead>
           <tr>
-            <th>Order</th>
+            <th>Order No</th>
+
             <th><button type="button" class="sort-button" (click)="sortBy('customer')">Customer <i class="pi pi-sort-alt" aria-hidden="true"></i></button></th>
             <th>Warehouse</th>
             <th>Items</th>
-            <th><button type="button" class="sort-button" (click)="sortBy('orderDate')">Date <i class="pi pi-sort-alt" aria-hidden="true"></i></button></th>
+            <th><button type="button" class="sort-button" (click)="sortBy('orderDate')">Created At <i class="pi pi-sort-alt" aria-hidden="true"></i></button></th>
             <th><button type="button" class="sort-button" (click)="sortBy('total')">Total <i class="pi pi-sort-alt" aria-hidden="true"></i></button></th>
             <th><button type="button" class="sort-button" (click)="sortBy('status')">Status <i class="pi pi-sort-alt" aria-hidden="true"></i></button></th>
+            <th>Order</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
-          @if (loading()) {
-            <tr><td colspan="8" class="table-message">Loading orders…</td></tr>
-          } @else if (orders().length === 0) {
+          @if (orders().length === 0) {
             <tr><td colspan="8" class="table-message">No orders found. Create an order to get started.</td></tr>
           } @else {
             @for (order of sortedOrders(); track order.id ?? order.orderId ?? $index) {
               <tr>
-                <td class="order-id">{{ displayOrderId(order) }}</td>
+                <td>{{order.orderNo}}</td>
+
                 <td>{{ displayCustomer(order) }}</td>
                 <td>{{ displayWarehouse(order) }}</td>
                 <td class="items-cell">{{ displayItems(order) }}</td>
                 <td>{{ displayOrderDate(order) }}</td>
-                <td>{{ order.totalAmount === undefined ? '—' : (order.totalAmount | number:'1.2-2') }}</td>
+                <td>{{ order.total === undefined ? '—' : (order.total | number:'1.2-2') }}</td>
                 <td><span class="status-pill">{{ order.status || '—' }}</span></td>
+                <td class="order-id">{{ displayOrderId(order) }}</td>
                 <td>
                   <div class="row-actions">
                     <button type="button" class="icon-button" [disabled]="saving() || loading()" [attr.aria-label]="'Edit ' + displayOrderId(order)" (click)="openEditOrder(order)">
@@ -188,6 +190,34 @@
           <button type="submit" class="button button-primary" [disabled]="saving()">{{ saving() ? 'Saving…' : 'Update status' }}</button>
         </div>
       </form>
+    </section>
+  </div>
+}
+
+@if (orderPendingDeletion(); as order) {
+  <div class="dialog-backdrop" (click)="cancelDeleteOrder()">
+    <section
+      class="dialog-card confirmation-card"
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="delete-order-title"
+      aria-describedby="delete-order-message"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="dialog-heading">
+        <h2 id="delete-order-title">Delete order?</h2>
+      </div>
+      <p id="delete-order-message">
+        Are you sure you want to delete {{ displayOrderId(order) }}? This action cannot be undone.
+      </p>
+      <div class="dialog-actions">
+        <button type="button" class="button button-secondary" [disabled]="saving()" (click)="cancelDeleteOrder()">
+          Cancel
+        </button>
+        <button type="button" class="button button-danger" [disabled]="saving()" (click)="confirmDeleteOrder()">
+          {{ saving() ? 'Deleting…' : 'Delete order' }}
+        </button>
+      </div>
     </section>
   </div>
 }

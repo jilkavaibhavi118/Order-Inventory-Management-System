@@ -186,6 +186,31 @@ td {
   font-size: 0.8rem;
 }
 
+.product-image-cell {
+  width: 4.25rem;
+}
+
+.product-image,
+.product-image-placeholder {
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: var(--radius-md);
+}
+
+.product-image {
+  display: block;
+  border: 1px solid var(--color-border);
+  object-fit: cover;
+}
+
+.product-image-placeholder {
+  display: grid;
+  place-items: center;
+  border: 1px dashed var(--color-border);
+  background: var(--color-surface-muted);
+  color: var(--color-muted);
+}
+
 .product-name {
   color: var(--color-heading);
   font-weight: 600;
@@ -338,7 +363,8 @@ td {
 }
 
 .form-grid input:not([type='checkbox']),
-.form-grid select {
+.form-grid select,
+.form-grid textarea {
   width: 100%;
   min-height: 2.55rem;
   padding: 0.6rem 0.7rem;
@@ -352,9 +378,19 @@ td {
 }
 
 .form-grid input:focus,
-.form-grid select:focus {
+.form-grid select:focus,
+.form-grid textarea:focus {
   border-color: var(--color-border-focus);
   box-shadow: var(--shadow-focus);
+}
+
+.form-grid textarea {
+  min-height: 5.5rem;
+  resize: vertical;
+}
+
+.full-width-field {
+  grid-column: 1 / -1;
 }
 
 .active-checkbox {
