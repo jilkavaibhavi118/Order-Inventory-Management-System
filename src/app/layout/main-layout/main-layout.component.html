@@ -1,10 +1,15 @@
 <div class="workspace-layout">
+  @if (isNavigating()) {
+    <div class="top-nav-loader" role="progressbar" aria-label="Loading page">
+      <div class="top-nav-loader-bar"></div>
+    </div>
+  }
   <app-sidebar [collapsed]="sidebarCollapsed()" />
   <div class="workspace-main">
     <app-header (sidebarToggle)="toggleSidebar()" />
     <main class="workspace-content" id="main-content">
       <router-outlet />
     </main>
-  
   </div>
 </div>
+

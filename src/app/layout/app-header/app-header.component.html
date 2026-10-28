@@ -1,12 +1,15 @@
 <header class="topbar">
-  <button
-    type="button"
-    class="sidebar-toggle"
-    (click)="sidebarToggle.emit()"
-    aria-label="Toggle sidebar"
-    title="Toggle sidebar">
-    <i class="pi pi-align-justify" aria-hidden="true"></i>
-  </button>
+  <div class="topbar-left">
+    <button
+      type="button"
+      class="sidebar-toggle"
+      (click)="sidebarToggle.emit()"
+      aria-label="Toggle sidebar"
+      title="Toggle sidebar">
+      <i class="pi pi-align-justify" aria-hidden="true"></i>
+    </button>
+  </div>
+
   <div class="user-summary">
     <button
       type="button"
@@ -16,10 +19,13 @@
       [attr.title]="theme() === 'light' ? 'Switch to dark theme' : 'Switch to light theme'">
       <i [class]="theme() === 'light' ? 'pi pi-moon' : 'pi pi-sun'" aria-hidden="true"></i>
     </button>
-    <span class="user-avatar" aria-hidden="true">{{ userName() ? userName().charAt(0).toUpperCase() : 'U' }}</span>
-    <span class="user-copy">
-      <strong>{{ userName() || 'Account' }}</strong>
-
-    </span>
+    <div class="user-capsule">
+      <span class="user-avatar" aria-hidden="true">{{ userName() ? userName().charAt(0).toUpperCase() : 'U' }}</span>
+      <span class="user-copy">
+        <strong>{{ userName() || 'Account' }}</strong>
+        <span class="role-badge">Admin</span>
+      </span>
+    </div>
   </div>
 </header>
+

@@ -2,6 +2,7 @@
   <div class="page-heading">
     <div>
       <h1>Products</h1>
+      <p class="page-description">Manage product catalog, pricing, and supplier assignments.</p>
     </div>
     <div class="heading-actions">
       <button type="button" class="button button-primary" (click)="openCreateProduct()">
@@ -20,11 +21,11 @@
             <th>SKU</th>
             <th>Category</th>
             <th>Supplier</th>
-            <th>Cost price</th>
-            <th>Sell price</th>
-            <th>Min. stock</th>
+            <th class="text-right">Cost price</th>
+            <th class="text-right">Sell price</th>
+            <th class="text-right">Min. stock</th>
             <th>Status</th>
-            <th>Actions</th>
+            <th class="text-right">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -39,16 +40,17 @@
                 <td><span class="sku">{{ product.sku }}</span></td>
                 <td>{{ product.category }}</td>
                 <td>{{ supplierName(product.supplierId) }}</td>
-                <td>{{ product.costPrice | number:'1.2-2' }}</td>
-                <td>{{ product.sellPrice | number:'1.2-2' }}</td>
-                <td>{{ product.minStock }}</td>
+                <td class="text-right tabular-nums">{{ product.costPrice | number:'1.2-2' }}</td>
+                <td class="text-right tabular-nums" style="font-weight: 600;">{{ product.sellPrice | number:'1.2-2' }}</td>
+                <td class="text-right tabular-nums" style="color: var(--color-muted);">{{ product.minStock }}</td>
                 <td><span class="status-pill" [class.status-inactive]="!product.isActive">{{ product.isActive ? 'Active' : 'Inactive' }}</span></td>
-                <td>
-                  <div class="row-actions">
+                <td class="text-right">
+                  <div class="row-actions" style="justify-content: flex-end;">
                     <button
                       type="button"
                       class="icon-button"
                       [attr.aria-label]="'View stock for ' + product.name"
+                      title="View stock"
                       (click)="viewStock(product)"
                     >
                       <i class="pi pi-warehouse" aria-hidden="true"></i>
@@ -57,14 +59,15 @@
                       type="button"
                       class="icon-button"
                       [attr.aria-label]="'View movement history for ' + product.name"
+                      title="Movement history"
                       (click)="viewMovementHistory(product)"
                     >
                       <i class="pi pi-history" aria-hidden="true"></i>
                     </button>
-                    <button type="button" class="icon-button" [attr.aria-label]="'Edit ' + product.name" (click)="openEditProduct(product)">
+                    <button type="button" class="icon-button" [attr.aria-label]="'Edit ' + product.name" title="Edit" (click)="openEditProduct(product)">
                       <i class="pi pi-pencil" aria-hidden="true"></i>
                     </button>
-                    <button type="button" class="icon-button delete-action" [disabled]="saving()" [attr.aria-label]="'Delete ' + product.name" (click)="deleteProduct(product)">
+                    <button type="button" class="icon-button delete-action" [disabled]="saving()" [attr.aria-label]="'Delete ' + product.name" title="Delete" (click)="deleteProduct(product)">
                       <i class="pi pi-trash" aria-hidden="true"></i>
                     </button>
                   </div>

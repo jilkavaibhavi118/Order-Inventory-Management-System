@@ -2,6 +2,7 @@
   <div class="page-heading">
     <div>
       <h1>Orders</h1>
+      <p class="page-description">Track customer orders, sales volume, and fulfillment workflows.</p>
     </div>
     <div class="heading-actions">
       <button type="button" class="button button-primary" (click)="openCreateOrder()">
@@ -39,9 +40,9 @@
             <th>Warehouse</th>
             <th>Items</th>
             <th><button type="button" class="sort-button" (click)="sortBy('orderDate')">Date <i class="pi pi-sort-alt" aria-hidden="true"></i></button></th>
-            <th><button type="button" class="sort-button" (click)="sortBy('total')">Total <i class="pi pi-sort-alt" aria-hidden="true"></i></button></th>
+            <th class="text-right"><button type="button" class="sort-button" style="justify-content: flex-end; width: 100%;" (click)="sortBy('total')">Total <i class="pi pi-sort-alt" aria-hidden="true"></i></button></th>
             <th><button type="button" class="sort-button" (click)="sortBy('status')">Status <i class="pi pi-sort-alt" aria-hidden="true"></i></button></th>
-            <th>Actions</th>
+            <th class="text-right">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -52,22 +53,30 @@
           } @else {
             @for (order of sortedOrders(); track order.id ?? order.orderId ?? $index) {
               <tr>
-                <td class="order-id">{{ displayOrderId(order) }}</td>
-                <td>{{ displayCustomer(order) }}</td>
+                <td class="order-id"><span class="sku">{{ displayOrderId(order) }}</span></td>
+                <td style="font-weight: 500;">{{ displayCustomer(order) }}</td>
                 <td>{{ displayWarehouse(order) }}</td>
-                <td class="items-cell">{{ displayItems(order) }}</td>
-                <td>{{ displayOrderDate(order) }}</td>
-                <td>{{ order.totalAmount === undefined ? '—' : (order.totalAmount | number:'1.2-2') }}</td>
-                <td><span class="status-pill">{{ order.status || '—' }}</span></td>
+                <td class="items-cell" style="color: var(--color-muted);">{{ displayItems(order) }}</td>
+                <td style="color: var(--color-muted); font-size: 0.8125rem;">{{ displayOrderDate(order) }}</td>
+                <td class="text-right tabular-nums" style="font-weight: 600;">{{ order.totalAmount === undefined ? '—' : ('$' + (order.totalAmount | number:'1.2-2')) }}</td>
                 <td>
-                  <div class="row-actions">
-                    <button type="button" class="icon-button" [disabled]="saving() || loading()" [attr.aria-label]="'Edit ' + displayOrderId(order)" (click)="openEditOrder(order)">
+                  <span class="status-pill"
+                    [class.status-pending]="(order.status || '').toLowerCase() === 'pending'"
+                    [class.status-processing]="(order.status || '').toLowerCase() === 'processing'"
+                    [class.status-inactive]="(order.status || '').toLowerCase() === 'cancelled'"
+                  >
+                    {{ order.status || '—' }}
+                  </span>
+                </td>
+                <td class="text-right">
+                  <div class="row-actions" style="justify-content: flex-end;">
+                    <button type="button" class="icon-button" [disabled]="saving() || loading()" [attr.aria-label]="'Edit ' + displayOrderId(order)" title="Edit" (click)="openEditOrder(order)">
                       <i class="pi pi-pencil" aria-hidden="true"></i>
                     </button>
-                    <button type="button" class="icon-button" [disabled]="saving() || loading()" [attr.aria-label]="'Change status for ' + displayOrderId(order)" (click)="openStatusDialog(order)">
+                    <button type="button" class="icon-button" [disabled]="saving() || loading()" [attr.aria-label]="'Change status for ' + displayOrderId(order)" title="Update status" (click)="openStatusDialog(order)">
                       <i class="pi pi-tag" aria-hidden="true"></i>
                     </button>
-                    <button type="button" class="icon-button delete-action" [disabled]="saving() || loading()" [attr.aria-label]="'Delete ' + displayOrderId(order)" (click)="deleteOrder(order)">
+                    <button type="button" class="icon-button delete-action" [disabled]="saving() || loading()" [attr.aria-label]="'Delete ' + displayOrderId(order)" title="Delete" (click)="deleteOrder(order)">
                       <i class="pi pi-trash" aria-hidden="true"></i>
                     </button>
                   </div>
