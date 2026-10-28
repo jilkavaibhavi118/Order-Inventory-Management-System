@@ -1,18 +1,22 @@
 import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
-import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
+import { provideClientHydration } from '@angular/platform-browser';
+import { providePrimeNG } from 'primeng/config';
+import { MessageService } from 'primeng/api';
+import Aura from '@primeng/themes/aura';
 
 import { routes } from './app.routes';
-import { provideClientHydration } from '@angular/platform-browser';
-import { apiHeadersInterceptor } from './core/interceptors/api-headers.interceptor';
-import { MessageService } from 'primeng/api';
-import { providePrimeNG } from 'primeng/config';
-import Aura from '@primeng/themes/aura';
+import { ngrokInterceptor } from './interceptors/ngrok-interceptor';
+import { authInterceptor } from './interceptors/auth.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    provideHttpClient(withFetch(), withInterceptors([apiHeadersInterceptor])),
+    MessageService,
+    provideHttpClient(
+      withInterceptors([ngrokInterceptor, authInterceptor])
+    ),
     provideRouter(routes),
     provideClientHydration(),
     providePrimeNG({
@@ -22,7 +26,6 @@ export const appConfig: ApplicationConfig = {
           darkModeSelector: "[data-theme='dark']"
         }
       }
-    }),
-    MessageService
+    })
   ]
 };

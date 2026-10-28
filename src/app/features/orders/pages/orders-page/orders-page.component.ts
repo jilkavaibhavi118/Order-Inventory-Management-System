@@ -3,9 +3,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MessageService } from 'primeng/api';
-import { ButtonModule } from 'primeng/button';
 import { PaginatorModule } from 'primeng/paginator';
-import { TooltipModule } from 'primeng/tooltip';
 import type { PaginatorState } from 'primeng/types/paginator';
 import { finalize } from 'rxjs';
 import { AuthService } from '../../../../core/services/auth.service';
@@ -28,7 +26,7 @@ type SortField = 'orderDate' | 'status' | 'customer' | 'total';
 @Component({
   selector: 'app-orders-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ButtonModule, PaginatorModule, TooltipModule],
+  imports: [CommonModule, ReactiveFormsModule, PaginatorModule],
   templateUrl: './orders-page.component.html',
   styleUrl: './orders-page.component.scss'
 })
@@ -290,47 +288,33 @@ export class OrdersPageComponent {
   }
 
   saveStatus(): void {
-  this.statusForm.markAllAsTouched();
+    this.statusForm.markAllAsTouched();
+    if (this.statusForm.invalid || this.saving()) {
+      return;
+    }
 
-  if (this.statusForm.invalid || this.saving()) {
-    return;
+    const id = this.statusOrderId();
+    if (!id) {
+      return;
+    }
+
+    this.saving.set(true);
+    this.ordersService.updateStatus(id, this.statusForm.getRawValue())
+      .pipe(finalize(() => this.saving.set(false)))
+      .subscribe({
+        next: () => {
+          this.closeStatusDialog();
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Status updated',
+            detail: 'The order status has been updated.',
+            life: 3500
+          });
+          this.loadOrders();
+        },
+        error: error => this.showApiError(error)
+      });
   }
-
-  const id = this.statusOrderId();
-
-  if (!id) {
-    return;
-  }
-
-  this.saving.set(true);
-
-  this.ordersService
-    .updateStatus(
-      id,
-      this.statusForm.getRawValue()
-    )
-    .pipe(
-      finalize(() => this.saving.set(false))
-    )
-    .subscribe({
-      next: () => {
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Status updated',
-          detail: 'The order status has been updated.',
-          life: 3500
-        });
-
-        this.closeStatusDialog();
-
-        this.loadOrders();
-      },
-
-      error: error => {
-        this.showApiError(error);
-      }
-    });
-}
 
   deleteOrder(order: Order): void {
     const id = this.getOrderId(order);
@@ -359,7 +343,7 @@ export class OrdersPageComponent {
   }
 
   displayOrderId(order: Order): string {
-    return order.id ?? 'Order';
+    return order.orderId ?? order.id ?? 'Order';
   }
 
   displayCustomer(order: Order): string {
@@ -378,12 +362,6 @@ export class OrdersPageComponent {
   displayItems(order: Order): string {
     return order.items?.map(item => `${item.productName ?? item.productSku ?? item.productId} × ${item.quantity}`).join(', ')
       ?? '—';
-  }
-
-  copyToClipboard(text: string): void {
-    navigator.clipboard.writeText(text).then(() => {
-      this.messageService.add({ severity: 'success', summary: 'Copied', detail: 'Copied to clipboard', life: 2000 });
-    });
   }
 
   private createItemForm(item?: OrderItem): FormGroup<OrderItemFormModel> {
@@ -405,12 +383,12 @@ export class OrdersPageComponent {
       case 'customer':
         return this.displayCustomer(order);
       case 'total':
-        return String(order.total ?? 0);
+        return String(order.totalAmount ?? 0);
     }
   }
 
   private getOrderId(order: Order): string | null {
-    return order.id ?? null;
+    return order.id ?? order.orderId ?? null;
   }
 
   private setOrderPage(response: OrderPage): void {

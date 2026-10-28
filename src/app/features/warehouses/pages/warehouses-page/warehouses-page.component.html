@@ -20,15 +20,9 @@
         </thead>
         <tbody>
           @if (loading()) {
-            <tr>
-              <td colspan="4" class="table-message">Loading warehouses…</td>
-            </tr>
+            <tr><td colspan="4" class="table-message">Loading warehouses…</td></tr>
           } @else if (warehouses().length === 0) {
-            <tr>
-              <td colspan="4" class="table-message">
-                No warehouses found. Add your first warehouse to get started.
-              </td>
-            </tr>
+            <tr><td colspan="4" class="table-message">No warehouses found. Add your first warehouse to get started.</td></tr>
           } @else {
             @for (warehouse of visibleWarehouses(); track warehouse.id) {
               <tr>
@@ -90,9 +84,7 @@
       (click)="$event.stopPropagation()"
     >
       <div class="dialog-heading">
-        <h2 id="warehouse-dialog-title">
-          {{ editingWarehouseId() ? 'Edit warehouse' : 'Add warehouse' }}
-        </h2>
+        <h2 id="warehouse-dialog-title">{{ editingWarehouseId() ? 'Edit warehouse' : 'Add warehouse' }}</h2>
         <button type="button" class="icon-button" aria-label="Close dialog" (click)="closeDialog()">
           <i class="pi pi-times" aria-hidden="true"></i>
         </button>
@@ -102,31 +94,23 @@
           <label>
             Name
             <input type="text" formControlName="name" autocomplete="organization" />
-            @if (warehouseForm.invalid && warehouseForm.touched) {
-              <p class="form-hint">Warehouse name is required.</p>
-            }
           </label>
           <label>
             Location
             <input type="text" formControlName="location" autocomplete="street-address" />
-            @if (warehouseForm.invalid && warehouseForm.touched) {
-              <p class="form-hint">Warehouse location is required.</p>
-            }
           </label>
           <label class="active-checkbox">
             <input type="checkbox" formControlName="isActive" />
             Active warehouse
           </label>
         </div>
-        <!-- @if (warehouseForm.invalid && warehouseForm.touched) {
+        @if (warehouseForm.invalid && warehouseForm.touched) {
           <p class="form-hint">Enter a warehouse name and location.</p>
-        } -->
+        }
         <div class="dialog-actions">
-          <button type="button" class="button button-secondary" (click)="closeDialog()">
-            Cancel
-          </button>
+          <button type="button" class="button button-secondary" (click)="closeDialog()">Cancel</button>
           <button type="submit" class="button button-primary" [disabled]="saving()">
-            {{ saving() ? 'Saving…' : editingWarehouseId() ? 'Save changes' : 'Create warehouse' }}
+            {{ saving() ? 'Saving…' : (editingWarehouseId() ? 'Save changes' : 'Create warehouse') }}
           </button>
         </div>
       </form>
@@ -148,20 +132,10 @@
       </div>
       <p>Are you sure you want to delete {{ warehouse.name }}? This action cannot be undone.</p>
       <div class="dialog-actions">
-        <button
-          type="button"
-          class="button button-secondary"
-          [disabled]="saving()"
-          (click)="cancelDelete()"
-        >
+        <button type="button" class="button button-secondary" [disabled]="saving()" (click)="cancelDelete()">
           Cancel
         </button>
-        <button
-          type="button"
-          class="button button-danger"
-          [disabled]="saving()"
-          (click)="confirmDelete()"
-        >
+        <button type="button" class="button button-danger" [disabled]="saving()" (click)="confirmDelete()">
           {{ saving() ? 'Deleting…' : 'Delete warehouse' }}
         </button>
       </div>

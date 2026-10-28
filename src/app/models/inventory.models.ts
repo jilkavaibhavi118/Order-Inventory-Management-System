@@ -83,7 +83,7 @@ export interface ProductRequest {
 export interface InventoryAdjustmentRequest {
   productId: string;
   warehouseId: string;
-  quantity?: number;
+  quantity: number;
   adjustmentType: string;
   reason: string;
 }

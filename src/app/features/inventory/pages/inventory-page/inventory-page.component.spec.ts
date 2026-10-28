@@ -1,9 +1,7 @@
-import { HttpErrorResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { PLATFORM_ID } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { MessageService } from 'primeng/api';
-import { of, throwError } from 'rxjs';
+import { of } from 'rxjs';
 import { vi } from 'vitest';
 import { InventoryService } from '../../../../core/services/inventory.service';
 import { InventoryPageComponent } from './inventory-page.component';
@@ -19,12 +17,9 @@ describe('InventoryPageComponent', () => {
     getInventoryRecord: ReturnType<typeof vi.fn>;
     getInventoryTransactions: ReturnType<typeof vi.fn>;
     getInventoryTransaction: ReturnType<typeof vi.fn>;
-    adjustInventory: ReturnType<typeof vi.fn>;
   };
-  const messageService = { add: vi.fn() };
 
   beforeEach(async () => {
-    messageService.add.mockClear();
     inventoryService = {
       getInventory: vi.fn().mockReturnValue(of({
         page: 1,
@@ -49,8 +44,7 @@ describe('InventoryPageComponent', () => {
         totalCount: 0,
         transactions: []
       })),
-      getInventoryTransaction: vi.fn().mockReturnValue(of({ id: 'transaction-id' })),
-      adjustInventory: vi.fn().mockReturnValue(of(null))
+      getInventoryTransaction: vi.fn().mockReturnValue(of({ id: 'transaction-id' }))
     };
 
     await TestBed.configureTestingModule({
@@ -58,7 +52,6 @@ describe('InventoryPageComponent', () => {
       providers: [
         provideRouter([]),
         { provide: InventoryService, useValue: inventoryService },
-        { provide: MessageService, useValue: messageService },
         { provide: PLATFORM_ID, useValue: 'browser' }
       ]
     }).compileComponents();
@@ -143,62 +136,5 @@ describe('InventoryPageComponent', () => {
       fromDate: undefined,
       toDate: undefined
     });
-  });
-
-  it('sends an adjustment and displays the API success message in a toast', () => {
-    inventoryService.adjustInventory.mockReturnValueOnce(of({ message: 'Stock adjusted successfully.' }));
-    component.adjustmentForm.patchValue({
-      productId: 'product-id',
-      warehouseId: 'warehouse-id',
-      quantity: 50,
-      adjustmentType: 'IN',
-      reason: 'Stock received'
-    });
-
-    component.adjustStock();
-
-    expect(inventoryService.adjustInventory).toHaveBeenCalledWith({
-      productId: 'product-id',
-      warehouseId: 'warehouse-id',
-      quantity: 50,
-      adjustmentType: 'IN',
-      reason: 'Stock received'
-    });
-    expect(messageService.add).toHaveBeenCalledWith(expect.objectContaining({
-      severity: 'success',
-      detail: 'Stock adjusted successfully.'
-    }));
-  });
-
-  it('shows backend validation errors in a toast and omits optional quantity', () => {
-    inventoryService.adjustInventory.mockReturnValueOnce(throwError(() => new HttpErrorResponse({
-      status: 400,
-      error: {
-        title: 'One or more validation errors occurred.',
-        errors: {
-          AdjustmentType: ['The adjustment type is invalid.']
-        }
-      }
-    })));
-    component.adjustmentForm.patchValue({
-      productId: 'product-id',
-      warehouseId: 'warehouse-id',
-      quantity: null,
-      adjustmentType: 'IN',
-      reason: 'Stock received'
-    });
-
-    component.adjustStock();
-
-    expect(inventoryService.adjustInventory).toHaveBeenCalledWith({
-      productId: 'product-id',
-      warehouseId: 'warehouse-id',
-      adjustmentType: 'IN',
-      reason: 'Stock received'
-    });
-    expect(messageService.add).toHaveBeenCalledWith(expect.objectContaining({
-      severity: 'error',
-      detail: 'The adjustment type is invalid.'
-    }));
   });
 });

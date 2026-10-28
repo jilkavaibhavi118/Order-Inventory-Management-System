@@ -34,14 +34,13 @@
       <table>
         <thead>
           <tr>
-            <th>Order No</th>
+            <th>Order</th>
             <th><button type="button" class="sort-button" (click)="sortBy('customer')">Customer <i class="pi pi-sort-alt" aria-hidden="true"></i></button></th>
             <th>Warehouse</th>
             <th>Items</th>
-            <th><button type="button" class="sort-button" (click)="sortBy('orderDate')">Created At <i class="pi pi-sort-alt" aria-hidden="true"></i></button></th>
+            <th><button type="button" class="sort-button" (click)="sortBy('orderDate')">Date <i class="pi pi-sort-alt" aria-hidden="true"></i></button></th>
             <th><button type="button" class="sort-button" (click)="sortBy('total')">Total <i class="pi pi-sort-alt" aria-hidden="true"></i></button></th>
             <th><button type="button" class="sort-button" (click)="sortBy('status')">Status <i class="pi pi-sort-alt" aria-hidden="true"></i></button></th>
-            <th>Order</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -51,32 +50,15 @@
           } @else if (orders().length === 0) {
             <tr><td colspan="8" class="table-message">No orders found. Create an order to get started.</td></tr>
           } @else {
-            @for (order of sortedOrders(); track order.id ?? $index) {
+            @for (order of sortedOrders(); track order.id ?? order.orderId ?? $index) {
               <tr>
-                <td>{{order.orderNo}}</td>
+                <td class="order-id">{{ displayOrderId(order) }}</td>
                 <td>{{ displayCustomer(order) }}</td>
                 <td>{{ displayWarehouse(order) }}</td>
                 <td class="items-cell">{{ displayItems(order) }}</td>
                 <td>{{ displayOrderDate(order) }}</td>
-                <td>{{ order.total === undefined ? '—' : (order.total | number:'1.2-2') }}</td>
+                <td>{{ order.totalAmount === undefined ? '—' : (order.totalAmount | number:'1.2-2') }}</td>
                 <td><span class="status-pill">{{ order.status || '—' }}</span></td>
-                <td class="order-id">
-                  @if (order.id) {
-                    <span>{{ order.id }}</span>
-                    <button
-                      pButton
-                      type="button"
-                      icon="pi pi-copy"
-                      class="p-button-rounded p-button-text p-button-sm order-id-copy"
-                      [attr.aria-label]="'Copy order ID ' + order.id"
-                      pTooltip="Copy Order ID"
-                      tooltipPosition="top"
-                      (click)="copyToClipboard(order.id)"
-                    ></button>
-                  } @else {
-                    <span>-</span>
-                  }
-                </td>
                 <td>
                   <div class="row-actions">
                     <button type="button" class="icon-button" [disabled]="saving() || loading()" [attr.aria-label]="'Edit ' + displayOrderId(order)" (click)="openEditOrder(order)">

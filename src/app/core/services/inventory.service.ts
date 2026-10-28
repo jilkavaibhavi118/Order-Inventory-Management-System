@@ -84,8 +84,8 @@ export class InventoryService {
     return this.http.get<LowStockRecord[]>(`${this.apiUrl}/api/Inventory/low-stock`);
   }
 
-  adjustInventory(request: InventoryAdjustmentRequest): Observable<unknown> {
-    return this.http.post<unknown>(`${this.apiUrl}/api/Inventory/adjust`, request);
+  adjustInventory(request: InventoryAdjustmentRequest): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/api/Inventory/adjust`, request);
   }
 
   getProducts(): Observable<Product[]> {

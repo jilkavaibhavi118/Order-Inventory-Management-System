@@ -4,7 +4,6 @@ import { isPlatformBrowser, CommonModule } from '@angular/common';
 import { Component, inject, OnDestroy, PLATFORM_ID, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { MessageService } from 'primeng/api';
 import type { PaginatorState } from 'primeng/types/paginator';
 import { finalize, Subscription } from 'rxjs';
 import {
@@ -21,13 +20,12 @@ import { InventoryService } from '../../../../core/services/inventory.service';
 @Component({
   selector: 'app-inventory-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, PaginatorModule],
+  imports: [CommonModule, ReactiveFormsModule, PaginatorModule ],
   templateUrl: './inventory-page.component.html',
   styleUrl: './inventory-page.component.scss'
 })
 export class InventoryPageComponent implements OnDestroy {
   private readonly inventoryService = inject(InventoryService);
-  private readonly messageService = inject(MessageService);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -45,6 +43,7 @@ export class InventoryPageComponent implements OnDestroy {
   readonly lowStockLoading = signal(false);
   readonly saving = signal(false);
   readonly adjustmentDialogOpen = signal(false);
+  readonly notice = signal<{ type: 'success' | 'error'; message: string } | null>(null);
   readonly detailRecord = signal<InventoryRecord | null>(null);
   readonly detailPayload = signal<unknown>(null);
   readonly detailLoading = signal(false);
@@ -77,7 +76,7 @@ export class InventoryPageComponent implements OnDestroy {
   readonly adjustmentForm = new FormGroup({
     productId: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
     warehouseId: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-    quantity: new FormControl<number | null>(1, { validators: [Validators.min(1)] }),
+    quantity: new FormControl(1, { nonNullable: true, validators: [Validators.required, Validators.min(1)] }),
     adjustmentType: new FormControl('', {
       nonNullable: true,
       validators: [Validators.required, Validators.maxLength(20)]
@@ -386,23 +385,14 @@ export class InventoryPageComponent implements OnDestroy {
       return;
     }
 
-    const { quantity, ...requiredFields } = this.adjustmentForm.getRawValue();
-    const request: InventoryAdjustmentRequest = {
-      ...requiredFields,
-      ...(quantity === null ? {} : { quantity })
-    };
+    const request: InventoryAdjustmentRequest = this.adjustmentForm.getRawValue();
     this.saving.set(true);
     this.inventoryService.adjustInventory(request)
       .pipe(finalize(() => this.saving.set(false)))
       .subscribe({
-        next: response => {
+        next: () => {
           this.closeAdjustment();
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Inventory updated',
-            detail: this.getResponseMessage(response) ?? 'Inventory adjustment recorded.',
-            life: 4000
-          });
+          this.showNotice('success', 'Inventory adjustment recorded.');
           this.loadInventory();
           this.loadLowStock();
           if (this.activeTab() === 'movements') {
@@ -415,6 +405,10 @@ export class InventoryPageComponent implements OnDestroy {
 
 
 
+  dismissNotice(): void {
+    this.notice.set(null);
+  }
+
   private loadWarehouses(): void {
     this.inventoryService.getWarehouses().subscribe({
       next: response => this.warehouses.set(response),
@@ -422,75 +416,46 @@ export class InventoryPageComponent implements OnDestroy {
     });
   }
 
+  private showNotice(type: 'success' | 'error', message: string): void {
+    this.notice.set({ type, message });
+  }
+
   private showApiError(error: unknown): void {
     const message = this.getApiMessage(error);
-    this.messageService.add({
-      severity: 'error',
-      summary: 'Request failed',
-      detail: message ?? 'Unable to complete the request. Please try again.',
-      life: 5000
-    });
+    if (message) {
+      this.showNotice('error', message);
+    }
   }
 
   private getApiMessage(error: unknown): string | null {
-    if (!(error instanceof HttpErrorResponse)) {
+    if (!(error instanceof HttpErrorResponse) || error.status === 0) {
       return null;
     }
 
-    if (error.status === 0) {
-      return 'Unable to reach the server. Check your connection and try again.';
-    }
-
-    return this.extractResponseMessage(error.error);
-  }
-
-  private getResponseMessage(response: unknown): string | null {
-    return this.extractResponseMessage(response);
-  }
-
-  private extractResponseMessage(response: unknown): string | null {
-    if (typeof response === 'string') {
-      const text = response.trim();
-      if (!text) {
-        return null;
-      }
-
+    const body: unknown = error.error;
+    if (typeof body === 'string') {
+      const responseText = body.trim();
       try {
-        return this.extractResponseMessage(JSON.parse(text));
+        const parsed: unknown = JSON.parse(responseText);
+        if (typeof parsed === 'string' && parsed.trim()) {
+          return parsed;
+        }
+        if (typeof parsed === 'object' && parsed !== null && 'message' in parsed) {
+          const message = parsed.message;
+          return typeof message === 'string' && message.trim() ? message : null;
+        }
+        return null;
       } catch {
-        return text.startsWith('<') ? null : text;
+        return responseText.startsWith('<') ? null : responseText || null;
       }
     }
 
-    if (Array.isArray(response)) {
-      const messages = response
-        .map(value => this.extractResponseMessage(value))
-        .filter((message): message is string => Boolean(message));
-      return messages.length ? [...new Set(messages)].join(' ') : null;
-    }
-
-    if (typeof response !== 'object' || response === null) {
+    if (typeof body !== 'object' || body === null || !('message' in body)) {
       return null;
     }
 
-    if ('errors' in response) {
-      const message = this.extractResponseMessage(response.errors);
-      if (message) {
-        return message;
-      }
-    }
-
-    for (const key of ['message', 'detail', 'title'] as const) {
-      const value = key in response ? response[key] : null;
-      if (typeof value === 'string' && value.trim()) {
-        return value.trim();
-      }
-    }
-
-    const nestedMessages = Object.values(response)
-      .map(value => this.extractResponseMessage(value))
-      .filter((message): message is string => Boolean(message));
-    return nestedMessages.length ? [...new Set(nestedMessages)].join(' ') : null;
+    const message = body.message;
+    return typeof message === 'string' && message.trim() ? message : null;
   }
 
 

@@ -36,7 +36,7 @@ export interface OrderItem {
 
 export interface Order {
   id?: string;
-  orderNo?: string;
+  orderId?: string;
   customerId: string;
   customerName?: string;
   warehouseId: string;
@@ -44,7 +44,7 @@ export interface Order {
   status?: string;
   orderDate?: string;
   createdAt?: string;
-  total?: number;
+  totalAmount?: number;
   items?: OrderItem[];
 }
 

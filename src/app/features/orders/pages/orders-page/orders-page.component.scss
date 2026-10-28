@@ -202,13 +202,11 @@ td {
 }
 
 .order-id {
-  white-space: nowrap;
+  max-width: 11rem;
+  overflow: hidden;
   color: var(--color-heading);
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-}
-
-.order-id-copy {
-  margin-left: 0.35rem;
+  text-overflow: ellipsis;
 }
 
 .items-cell {

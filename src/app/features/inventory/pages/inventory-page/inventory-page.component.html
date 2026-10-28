@@ -341,18 +341,16 @@
       <p class="dialog-description">Record a stock change for a product and active warehouse.</p>
       <form [formGroup]="adjustmentForm" (ngSubmit)="adjustStock()">
         <div class="form-grid">
-          <label class="full-width">
-            Product <span class="required-indicator" aria-hidden="true">*</span>
-            <select formControlName="productId" required aria-required="true">
+          <label class="full-width">Product
+            <select formControlName="productId">
               <option value="">Choose a product</option>
               @for (product of products(); track product.id) {
                 <option [value]="product.id">{{ product.name }} ({{ product.sku }})</option>
               }
             </select>
           </label>
-          <label class="full-width">
-            Warehouse <span class="required-indicator" aria-hidden="true">*</span>
-            <select formControlName="warehouseId" required aria-required="true">
+          <label class="full-width">Warehouse
+            <select formControlName="warehouseId">
               <option value="">Choose a warehouse</option>
               @for (warehouse of warehouses(); track warehouse.id) {
                 @if (warehouse.isActive) {
@@ -364,20 +362,18 @@
           <label>Quantity
             <input type="number" min="1" step="1" formControlName="quantity" />
           </label>
-          <label>
-            Adjustment type (API value) <span class="required-indicator" aria-hidden="true">*</span>
-            <input type="text" maxlength="20" placeholder="Enter backend adjustment type" formControlName="adjustmentType" required aria-required="true" />
+          <label>Adjustment type (API value)
+            <input type="text" maxlength="20" placeholder="Enter backend adjustment type" formControlName="adjustmentType" />
           </label>
-          <label class="full-width">
-            Reason <span class="required-indicator" aria-hidden="true">*</span>
-            <textarea rows="3" maxlength="250" formControlName="reason" required aria-required="true"></textarea>
+          <label class="full-width">Reason
+            <textarea rows="3" maxlength="250" formControlName="reason"></textarea>
           </label>
         </div>
         @if (warehouses().length === 0) {
           <p class="form-hint error-text">No active warehouses are available. Add or activate a warehouse before adjusting stock.</p>
         }
         @if (adjustmentForm.invalid && adjustmentForm.touched) {
-          <p class="form-hint error-text">Complete all required fields. Quantity must be at least 1 when provided, and reason must be at least 3 characters.</p>
+          <p class="form-hint error-text">Complete all required fields. Quantity must be at least 1 and reason at least 3 characters.</p>
         }
         <div class="dialog-actions">
           <button type="button" class="button button-secondary" (click)="closeAdjustment()">Cancel</button>
