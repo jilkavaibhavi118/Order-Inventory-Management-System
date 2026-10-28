@@ -34,6 +34,8 @@ export interface Product {
   minStock: number;
   isActive: boolean;
   createdAt?: string;
+  description?: string | null;
+  imageUrl?: string | null;
 }
 
 export interface Supplier {
@@ -42,6 +44,7 @@ export interface Supplier {
   email?: string;
   phone?: string;
   address?: string;
+  createdAt?: string;
 }
 
 export interface SupplierRequest {
@@ -78,6 +81,7 @@ export interface ProductRequest {
   sellPrice: number;
   minStock: number;
   isActive: boolean;
+  description?: string | null;
 }
 
 export interface InventoryAdjustmentRequest {

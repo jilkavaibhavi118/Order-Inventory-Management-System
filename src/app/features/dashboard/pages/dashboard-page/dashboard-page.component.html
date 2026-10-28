@@ -5,10 +5,6 @@
       <p class="page-description">A clear view of your products, orders, warehouses, and stock alerts.</p>
     </div>
     <div class="heading-actions">
-      <button type="button" class="button button-secondary" (click)="refresh()">
-        <i class="pi pi-refresh" aria-hidden="true"></i>
-        Refresh
-      </button>
       <a class="button button-secondary" routerLink="/inventory">
         <i class="pi pi-sliders-h" aria-hidden="true"></i>
         Adjust stock
@@ -25,9 +21,7 @@
       <span class="summary-icon icon-purple"><i class="pi pi-box" aria-hidden="true"></i></span>
       <a class="summary-copy" routerLink="/products">
         <span class="summary-label">Total products</span>
-        @if (productsLoading()) {
-          <span class="summary-value">Loading…</span>
-        } @else if (productsError()) {
+        @if (productsError()) {
           <span class="summary-error">{{ productsError() }}</span>
         } @else {
           <strong class="summary-value">{{ productsCount() }}</strong>
@@ -41,9 +35,7 @@
       <span class="summary-icon icon-green"><i class="pi pi-shopping-cart" aria-hidden="true"></i></span>
       <a class="summary-copy" routerLink="/orders">
         <span class="summary-label">Total orders</span>
-        @if (ordersLoading()) {
-          <span class="summary-value">Loading…</span>
-        } @else if (ordersError()) {
+        @if (ordersError()) {
           <span class="summary-error">{{ ordersError() }}</span>
         } @else {
           <strong class="summary-value">{{ ordersCount() }}</strong>
@@ -57,9 +49,7 @@
       <span class="summary-icon icon-blue"><i class="pi pi-warehouse" aria-hidden="true"></i></span>
       <a class="summary-copy" routerLink="/warehouses">
         <span class="summary-label">Warehouses</span>
-        @if (warehousesLoading()) {
-          <span class="summary-value">Loading…</span>
-        } @else if (warehousesError()) {
+        @if (warehousesError()) {
           <span class="summary-error">{{ warehousesError() }}</span>
         } @else {
           <strong class="summary-value">{{ warehousesCount() }}</strong>
@@ -73,9 +63,7 @@
       <span class="summary-icon icon-amber"><i class="pi pi-exclamation-triangle" aria-hidden="true"></i></span>
       <a class="summary-copy" routerLink="/inventory">
         <span class="summary-label">Low-stock products</span>
-        @if (lowStockLoading()) {
-          <span class="summary-value">Loading…</span>
-        } @else if (lowStockError()) {
+        @if (lowStockError()) {
           <span class="summary-error">{{ lowStockError() }}</span>
         } @else {
           <strong class="summary-value">{{ lowStockCount() }}</strong>
@@ -96,9 +84,7 @@
         </div>
         <a routerLink="/inventory">View inventory</a>
       </header>
-      @if (lowStockLoading()) {
-        <p class="panel-message">Loading low-stock products…</p>
-      } @else if (lowStockError()) {
+      @if (lowStockError()) {
         <div class="panel-message error-state">
           <p>{{ lowStockError() }}</p>
           <button type="button" class="button button-secondary" (click)="retryLowStock()">Retry</button>
@@ -136,9 +122,7 @@
         </div>
         <a routerLink="/inventory" [queryParams]="{ tab: 'movements' }">View all movements</a>
       </header>
-      @if (transactionsLoading()) {
-        <p class="panel-message">Loading stock movements…</p>
-      } @else if (transactionsError()) {
+      @if (transactionsError()) {
         <div class="panel-message error-state">
           <p>{{ transactionsError() }}</p>
           <button type="button" class="button button-secondary" (click)="retryTransactions()">Retry</button>

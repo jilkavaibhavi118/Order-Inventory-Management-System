@@ -107,4 +107,23 @@ describe('OrdersPageComponent', () => {
       toDate: undefined
     });
   });
+
+  it('uses the confirmation dialog before deleting an order', () => {
+    const order = {
+      id: 'order-id',
+      customerId: customerId,
+      warehouseId: 'warehouse-id'
+    };
+
+    component.deleteOrder(order);
+    fixture.detectChanges();
+
+    expect(component.orderPendingDeletion()).toBe(order);
+    expect(fixture.nativeElement.querySelector('[role="alertdialog"]')).not.toBeNull();
+
+    component.confirmDeleteOrder();
+
+    expect(mockOrdersService.deleteOrder).toHaveBeenCalledWith('order-id');
+    expect(component.orderPendingDeletion()).toBeNull();
+  });
 });

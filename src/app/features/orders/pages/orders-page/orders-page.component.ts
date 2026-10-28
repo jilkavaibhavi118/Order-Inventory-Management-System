@@ -51,6 +51,7 @@ export class OrdersPageComponent {
   readonly sortDirection = signal<'asc' | 'desc'>('desc');
   readonly orderDialogOpen = signal(false);
   readonly statusDialogOpen = signal(false);
+  readonly orderPendingDeletion = signal<Order | null>(null);
   readonly editingOrderId = signal<string | null>(null);
   readonly statusOrderId = signal<string | null>(null);
 
@@ -317,14 +318,23 @@ export class OrdersPageComponent {
   }
 
   deleteOrder(order: Order): void {
-    const id = this.getOrderId(order);
-    if (!id) {
-      return;
+    if (this.getOrderId(order)) {
+      this.orderPendingDeletion.set(order);
     }
-    if (!window.confirm(`Delete order ${this.displayOrderId(order)}? This cannot be undone.`)) {
+  }
+
+  cancelDeleteOrder(): void {
+    this.orderPendingDeletion.set(null);
+  }
+
+  confirmDeleteOrder(): void {
+    const order = this.orderPendingDeletion();
+    const id = order ? this.getOrderId(order) : null;
+    if (!order || !id || this.saving()) {
       return;
     }
 
+    this.orderPendingDeletion.set(null);
     this.saving.set(true);
     this.ordersService.deleteOrder(id)
       .pipe(finalize(() => this.saving.set(false)))

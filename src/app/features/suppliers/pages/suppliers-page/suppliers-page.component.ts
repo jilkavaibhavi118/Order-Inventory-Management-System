@@ -134,6 +134,25 @@ export class SuppliersPageComponent {
     this.supplierPendingDeletion.set(null);
   }
 
+  formatDate(value?: string): string {
+    if (!value) {
+      return '—';
+    }
+
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) {
+      return '—';
+    }
+
+    return new Intl.DateTimeFormat(undefined, {
+      year: 'numeric',
+      month: 'short',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    }).format(date);
+  }
+
   confirmDelete(): void {
     const supplier = this.supplierPendingDeletion();
     if (!supplier || this.saving()) {

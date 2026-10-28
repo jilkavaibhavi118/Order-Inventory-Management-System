@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { of } from 'rxjs';
@@ -33,6 +34,7 @@ describe('ProductsPageComponent', () => {
       imports: [ProductsPageComponent],
       providers: [
         provideRouter([]),
+        provideHttpClient(),
         { provide: InventoryService, useValue: mockInventoryService },
         { provide: MessageService, useValue: messageService }
       ]
@@ -58,21 +60,18 @@ describe('ProductsPageComponent', () => {
       costPrice: 5,
       sellPrice: 10,
       minStock: 2,
+      description: '',
       isActive: true
     });
 
     component.saveProduct();
 
-    expect(mockInventoryService.createProduct).toHaveBeenCalledWith({
-      sku: 'SKU-100',
-      name: 'Sample item',
-      category: 'General',
-      supplierId: 'supplier-id',
-      costPrice: 5,
-      sellPrice: 10,
-      minStock: 2,
-      isActive: true
-    });
+    const submittedData = mockInventoryService.createProduct.mock.calls[0][0] as FormData;
+    expect(submittedData).toBeInstanceOf(FormData);
+    expect(submittedData.get('SKU')).toBe('SKU-100');
+    expect(submittedData.get('Name')).toBe('Sample item');
+    expect(submittedData.get('Description')).toBe('');
+    expect(submittedData.get('IsActive')).toBe('true');
     expect(messageService.add).toHaveBeenCalledWith(expect.objectContaining({
       severity: 'success',
       detail: 'Product created successfully.'
