@@ -92,11 +92,11 @@ export class InventoryService {
     return this.http.get<Product[]>(`${this.apiUrl}/api/Product`);
   }
 
-  createProduct(request: ProductRequest): Observable<ApiResult<null>> {
+  createProduct(request: ProductRequest | FormData): Observable<ApiResult<null>> {
     return this.http.post<ApiResult<null>>(`${this.apiUrl}/api/Product`, request);
   }
 
-  updateProduct(id: string, request: ProductRequest): Observable<ApiResult<null>> {
+  updateProduct(id: string, request: ProductRequest | FormData): Observable<ApiResult<null>> {
     return this.http.put<ApiResult<null>>(`${this.apiUrl}/api/Product/${encodeURIComponent(id)}`, request);
   }
 

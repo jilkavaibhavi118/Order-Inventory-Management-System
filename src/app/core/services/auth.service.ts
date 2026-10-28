@@ -42,6 +42,12 @@ export class AuthService {
       window.sessionStorage.removeItem(this.accessTokenKey);
       window.localStorage.removeItem(this.userIdKey);
       window.sessionStorage.removeItem(this.userIdKey);
+      window.localStorage.removeItem('customer-token');
+      window.sessionStorage.removeItem('customer-token');
+      window.localStorage.removeItem('customer-user-id');
+      window.sessionStorage.removeItem('customer-user-id');
+      window.localStorage.removeItem('customer-user-name');
+      window.sessionStorage.removeItem('customer-user-name');
     }
   }
 
@@ -55,7 +61,8 @@ export class AuthService {
       tap(response => this.storeAuth(
         response.data.token,
         response.data.userId,
-        credentials.rememberMe
+        credentials.rememberMe,
+        credentials.email
       ))
     );
   }
@@ -81,7 +88,7 @@ export class AuthService {
     );
   }
 
-  private storeAuth(token: string, userId: string, rememberMe: boolean): void {
+  private storeAuth(token: string, userId: string, rememberMe: boolean, email: string): void {
     this.accessToken.set(token);
     this.currentUserId.set(userId);
     if (typeof window === 'undefined') {
@@ -94,6 +101,14 @@ export class AuthService {
     persistentStorage.setItem(this.userIdKey, userId);
     temporaryStorage.removeItem(this.accessTokenKey);
     temporaryStorage.removeItem(this.userIdKey);
+
+    // Keep customer-panel authentication compatible with the shared login.
+    persistentStorage.setItem('customer-token', token);
+    persistentStorage.setItem('customer-user-id', userId);
+    persistentStorage.setItem('customer-user-name', email.split('@')[0] || email);
+    temporaryStorage.removeItem('customer-token');
+    temporaryStorage.removeItem('customer-user-id');
+    temporaryStorage.removeItem('customer-user-name');
   }
 
   private readStoredToken(): string | null {

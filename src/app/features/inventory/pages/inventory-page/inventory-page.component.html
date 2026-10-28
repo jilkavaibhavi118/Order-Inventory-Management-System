@@ -66,9 +66,7 @@
           </tr>
         </thead>
         <tbody>
-          @if (inventoryLoading()) {
-            <tr><td colspan="7" class="table-message">Loading inventory…</td></tr>
-          } @else if (inventory().length === 0) {
+          @if (inventory().length === 0) {
             <tr>
               <td colspan="7" class="table-message">
                 <span class="empty-icon"><i class="pi pi-inbox" aria-hidden="true"></i></span>
@@ -132,9 +130,7 @@
       </div>
       <span class="count-badge">{{ lowStock().length }}</span>
     </div>
-    @if (lowStockLoading()) {
-      <p class="inline-message">Loading low-stock products…</p>
-    } @else if (lowStock().length === 0) {
+    @if (lowStock().length === 0) {
       <p class="inline-message">No low-stock products reported.</p>
     } @else {
       <div class="low-stock-list">
@@ -215,9 +211,7 @@
             </tr>
           </thead>
           <tbody>
-            @if (transactionsLoading()) {
-              <tr><td colspan="6" class="table-message">Loading stock movements…</td></tr>
-            } @else if (transactionsError()) {
+            @if (transactionsError()) {
               <tr>
                 <td colspan="6" class="table-message error-state">
                   {{ transactionsError() }}
@@ -290,9 +284,7 @@
           <i class="pi pi-times" aria-hidden="true"></i>
         </button>
       </div>
-      @if (detailLoading()) {
-        <p class="inline-message" role="status">Loading inventory details…</p>
-      } @else if (detailError()) {
+      @if (detailError()) {
         <div class="details-error" role="alert">
           <p>{{ detailError() }}</p>
           <button type="button" class="button button-secondary" (click)="retryInventoryDetails()">Retry</button>
@@ -324,9 +316,7 @@
           <i class="pi pi-times" aria-hidden="true"></i>
         </button>
       </div>
-      @if (transactionDetailsLoading()) {
-        <p class="inline-message" role="status">Loading movement details…</p>
-      } @else if (transactionDetailsError()) {
+      @if (transactionDetailsError()) {
         <div class="details-error" role="alert">
           <p>{{ transactionDetailsError() }}</p>
           <button type="button" class="button button-secondary" (click)="retryTransactionDetails()">Retry</button>

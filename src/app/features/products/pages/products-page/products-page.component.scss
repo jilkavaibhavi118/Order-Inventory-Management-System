@@ -48,6 +48,15 @@
   }
 }
 
+.form-grid textarea {
+  min-height: 5.5rem;
+  resize: vertical;
+}
+
+.full-width-field {
+  grid-column: 1 / -1;
+}
+
 .active-checkbox {
   display: flex !important;
   align-items: center;

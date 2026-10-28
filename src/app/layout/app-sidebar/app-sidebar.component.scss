@@ -1,4 +1,7 @@
 :host {
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
   display: block;
   flex: 0 0 240px;
   width: 240px;
@@ -129,6 +132,10 @@
     background: var(--color-error-light);
     color: var(--color-error-text);
   }
+}
+
+:host-context([data-theme='dark']) {
+  background: #111827;
 }
 
 :host-context([data-theme='dark']) .sidebar {

@@ -17,6 +17,7 @@
       <table>
         <thead>
           <tr>
+            <th>Image</th>
             <th>Product</th>
             <th>SKU</th>
             <th>Category</th>
@@ -29,13 +30,26 @@
           </tr>
         </thead>
         <tbody>
-          @if (loading()) {
-            <tr><td colspan="9" class="table-message">Loading products…</td></tr>
-          } @else if (products().length === 0) {
-            <tr><td colspan="9" class="table-message">No products found. Add your first product to get started.</td></tr>
+          @if (products().length === 0) {
+            <tr><td colspan="10" class="table-message">No products found. Add your first product to get started.</td></tr>
           } @else {
             @for (product of visibleProducts(); track product.id) {
               <tr>
+                <td class="product-image-cell">
+                  @if (getProductImageUrl(product); as imageUrl) {
+                    <img
+                      class="product-image"
+                      [src]="imageUrl"
+                      [alt]="product.name"
+                      loading="lazy"
+                      (error)="hideBrokenImage($event)"
+                    />
+                  } @else {
+                    <div class="product-image-placeholder" aria-label="No image">
+                      <i class="pi pi-image" aria-hidden="true"></i>
+                    </div>
+                  }
+                </td>
                 <td class="product-name">{{ product.name }}</td>
                 <td><span class="sku">{{ product.sku }}</span></td>
                 <td>{{ product.category }}</td>
@@ -109,9 +123,7 @@
           <i class="pi pi-times" aria-hidden="true"></i>
         </button>
       </div>
-      @if (stockLoading()) {
-        <p class="stock-message" role="status">Loading product stock…</p>
-      } @else if (stockError()) {
+      @if (stockError()) {
         <div class="stock-error" role="alert">
           <p>{{ stockError() }}</p>
           <button type="button" class="button button-secondary" (click)="retryProductStock()">Retry</button>
@@ -159,6 +171,12 @@
           </label>
           <label>Minimum stock
             <input type="number" min="0" step="1" formControlName="minStock" />
+          </label>
+          <label class="full-width-field">Description
+            <textarea formControlName="description" rows="4" maxlength="1000" placeholder="Enter a product description"></textarea>
+          </label>
+          <label class="full-width-field">Product image
+            <input type="file" accept="image/*" (change)="onImageSelected($event)" />
           </label>
           <label class="active-checkbox">
             <input type="checkbox" formControlName="isActive" />

@@ -92,9 +92,7 @@
         </div>
         <a routerLink="/inventory">View inventory</a>
       </header>
-      @if (lowStockLoading()) {
-        <p class="panel-message">Loading low-stock products…</p>
-      } @else if (lowStockError()) {
+      @if (lowStockError()) {
         <div class="panel-message error-state">
           <p>{{ lowStockError() }}</p>
           <button type="button" class="button button-secondary" (click)="retryLowStock()">Retry</button>
@@ -132,9 +130,7 @@
         </div>
         <a routerLink="/inventory" [queryParams]="{ tab: 'movements' }">View all movements</a>
       </header>
-      @if (transactionsLoading()) {
-        <p class="panel-message">Loading stock movements…</p>
-      } @else if (transactionsError()) {
+      @if (transactionsError()) {
         <div class="panel-message error-state">
           <p>{{ transactionsError() }}</p>
           <button type="button" class="button button-secondary" (click)="retryTransactions()">Retry</button>

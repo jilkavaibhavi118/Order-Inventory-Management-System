@@ -25,10 +25,8 @@
           </tr>
         </thead>
         <tbody>
-          @if (loading()) {
-            <tr><td colspan="5" class="table-message">Loading suppliers…</td></tr>
-          } @else if (suppliers().length === 0) {
-            <tr><td colspan="5" class="table-message">No suppliers found.</td></tr>
+          @if (suppliers().length === 0) {
+            <tr><td colspan="6" class="table-message">No suppliers found.</td></tr>
           } @else {
             @for (supplier of visibleSuppliers(); track supplier.id) {
               <tr>

@@ -9,6 +9,11 @@
     <app-header (sidebarToggle)="toggleSidebar()" />
     <main class="workspace-content" id="main-content">
       <router-outlet />
+      @if (routeLoading()) {
+        <div class="route-loader" role="status" aria-label="Loading page">
+          <span class="route-spinner" aria-hidden="true"></span>
+        </div>
+      }
     </main>
   </div>
 </div>

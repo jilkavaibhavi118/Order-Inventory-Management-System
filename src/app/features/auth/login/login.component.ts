@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { AuthService } from '../../../core/services/auth.service';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -15,7 +15,6 @@ import { HttpErrorResponse } from '@angular/common/http';
 export class LoginComponent {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
-  private readonly route = inject(ActivatedRoute);
   private readonly messageService = inject(MessageService);
 
   // Local UI State Signals
@@ -100,11 +99,8 @@ export class LoginComponent {
           detail: response.message,
           life: 3000
         });
-        const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
-        const safeReturnUrl = returnUrl?.startsWith('/') && !returnUrl.startsWith('//')
-          ? returnUrl
-          : '/dashboard';
-        void this.router.navigateByUrl(safeReturnUrl);
+        // A successful sign-in always opens the workspace selector first.
+        void this.router.navigate(['/select-panel']);
       },
       error: (err) => {
         this.isLoading.set(false);
