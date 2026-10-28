@@ -1,12 +1,13 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/auth.guard';
+import { authGuard as customerAuthGuard } from './core/auth/auth.guard';
 import { MainLayoutComponent } from './layout/main-layout/main-layout.component';
 
 export const routes: Routes = [
   {
     path: '',
     pathMatch: 'full',
-    redirectTo: 'dashboard'
+    redirectTo: 'select-panel'
   },
   {
     path: 'login',
@@ -19,6 +20,13 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/auth/register/register.component').then(component => component.RegisterComponent),
     title: 'OrderFlow — Create Customer Account'
+  },
+  {
+    path: 'select-panel',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./customer/select-panel/select-panel.component').then(component => component.SelectPanelComponent),
+    title: 'OrderFlow — Select Workspace'
   },
   {
     path: '',
@@ -70,7 +78,39 @@ export const routes: Routes = [
     ]
   },
   {
+    path: '',
+    loadComponent: () =>
+      import('./customer/customer-layout/customer-layout.component').then(component => component.CustomerLayoutComponent),
+    canActivate: [customerAuthGuard],
+    children: [
+      {
+        path: 'shop',
+        loadComponent: () =>
+          import('./customer/customer-shop/customer-shop.component').then(component => component.CustomerShopComponent),
+        title: 'OrderFlow — Customer Marketplace'
+      },
+      {
+        path: 'cart',
+        loadComponent: () =>
+          import('./customer/customer-cart/customer-cart.component').then(component => component.CustomerCartComponent),
+        title: 'OrderFlow — Shopping Cart'
+      },
+      {
+        path: 'my-orders',
+        loadComponent: () =>
+          import('./customer/customer-orders/customer-orders.component').then(component => component.CustomerOrdersComponent),
+        title: 'OrderFlow — My Orders'
+      },
+      {
+        path: 'my-orders/:id',
+        loadComponent: () =>
+          import('./customer/customer-order-details/customer-order-details.component').then(component => component.CustomerOrderDetailComponent),
+        title: 'OrderFlow — Order Details'
+      }
+    ]
+  },
+  {
     path: '**',
-    redirectTo: 'dashboard'
+    redirectTo: 'select-panel'
   }
 ];

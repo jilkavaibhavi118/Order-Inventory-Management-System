@@ -70,18 +70,6 @@ import { AuthService } from '../../core/auth/auth.service';
         <router-outlet></router-outlet>
       </main>
 
-      <footer class="customer-footer">
-        <div class="footer-inner">
-          <div class="footer-left">
-            <span class="footer-logo"><i class="pi pi-box"></i> OrderFlow</span>
-            <p>Smart inventory verification & direct-from-warehouse order fulfillment.</p>
-          </div>
-          <div class="footer-right">
-            <span>Customer Portal &copy; 2026 OrderFlow System</span>
-          </div>
-        </div>
-      </footer>
-
       <p-toast position="top-right" />
 
       <p-popover #accountPopover styleClass="modern-account-popover">

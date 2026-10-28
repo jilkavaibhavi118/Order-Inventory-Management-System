@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Component, computed, inject, OnDestroy, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
@@ -16,6 +17,8 @@ import { CartService } from '../../core/services/cart.service';
 import { OrderService } from '../../core/services/order.service';
 import { ProductService } from '../../core/services/product.service';
 import { InventoryRecord, Product } from '../../core/models/product.model';
+import { environment } from '../../../environments/environment';
+import { Subscription } from 'rxjs';
 
 interface CategoryOption {
   label: string;
@@ -49,7 +52,7 @@ interface CategoryOption {
           </div>
           <h1>Explore Premium Products,<br /><span class="gradient-text">Delivered With Speed.</span></h1>
           <p>Real-time inventory verification across our nationwide logistics hubs. Add your favorite items to your cart or order instantly.</p>
-          
+
           <div class="hero-quick-stats">
             <div class="stat-pill">
               <i class="pi pi-check-circle"></i>
@@ -89,7 +92,7 @@ interface CategoryOption {
       <section class="catalog-section" aria-labelledby="catalog-title">
         <div class="catalog-heading">
           <div class="heading-title-group">
-            <span class="section-kicker">Curated Inventory</span>
+      
             <h2 id="catalog-title">All Products</h2>
           </div>
           <div class="heading-stats">
@@ -189,12 +192,16 @@ interface CategoryOption {
               <!-- Visual Art / Thumbnail with Monogram -->
               <div class="product-art" [class]="artClass(product)">
                 <div class="art-ambient-glow"></div>
-                <span class="art-category-pill">{{ product.category || 'General' }}</span>
-                <span class="art-sku-pill">SKU {{ product.sku }}</span>
-                
-                <div class="product-monogram">
-                  <span>{{ product.name.charAt(0) }}</span>
-                </div>
+
+
+
+                @if (getProductImageUrl(product); as imageUrl) {
+                  <img class="product-image" [src]="imageUrl" [alt]="product.name" (error)="hideBrokenImage($event)" />
+                } @else {
+                  <div class="product-monogram">
+                    <span>{{ product.name.charAt(0) }}</span>
+                  </div>
+                }
               </div>
 
               <!-- Product Details -->
@@ -205,7 +212,7 @@ interface CategoryOption {
 
                 <div class="product-meta-row">
                   <span class="product-category-text">{{ product.category || 'General' }}</span>
-                  
+
                   <!-- Stock Indicator Tag -->
                   @if (isStockLoading(product)) {
                     <p-skeleton width="4.5rem" height="1.35rem" borderRadius="999px" />
@@ -222,6 +229,10 @@ interface CategoryOption {
                     </span>
                   }
                 </div>
+
+                @if (product.description?.trim()) {
+                  <p class="product-description">{{ product.description }}</p>
+                }
 
                 <!-- Price and Subtotal Preview -->
                 <div class="product-pricing">
@@ -266,7 +277,7 @@ interface CategoryOption {
                     type="button"
                     class="action-btn buy-now-btn"
                     [disabled]="!canPurchase(product) || isBuying(product)"
-                    (click)="buyNow(product)"
+                    (click)="requestBuyNow(product)"
                     title="1-click checkout"
                   >
                     <i [class]="isBuying(product) ? 'pi pi-spin pi-spinner' : 'pi pi-bolt'" aria-hidden="true"></i>
@@ -278,6 +289,54 @@ interface CategoryOption {
           }
         </div>
       }
+
+      <!-- Buy Now Confirmation -->
+      <p-dialog
+        [visible]="buyConfirmationVisible()"
+        (visibleChange)="buyConfirmationVisible.set($event)"
+        [modal]="true"
+        [draggable]="false"
+        [resizable]="false"
+        [style]="{ width: 'min(92vw, 28rem)' }"
+        styleClass="buy-confirmation-dialog"
+        header="Confirm Purchase"
+      >
+        @if (buyConfirmationProduct(); as product) {
+          <div class="buy-confirmation-content">
+            <span class="buy-confirmation-icon" aria-hidden="true">
+              <i class="pi pi-shopping-bag"></i>
+            </span>
+            <div class="buy-confirmation-copy">
+              <strong>{{ product.name }}</strong>
+              <span>SKU: {{ product.sku }}</span>
+              <p>Do you want to place an order for 1 unit of this product?</p>
+            </div>
+            <div class="buy-confirmation-total">
+              <span>Total</span>
+              <strong>{{ product.sellPrice ?? 0 | currency:'INR':'symbol':'1.2-2' }}</strong>
+            </div>
+          </div>
+
+          <ng-template #footer>
+            <div class="buy-confirmation-actions">
+              <p-button
+                label="Cancel"
+                [text]="true"
+                severity="secondary"
+                [disabled]="isBuying(product)"
+                (onClick)="cancelBuyNow()"
+              />
+              <p-button
+                label="Confirm Purchase"
+                icon="pi pi-check"
+                [loading]="isBuying(product)"
+                [disabled]="isBuying(product)"
+                (onClick)="confirmBuyNow()"
+              />
+            </div>
+          </ng-template>
+        }
+      </p-dialog>
 
       <!-- Product Quick-View Modal -->
       <p-dialog
@@ -305,13 +364,20 @@ interface CategoryOption {
           } @else {
             <div class="modal-product-content">
               <div class="modal-art-box" [class]="artClass(product)">
-                <span class="modal-monogram">{{ product.name.charAt(0) }}</span>
+                @if (getProductImageUrl(product); as imageUrl) {
+                  <img class="modal-product-image" [src]="imageUrl" [alt]="product.name" (error)="hideBrokenImage($event)" />
+                } @else {
+                  <span class="modal-monogram">{{ product.name.charAt(0) }}</span>
+                }
                 <span class="modal-category-tag">{{ product.category || 'General' }}</span>
               </div>
 
               <div class="modal-details-body">
                 <span class="modal-sku">SKU: {{ product.sku }}</span>
                 <h2 class="modal-title">{{ product.name }}</h2>
+                @if (product.description?.trim()) {
+                  <p class="modal-description">{{ product.description }}</p>
+                }
                 <div class="modal-price-tag">
                   <span class="price-label">Price:</span>
                   <strong>{{ product.sellPrice | currency:'INR':'symbol':'1.0-0' }}</strong>
@@ -341,7 +407,7 @@ interface CategoryOption {
           <ng-template #footer>
             <div class="modal-footer-actions">
               <p-button label="Close" [text]="true" (onClick)="detailsVisible.set(false)" />
-              
+
               <p-button
                 [label]="canAddToCart(product) ? 'Add to Cart' : (isOutOfStock(product) ? 'Out of Stock' : 'Limit Reached')"
                 [icon]="canAddToCart(product) ? 'pi pi-shopping-bag' : 'pi pi-check'"
@@ -355,7 +421,7 @@ interface CategoryOption {
                 icon="pi pi-bolt"
                 [loading]="isBuying(product)"
                 [disabled]="detailsLoading() || detailsError() || !canPurchase(product) || isBuying(product)"
-                (onClick)="buyNow(product)"
+                (onClick)="requestBuyNow(product)"
               />
             </div>
           </ng-template>
@@ -775,7 +841,7 @@ interface CategoryOption {
       .product-art {
         position: relative;
         display: grid;
-        height: 165px;
+        height: 220px;
         place-items: center;
         background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
         overflow: hidden;
@@ -825,6 +891,27 @@ interface CategoryOption {
         bottom: 0.85rem;
         right: 0.85rem;
         color: #64748b;
+      }
+
+      .product-image {
+        position: absolute;
+        z-index: 1;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .product-description {
+        min-height: 2.7em;
+        margin: 0;
+        color: #64748b;
+        font-size: 0.82rem;
+        line-height: 1.35;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
       }
 
       .product-monogram {
@@ -1082,11 +1169,24 @@ interface CategoryOption {
       .modal-art-box {
         position: relative;
         display: grid;
-        height: 180px;
+        height: 240px;
         place-items: center;
         border-radius: 1rem;
         background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
         overflow: hidden;
+      }
+
+      .modal-product-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .modal-description {
+        margin: -0.25rem 0 0;
+        color: #64748b;
+        font-size: 0.88rem;
+        line-height: 1.5;
       }
 
       .modal-monogram {
@@ -1199,6 +1299,74 @@ interface CategoryOption {
         text-align: center;
       }
 
+      .buy-confirmation-content {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        gap: 0.85rem 1rem;
+        align-items: start;
+      }
+
+      .buy-confirmation-icon {
+        display: grid;
+        width: 3rem;
+        height: 3rem;
+        grid-row: 1 / 3;
+        place-items: center;
+        border-radius: 0.85rem;
+        background: #eef2ff;
+        color: #4f46e5;
+        font-size: 1.2rem;
+      }
+
+      .buy-confirmation-copy {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        min-width: 0;
+      }
+
+      .buy-confirmation-copy strong {
+        color: #0f172a;
+        font-size: 1rem;
+      }
+
+      .buy-confirmation-copy span {
+        color: #64748b;
+        font-size: 0.78rem;
+      }
+
+      .buy-confirmation-copy p {
+        margin: 0.35rem 0 0;
+        color: #475569;
+        line-height: 1.45;
+      }
+
+      .buy-confirmation-total {
+        grid-column: 1 / -1;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-top: 0.85rem;
+        border-top: 1px solid #e2e8f0;
+      }
+
+      .buy-confirmation-total span {
+        color: #64748b;
+        font-weight: 700;
+      }
+
+      .buy-confirmation-total strong {
+        color: #0f172a;
+        font-size: 1.35rem;
+      }
+
+      .buy-confirmation-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.5rem;
+        width: 100%;
+      }
+
       /* Responsive Breakpoints */
       @media (max-width: 860px) {
         .shop-hero {
@@ -1227,15 +1395,19 @@ interface CategoryOption {
     `
   ]
 })
-export class CustomerShopComponent {
+export class CustomerShopComponent implements OnDestroy {
   private readonly authService = inject(AuthService);
   private readonly productService = inject(ProductService);
   private readonly orderService = inject(OrderService);
   private readonly cartService = inject(CartService);
   private readonly messageService = inject(MessageService);
   private readonly router = inject(Router);
+  private readonly http = inject(HttpClient);
+  private readonly imageSubscriptions: Subscription[] = [];
+  private readonly imageObjectUrls: string[] = [];
 
   protected readonly products = signal<Product[]>([]);
+  protected readonly productImageUrls = signal<Record<string, string>>({});
   protected readonly searchTerm = signal('');
   protected readonly selectedCategory = signal('');
   protected readonly loading = signal(true);
@@ -1248,6 +1420,8 @@ export class CustomerShopComponent {
   protected readonly detailsLoading = signal(false);
   protected readonly detailsError = signal('');
   protected readonly buyingProducts = signal<Record<string, boolean>>({});
+  protected readonly buyConfirmationVisible = signal(false);
+  protected readonly buyConfirmationProduct = signal<Product | null>(null);
   protected readonly loadingPlaceholders = [1, 2, 3, 4, 5, 6];
 
   protected readonly categoryOptions = computed<CategoryOption[]>(() => [
@@ -1280,6 +1454,11 @@ export class CustomerShopComponent {
     this.loadProducts();
   }
 
+  ngOnDestroy(): void {
+    this.imageSubscriptions.forEach(subscription => subscription.unsubscribe());
+    this.imageObjectUrls.forEach(url => URL.revokeObjectURL(url));
+  }
+
   protected getCategoryCount(categoryValue: string): number {
     if (!categoryValue) {
       return this.products().length;
@@ -1287,6 +1466,43 @@ export class CustomerShopComponent {
     return this.products().filter(
       (p) => p.category?.trim().toLowerCase() === categoryValue.toLowerCase()
     ).length;
+  }
+
+  protected getProductImageUrl(product: Product): string | null {
+    if (this.productImageUrls()[product.id]) {
+      return this.productImageUrls()[product.id];
+    }
+    return product.imageUrl ? this.resolveProductImageUrl(product.imageUrl) : null;
+  }
+
+  private resolveProductImageUrl(imageUrl: string): string {
+    if (/^(https?:|data:|blob:)/i.test(imageUrl)) {
+      return imageUrl;
+    }
+    if (imageUrl.startsWith('/')) {
+      return `${environment.apiUrl}${imageUrl}`;
+    }
+    return `${environment.apiUrl}/${imageUrl}`;
+  }
+
+  private loadProductImages(products: Product[]): void {
+    this.productImageUrls.set({});
+    for (const product of products) {
+      if (!product.imageUrl) continue;
+      const imageUrl = this.resolveProductImageUrl(product.imageUrl);
+      const subscription = this.http.get(imageUrl, { responseType: 'blob' }).subscribe({
+        next: blob => {
+          const objectUrl = URL.createObjectURL(blob);
+          this.imageObjectUrls.push(objectUrl);
+          this.productImageUrls.update(urls => ({ ...urls, [product.id]: objectUrl }));
+        }
+      });
+      this.imageSubscriptions.push(subscription);
+    }
+  }
+
+  protected hideBrokenImage(event: Event): void {
+    (event.currentTarget as HTMLImageElement).style.display = 'none';
   }
 
   protected loadProducts(): void {
@@ -1302,6 +1518,7 @@ export class CustomerShopComponent {
         this.products.set(activeProducts);
         this.loading.set(false);
         activeProducts.forEach((product) => this.loadProductStock(product));
+        this.loadProductImages(activeProducts);
       },
       error: () => {
         this.loading.set(false);
@@ -1353,6 +1570,28 @@ export class CustomerShopComponent {
         this.detailsError.set('We could not load the latest details. Please try again.');
       }
     });
+  }
+
+  protected requestBuyNow(product: Product): void {
+    if (!this.canPurchase(product) || this.isBuying(product)) {
+      return;
+    }
+    this.buyConfirmationProduct.set(product);
+    this.buyConfirmationVisible.set(true);
+  }
+
+  protected cancelBuyNow(): void {
+    this.buyConfirmationVisible.set(false);
+    this.buyConfirmationProduct.set(null);
+  }
+
+  protected confirmBuyNow(): void {
+    const product = this.buyConfirmationProduct();
+    if (!product) {
+      return;
+    }
+    this.buyConfirmationVisible.set(false);
+    this.buyNow(product);
   }
 
   protected buyNow(product: Product): void {

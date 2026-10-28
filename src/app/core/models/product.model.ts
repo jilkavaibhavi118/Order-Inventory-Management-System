@@ -7,6 +7,8 @@ export interface Product {
   costPrice?: number | null;
   sellPrice?: number | null;
   minStock?: number | null;
+  description?: string | null;
+  imageUrl?: string | null;
   isActive: boolean;
   createdAt?: string | null;
 }
