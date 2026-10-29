@@ -92,7 +92,7 @@ interface CategoryOption {
       <section class="catalog-section" aria-labelledby="catalog-title">
         <div class="catalog-heading">
           <div class="heading-title-group">
-      
+
             <h2 id="catalog-title">All Products</h2>
           </div>
           <div class="heading-stats">
@@ -192,8 +192,6 @@ interface CategoryOption {
               <!-- Visual Art / Thumbnail with Monogram -->
               <div class="product-art" [class]="artClass(product)">
                 <div class="art-ambient-glow"></div>
-
-
 
                 @if (getProductImageUrl(product); as imageUrl) {
                   <img class="product-image" [src]="imageUrl" [alt]="product.name" (error)="hideBrokenImage($event)" />
@@ -369,7 +367,7 @@ interface CategoryOption {
                 } @else {
                   <span class="modal-monogram">{{ product.name.charAt(0) }}</span>
                 }
-                <span class="modal-category-tag">{{ product.category || 'General' }}</span>
+
               </div>
 
               <div class="modal-details-body">

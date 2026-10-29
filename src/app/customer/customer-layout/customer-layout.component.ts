@@ -58,7 +58,7 @@ import { AuthService } from '../../core/auth/auth.service';
               <span class="account-avatar">{{ accountInitial() }}</span>
               <div class="account-meta">
                 <span class="account-name">{{ accountName() }}</span>
-                <span class="account-role">Customer</span>
+                <!-- <span class="account-role">Customer</span> -->
               </div>
               <i class="pi pi-chevron-down account-chevron" aria-hidden="true"></i>
             </button>

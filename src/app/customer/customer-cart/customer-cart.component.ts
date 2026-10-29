@@ -1,17 +1,19 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Component, computed, inject, OnDestroy, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { TagModule } from 'primeng/tag';
-import { forkJoin } from 'rxjs';
+import { forkJoin, Subscription } from 'rxjs';
 import { AuthService } from '../../core/auth/auth.service';
 import { CartService } from '../../core/services/cart.service';
 import { OrderService } from '../../core/services/order.service';
 import { ProductService } from '../../core/services/product.service';
-import { InventoryRecord } from '../../core/models/product.model';
+import { InventoryRecord, Product } from '../../core/models/product.model';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-customer-cart',
@@ -60,9 +62,13 @@ import { InventoryRecord } from '../../core/models/product.model';
           <div class="cart-items-column">
             @for (item of items(); track item.product.id) {
               <article class="cart-item-card">
-                <!-- Art / Monogram Thumbnail -->
+                <!-- Product Image / Monogram Thumbnail -->
                 <div class="item-art-thumb" [class]="artClass(item.product.category)">
-                  <span>{{ item.product.name.charAt(0) }}</span>
+                  @if (getProductImageUrl(item.product); as imageUrl) {
+                    <img class="item-product-image" [src]="imageUrl" [alt]="item.product.name" (error)="hideBrokenImage($event)" />
+                  } @else {
+                    <span>{{ item.product.name.charAt(0) }}</span>
+                  }
                 </div>
 
                 <!-- Product Info -->
@@ -329,6 +335,19 @@ import { InventoryRecord } from '../../core/models/product.model';
         border-radius: 1rem;
         background: linear-gradient(135deg, #eef2ff, #e0e7ff);
         flex-shrink: 0;
+      }
+
+      .item-art-thumb {
+        position: relative;
+        overflow: hidden;
+      }
+
+      .item-product-image {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
       }
 
       .art-accessories {
@@ -676,20 +695,71 @@ import { InventoryRecord } from '../../core/models/product.model';
     `
   ]
 })
-export class CustomerCartComponent {
+export class CustomerCartComponent implements OnDestroy {
   private readonly authService = inject(AuthService);
   private readonly cartService = inject(CartService);
   private readonly orderService = inject(OrderService);
   private readonly productService = inject(ProductService);
   private readonly messageService = inject(MessageService);
   private readonly router = inject(Router);
+  private readonly http = inject(HttpClient);
+  private readonly imageSubscriptions: Subscription[] = [];
+  private readonly imageObjectUrls: string[] = [];
 
   protected readonly items = this.cartService.cartItems;
+  protected readonly productImageUrls = signal<Record<string, string>>({});
   protected readonly checkoutBusy = signal(false);
   protected readonly totalItems = computed(() => this.items().reduce((sum, item) => sum + item.quantity, 0));
   protected readonly totalAmount = computed(() =>
     this.items().reduce((sum, item) => sum + Number(item.product.sellPrice ?? 0) * item.quantity, 0)
   );
+
+  ngOnInit(): void {
+    this.loadCartImages();
+  }
+
+  ngOnDestroy(): void {
+    this.imageSubscriptions.forEach(subscription => subscription.unsubscribe());
+    this.imageObjectUrls.forEach(url => URL.revokeObjectURL(url));
+  }
+
+  protected getProductImageUrl(product: Product): string | null {
+    if (this.productImageUrls()[product.id]) {
+      return this.productImageUrls()[product.id];
+    }
+    return product.imageUrl ? this.resolveProductImageUrl(product.imageUrl) : null;
+  }
+
+  protected hideBrokenImage(event: Event): void {
+    (event.currentTarget as HTMLImageElement).style.display = 'none';
+  }
+
+  private resolveProductImageUrl(imageUrl: string): string {
+    if (/^(https?:|data:|blob:)/i.test(imageUrl)) {
+      return imageUrl;
+    }
+    if (imageUrl.startsWith('/')) {
+      return `${environment.apiUrl}${imageUrl}`;
+    }
+    return `${environment.apiUrl}/${imageUrl}`;
+  }
+
+  private loadCartImages(): void {
+    for (const item of this.items()) {
+      const product = item.product;
+      if (!product.imageUrl) continue;
+
+      const imageUrl = this.resolveProductImageUrl(product.imageUrl);
+      const subscription = this.http.get(imageUrl, { responseType: 'blob' }).subscribe({
+        next: blob => {
+          const objectUrl = URL.createObjectURL(blob);
+          this.imageObjectUrls.push(objectUrl);
+          this.productImageUrls.update(urls => ({ ...urls, [product.id]: objectUrl }));
+        }
+      });
+      this.imageSubscriptions.push(subscription);
+    }
+  }
 
   protected updateQuantity(productId: string, quantity: number): void {
     this.cartService.updateQuantity(productId, Number.isFinite(quantity) ? quantity : 1);
