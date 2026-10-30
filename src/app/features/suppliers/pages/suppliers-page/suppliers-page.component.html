@@ -19,13 +19,7 @@
       <i class="pi pi-search" aria-hidden="true"></i>
       <input type="search" [value]="supplierSearch()" (input)="updateSupplierSearch($event)" placeholder="Search suppliers..." aria-label="Search suppliers" />
     </label>
-    <button type="button" class="crud-filter-btn">
-      <i class="pi pi-filter" aria-hidden="true"></i>
-      Filter
-    </button>
-    <button type="button" class="crud-grid-btn" title="Grid view">
-      <i class="pi pi-th-large" aria-hidden="true"></i>
-    </button>
+
   </div>
 
   <!-- Table card -->
@@ -108,7 +102,6 @@
       <div class="dialog-heading">
         <div>
           <h2 id="supplier-dialog-title">{{ editingSupplierId() ? 'Edit supplier' : 'Add supplier' }}</h2>
-          <p class="dialog-description">{{ editingSupplierId() ? 'Update supplier information.' : 'Add a new supplier to your system.' }}</p>
         </div>
         <button type="button" class="icon-button" aria-label="Close dialog" (click)="closeDialog()">
           <i class="pi pi-times" aria-hidden="true"></i>

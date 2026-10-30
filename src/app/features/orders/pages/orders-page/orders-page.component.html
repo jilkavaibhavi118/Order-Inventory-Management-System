@@ -44,6 +44,7 @@
       <i class="pi pi-filter" aria-hidden="true"></i>
       Filter
     </button>
+   
     @if (fromDateFilter() || toDateFilter() || orderSearch()) {
       <button type="button" class="crud-filter-btn" (click)="clearFilters()">
         <i class="pi pi-times" aria-hidden="true"></i>

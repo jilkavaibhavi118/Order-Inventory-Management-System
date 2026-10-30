@@ -2,8 +2,8 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { HttpParams } from '@angular/common/http';
 import { map, Observable } from 'rxjs';
-import { apiUrl } from '../api/api-config';
-import { CreateOrderRequest, OrderPage, OrderSummary } from '../models/product.model';
+import { CreateOrderRequest, OrderPage, OrderSummary } from '../../models/product.model';
+import { environment } from '../../../environments/environment';
 
 interface OrderListResponse {
   orders?: OrderSummary[];
@@ -21,18 +21,18 @@ export class OrderService {
     const params = new HttpParams().set('page', page).set('pageSize', pageSize);
 
     return this.http
-      .get<OrderPage | OrderListResponse | OrderSummary[]>(apiUrl('Order'), { params })
+      .get<OrderPage | OrderListResponse | OrderSummary[]>(`${environment.apiUrl}/api/Order`, { params })
       .pipe(map((response) => this.normalizeOrderPage(response, page, pageSize)));
   }
 
   getOrderById(id: string): Observable<OrderSummary> {
     return this.http
-      .get<OrderSummary>(apiUrl(`Order/${encodeURIComponent(id)}`))
+      .get<OrderSummary>(`${environment.apiUrl}/api/Order/${encodeURIComponent(id)}`)
       .pipe(map((order) => this.normalizeOrder(order)));
   }
 
   createOrder(payload: CreateOrderRequest): Observable<OrderSummary> {
-    return this.http.post<OrderSummary>(apiUrl('Order'), payload);
+    return this.http.post<OrderSummary>(`${environment.apiUrl}/api/Order`, payload);
   }
 
   private normalizeOrderPage(

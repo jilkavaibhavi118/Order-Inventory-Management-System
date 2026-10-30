@@ -101,12 +101,14 @@
   overflow: hidden;
   transition: transform 180ms ease, box-shadow 180ms ease;
 
-  background: rgba(255,255,255,0.78);
-  border: 1px solid rgba(235,205,220,0.5);
+  background: rgba(255,255,255,0.74);
+  border: 1px solid rgba(255, 255, 255, 0.55);
   box-shadow:
-    0 3px 14px rgba(180,80,120,0.07),
-    inset 0 1px 0 rgba(255,255,255,0.92);
-  backdrop-filter: blur(14px);
+    0 8px 32px rgba(180,80,120,0.10),
+    0 2px 8px rgba(180,80,120,0.06),
+    inset 0 1px 0 rgba(255,255,255,0.88);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
 
   &:hover {
     transform: translateY(-2px);
@@ -231,11 +233,13 @@
 .dash-panel {
   border-radius: 14px;
   background: rgba(255,255,255,0.75);
-  border: 1px solid rgba(235,205,220,0.5);
+  border: 1px solid rgba(255, 255, 255, 0.55);
   box-shadow:
-    0 4px 16px rgba(180,80,120,0.07),
-    inset 0 1px 0 rgba(255,255,255,0.9);
-  backdrop-filter: blur(12px);
+    0 8px 32px rgba(180,80,120,0.10),
+    0 2px 8px rgba(180,80,120,0.06),
+    inset 0 1px 0 rgba(255,255,255,0.88);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
   overflow: hidden;
 }
 
@@ -615,9 +619,13 @@
   .kpi-card,
   .dash-panel,
   .chart-range {
-    background: var(--color-surface);
-    border-color: var(--color-border);
-    box-shadow: 0 4px 16px rgb(0 0 0 / 18%);
+    background: rgba(20, 30, 55, 0.65) !important;
+    border-color: rgba(255, 255, 255, 0.07) !important;
+    box-shadow:
+      0 8px 32px rgba(0, 0, 0, 0.40),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+    backdrop-filter: blur(20px) saturate(150%) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(150%) !important;
   }
 
   .chart-range {

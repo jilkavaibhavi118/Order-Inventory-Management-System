@@ -23,7 +23,6 @@ export class LoginComponent {
   readonly theme = this.themeService.theme;
   readonly showPassword = signal<boolean>(false);
   readonly isLoading = signal<boolean>(false);
-  readonly submissionStatus = signal<'idle' | 'success' | 'error'>('idle');
   readonly statusMessage = signal<string | null>(null);
   readonly showForgotPasswordModal = signal<boolean>(false);
 
@@ -89,7 +88,7 @@ export class LoginComponent {
     }
 
     this.isLoading.set(true);
-    this.submissionStatus.set('idle');
+
     this.statusMessage.set(null);
 
     const credentials = this.loginForm.getRawValue();
@@ -97,7 +96,7 @@ export class LoginComponent {
     this.authService.login(credentials).subscribe({
       next: response => {
         this.isLoading.set(false);
-        this.submissionStatus.set('success');
+
         this.statusMessage.set(response.message);
         this.authService.setCurrentUser(response, credentials.email);
         this.messageService.add({
@@ -117,7 +116,7 @@ export class LoginComponent {
       },
       error: (err) => {
         this.isLoading.set(false);
-        this.submissionStatus.set('error');
+
         const message = this.getApiMessage(err);
         this.statusMessage.set(message);
         if (message) {
@@ -132,8 +131,7 @@ export class LoginComponent {
   }
 
   private handleNavigationFailure(): void {
-    const message = 'You signed in successfully, but the dashboard could not be opened. Please try again.';
-    this.submissionStatus.set('error');
+    const message = 'You signed in successfully, but the dashboard could not be opened. Please try again.'; 
     this.statusMessage.set(message);
     this.messageService.add({
       severity: 'error',

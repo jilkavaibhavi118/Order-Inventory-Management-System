@@ -7,8 +7,8 @@ import { MessageService } from 'primeng/api';
 import Aura from '@primeng/themes/aura';
 
 import { routes } from './app.routes';
-import { ngrokInterceptor } from './interceptors/ngrok-interceptor';
-import { authInterceptor } from './interceptors/auth.interceptor';
+import { ngrokInterceptor } from './core/interceptors/ngrok-interceptor';
+import { authInterceptor } from './core/interceptors/auth.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [

@@ -10,7 +10,7 @@ import {
 } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
-import { AuthService } from '../../core/auth/auth.service';
+import { AuthService } from '../../core/services/auth.service';
 
 interface PasswordRule {
   id: string;
@@ -207,9 +207,10 @@ export class RegisterComponent {
     const formValues = this.registerForm.getRawValue();
 
     this.authService.register({
-      name: formValues.fullName,
+      fullName: formValues.fullName,
       email: formValues.email,
-      password: formValues.password
+      password: formValues.password,
+      confirmPassword: formValues.confirmPassword
     }).subscribe({
       next: response => {
         this.isLoading.set(false);

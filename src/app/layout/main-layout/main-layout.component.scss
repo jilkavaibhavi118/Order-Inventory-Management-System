@@ -7,9 +7,10 @@
   height: 100vh;
   overflow: hidden;
   background:
-    radial-gradient(ellipse 60% 55% at 15% 10%, rgba(255,210,225,0.55) 0%, transparent 50%),
-    radial-gradient(ellipse 55% 50% at 85% 90%, rgba(255,190,215,0.45) 0%, transparent 50%),
-    #fff5f8;
+    radial-gradient(ellipse 72% 70% at 0% 0%, rgba(255, 128, 163, 0.26) 0%, transparent 58%),
+    radial-gradient(ellipse 66% 62% at 100% 4%, rgba(245, 165, 190, 0.25) 0%, transparent 55%),
+    radial-gradient(ellipse 70% 60% at 70% 100%, rgba(255, 154, 181, 0.22) 0%, transparent 58%),
+    linear-gradient(135deg, #fff0f3 0%, #fbe3eb 36%, #f6dce7 68%, #fff0f4 100%);
 }
 
 /* ── Workspace: full width + height, no rounded border ── */
@@ -21,10 +22,10 @@
   position: relative;
 
   background:
-    radial-gradient(ellipse 70% 50% at 72% -18%, rgba(255,175,205,0.32) 0%, transparent 52%),
-    radial-gradient(ellipse 55% 45% at 78% -22%, rgba(255,220,235,0.45) 0%, transparent 50%),
-    radial-gradient(ellipse 30% 25% at 15% 96%, rgba(255,200,220,0.18) 0%, transparent 55%),
-    linear-gradient(160deg, #fffafd 0%, #fff4f8 55%, #fff9fb 100%);
+    radial-gradient(ellipse 72% 70% at 0% 0%, rgba(255, 128, 163, 0.24) 0%, transparent 58%),
+    radial-gradient(ellipse 66% 62% at 100% 4%, rgba(245, 165, 190, 0.22) 0%, transparent 55%),
+    radial-gradient(ellipse 70% 60% at 70% 100%, rgba(255, 154, 181, 0.2) 0%, transparent 58%),
+    linear-gradient(135deg, #fff0f3 0%, #fbe3eb 36%, #f6dce7 68%, #fff0f4 100%);
 }
 
 /* ── Main column ── */
@@ -48,9 +49,9 @@
     height: 20rem;
     pointer-events: none;
     background:
-      radial-gradient(ellipse 65% 70% at 78% -32%, rgba(255,145,185,0.25) 0%, transparent 50%),
-      radial-gradient(ellipse 70% 75% at 75% -36%, rgba(255,215,232,0.38) 0%, transparent 50%),
-      linear-gradient(150deg, transparent 46%, rgba(255,195,215,0.12) 46.2% 56%, transparent 56.2%);
+      radial-gradient(ellipse 65% 70% at 78% -32%, rgba(255, 125, 160, 0.18) 0%, transparent 52%),
+      radial-gradient(ellipse 70% 75% at 75% -36%, rgba(255, 235, 241, 0.4) 0%, transparent 52%),
+      linear-gradient(150deg, transparent 46%, rgba(255, 160, 185, 0.1) 46.2% 56%, transparent 56.2%);
   }
 }
 
@@ -113,4 +114,25 @@
 
 @media (max-width: 700px) {
   .workspace-content { padding: 0.75rem 0.75rem 2rem; }
+}
+
+/* ── Dark Theme: gradient background so glass blur is visible ── */
+:host-context([data-theme='dark']) {
+  background:
+    radial-gradient(ellipse 60% 55% at 15% 10%, rgba(255, 65, 108, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse 55% 50% at 85% 90%, rgba(60, 10, 50, 0.2) 0%, transparent 50%),
+    #0c1220;
+
+  .workspace-layout {
+    background:
+      radial-gradient(ellipse 70% 50% at 72% -18%, rgba(255, 65, 108, 0.1) 0%, transparent 52%),
+      radial-gradient(ellipse 55% 45% at 15% 96%, rgba(80, 20, 60, 0.12) 0%, transparent 55%),
+      linear-gradient(160deg, #0c1220 0%, #0f172a 55%, #0d1528 100%);
+  }
+
+  .workspace-main::before {
+    background:
+      radial-gradient(ellipse 65% 70% at 78% -32%, rgba(255, 65, 108, 0.1) 0%, transparent 50%),
+      radial-gradient(ellipse 70% 75% at 75% -36%, rgba(80, 0, 50, 0.18) 0%, transparent 50%);
+  }
 }

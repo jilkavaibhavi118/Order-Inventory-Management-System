@@ -1233,16 +1233,18 @@ img, svg {
   background-color: var(--color-bg);
 }
 
-:root[data-theme='dark'] .workspace-layout,
+:root[data-theme='dark'] .workspace-layout {
+  background:
+    radial-gradient(ellipse 70% 50% at 72% -18%, rgba(255, 65, 108, 0.12) 0%, transparent 52%),
+    radial-gradient(ellipse 55% 45% at 78% -22%, rgba(80, 20, 60, 0.22) 0%, transparent 50%),
+    radial-gradient(ellipse 30% 25% at 15% 96%, rgba(60, 10, 40, 0.15) 0%, transparent 55%),
+    linear-gradient(160deg, #0c1220 0%, #0f172a 55%, #0d1528 100%);
+}
 :root[data-theme='dark'] .workspace-content {
-  background: var(--color-bg);
+  background: transparent;
 }
 
-:root[data-theme='dark'] .topbar,
-:root[data-theme='dark'] .app-footer,
-:root[data-theme='dark'] .panel,
-:root[data-theme='dark'] .summary-card,
-:root[data-theme='dark'] .dialog-card {
+:root[data-theme='dark'] .app-footer {
   background: var(--color-surface);
 }
 
@@ -3223,7 +3225,11 @@ table {
 }
 
 :root[data-theme='dark'] .workspace-main::before {
-  display: none;
+  /* Keep the glow, but use dark palette colors */
+  background:
+    radial-gradient(ellipse 65% 70% at 78% -32%, rgba(255, 65, 108, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse 70% 75% at 75% -36%, rgba(80, 0, 50, 0.12) 0%, transparent 50%);
+  opacity: 1;
 }
 
 :root[data-theme='dark'] .crud-toolbar .p-select,
@@ -3911,4 +3917,276 @@ table {
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   FULL GLASSMORPHISM ENHANCEMENT — Light + Dark Theme
+   Applied app-wide to all surface cards, dialogs, dropdowns
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── LIGHT THEME: Strong frosted glass on all cards ── */
+.crud-table-card,
+.inv-kpi-card,
+.low-stock-card,
+.summary-card,
+.dash-panel,
+.kpi-card,
+.date-card {
+  backdrop-filter: blur(20px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+  background: linear-gradient(145deg, rgba(255, 250, 252, 0.78), rgba(255, 235, 241, 0.62)) !important;
+  border: 1px solid rgba(255, 255, 255, 0.78) !important;
+  box-shadow:
+    0 16px 38px rgba(166, 57, 91, 0.12),
+    0 4px 12px rgba(188, 74, 111, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.96),
+    inset 0 -1px 0 rgba(238, 145, 171, 0.14) !important;
+}
+
+/* KPI cards on dashboard have a slightly lighter look */
+.kpi-card {
+  background: linear-gradient(145deg, rgba(255, 252, 253, 0.84), rgba(255, 237, 243, 0.72)) !important;
+}
+
+/* Dialog frosted glass — light */
+.dialog-backdrop {
+  position: fixed !important;
+  inset: 0 !important;
+  background: rgba(15, 23, 42, 0.5) !important;
+  backdrop-filter: blur(6px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(6px) saturate(150%) !important;
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: center !important;
+  z-index: 9999 !important;
+  padding: 2.5rem 1rem 3rem !important;
+  overflow-y: auto !important;
+}
+
+.dialog-card {
+  background: rgba(255, 255, 255, 0.90) !important;
+  backdrop-filter: blur(28px) saturate(200%) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(200%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.65) !important;
+  box-shadow:
+    0 24px 64px rgba(180, 80, 120, 0.18),
+    0 8px 24px rgba(180, 80, 120, 0.10),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95) !important;
+  border-radius: 18px !important;
+}
+
+/* Status filter tabs pill glass */
+.status-filter-tabs {
+  background: rgba(255, 255, 255, 0.60) !important;
+  backdrop-filter: blur(14px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(14px) saturate(160%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.55) !important;
+  box-shadow: 0 4px 16px rgba(180, 80, 120, 0.08) !important;
+}
+
+/* Toolbar glass */
+.crud-toolbar {
+  background: linear-gradient(110deg, rgba(255, 246, 249, 0.58), rgba(250, 221, 231, 0.42));
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.62);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+/* Sidebar light glass */
+.sidebar {
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  box-shadow: 2px 0 24px rgba(180, 80, 120, 0.08), inset -1px 0 0 rgba(255, 255, 255, 0.7);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   DARK THEME GLASSMORPHISM
+   ══════════════════════════════════════════════════════════════ */
+[data-theme='dark'] {
+
+  /* All surface glass cards */
+  .crud-table-card,
+  .inv-kpi-card,
+  .low-stock-card,
+  .summary-card,
+  .dash-panel,
+  .kpi-card,
+  .date-card {
+    background: rgba(20, 30, 55, 0.65) !important;
+    backdrop-filter: blur(20px) saturate(150%) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(150%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.06) !important;
+    box-shadow:
+      0 8px 32px rgba(0, 0, 0, 0.40),
+      0 2px 8px rgba(0, 0, 0, 0.25),
+      inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
+  }
+
+  /* KPI value, label text in dark */
+  .kpi-value { color: #f1f5f9 !important; }
+  .kpi-label { color: #94a3b8 !important; }
+  .kpi-trend em { color: #64748b !important; }
+
+  /* Dialog dark glass */
+  .dialog-backdrop {
+    background: rgba(5, 10, 25, 0.65) !important;
+  }
+
+  .dialog-card {
+    background: rgba(15, 25, 48, 0.88) !important;
+    backdrop-filter: blur(28px) saturate(150%) !important;
+    -webkit-backdrop-filter: blur(28px) saturate(150%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    box-shadow:
+      0 24px 64px rgba(0, 0, 0, 0.55),
+      0 8px 24px rgba(0, 0, 0, 0.40),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+  }
+
+  /* Dialog text */
+  .dialog-header h2,
+  .dialog-header .dialog-title { color: #f1f5f9 !important; }
+  .dialog-body { color: #cbd5e1 !important; }
+
+  /* Status filter tabs dark */
+  .status-filter-tabs {
+    background: rgba(20, 30, 55, 0.55) !important;
+    backdrop-filter: blur(14px) !important;
+    -webkit-backdrop-filter: blur(14px) !important;
+    border-color: rgba(255, 255, 255, 0.06) !important;
+  }
+
+  /* Toolbar dark */
+  .crud-toolbar {
+    background: rgba(15, 22, 40, 0.45);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+
+  /* Table rows in dark */
+  .crud-table-card table tbody tr:hover td,
+  .crud-table-card .p-datatable-tbody > tr:hover > td {
+    background: rgba(255, 65, 108, 0.06) !important;
+  }
+
+  .crud-table-card table thead th,
+  .crud-table-card .p-datatable-thead > tr > th {
+    background: rgba(15, 25, 48, 0.6) !important;
+    color: #94a3b8 !important;
+    border-bottom-color: rgba(255, 255, 255, 0.06) !important;
+  }
+
+  .crud-table-card table tbody td,
+  .crud-table-card .p-datatable-tbody > tr > td {
+    border-bottom-color: rgba(255, 255, 255, 0.04) !important;
+    color: #cbd5e1 !important;
+  }
+
+  /* Form inputs dark */
+  .dialog-card input,
+  .dialog-card select,
+  .dialog-card textarea,
+  .dialog-card .p-inputtext,
+  .dialog-card .p-select {
+    background: rgba(15, 25, 48, 0.7) !important;
+    border-color: rgba(255, 255, 255, 0.10) !important;
+    color: #f1f5f9 !important;
+  }
+
+  .dialog-card label { color: #cbd5e1 !important; }
+  .dialog-card .form-label { color: #94a3b8 !important; }
+
+  /* p-select dark panel */
+  .p-select-overlay,
+  .p-select-panel {
+    background: rgba(15, 25, 48, 0.95) !important;
+    backdrop-filter: blur(20px) !important;
+    border-color: rgba(255, 255, 255, 0.10) !important;
+    color: #f1f5f9 !important;
+  }
+
+  .p-select-option:hover,
+  .p-select-option.p-highlight {
+    background: rgba(255, 65, 108, 0.15) !important;
+    color: #ff7593 !important;
+  }
+
+  /* Search bar in dark */
+  .crud-search {
+    background: rgba(20, 30, 55, 0.7) !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+    color: #cbd5e1 !important;
+  }
+
+  .crud-search input {
+    color: #f1f5f9 !important;
+    background: transparent !important;
+  }
+  .crud-search input::placeholder { color: #475569 !important; }
+
+  /* Low-stock card text */
+  .low-stock-card .ls-name { color: #f1f5f9 !important; }
+  .low-stock-card .ls-sku,
+  .low-stock-card .ls-stock { color: #64748b !important; }
+
+  /* Inventory page inv-kpi-card text */
+  .inv-kpi-card .kpi-val { color: #f1f5f9 !important; }
+  .inv-kpi-card .kpi-lbl { color: #64748b !important; }
+
+  /* Pagination dark */
+  .crud-pagination {
+    background: rgba(20, 30, 55, 0.55) !important;
+    backdrop-filter: blur(14px) !important;
+    border-color: rgba(255, 255, 255, 0.06) !important;
+    color: #94a3b8 !important;
+  }
+
+  .crud-pagination button {
+    background: rgba(20, 30, 55, 0.7) !important;
+    border-color: rgba(255, 255, 255, 0.06) !important;
+    color: #94a3b8 !important;
+  }
+
+  .crud-pagination button:hover,
+  .crud-pagination button.active {
+    background: rgba(255, 65, 108, 0.2) !important;
+    color: #ff7593 !important;
+  }
+
+  /* Movements / tabs dark */
+  .inv-tab-btn {
+    color: #64748b !important;
+    &.active {
+      color: #ff7593 !important;
+      border-bottom-color: #ff7593 !important;
+    }
+  }
+}
+
+/* ── p-select overlay dark glassmorphism ── */
+[data-theme='dark'] .p-select-overlay {
+  background: rgba(12, 20, 38, 0.95) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5) !important;
+}
+
+[data-theme='dark'] .p-select-option {
+  color: #cbd5e1 !important;
+  &:hover,
+  &.p-select-option-selected {
+    background: rgba(255, 65, 108, 0.14) !important;
+    color: #ff7593 !important;
+  }
+}
+
+[data-theme='dark'] .crud-toolbar .p-select,
+[data-theme='dark'] .p-select.crud-p-select {
+  background: rgba(20, 30, 55, 0.75) !important;
+  border-color: rgba(255, 255, 255, 0.10) !important;
+  backdrop-filter: blur(10px) !important;
+  .p-select-label { color: #cbd5e1 !important; }
+  .p-select-dropdown { color: #64748b !important; }
 }

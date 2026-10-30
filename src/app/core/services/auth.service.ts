@@ -97,9 +97,9 @@ export class AuthService {
     );
   }
 
-  register(credentials: RegisterCredentials): Observable<RegisterResponse> {
+  register(credentials: RegisterCredentials | RegisterRequest): Observable<RegisterResponse> {
     const request: RegisterRequest = {
-      name: credentials.fullName,
+      name: 'fullName' in credentials ? credentials.fullName : credentials.name,
       email: credentials.email,
       password: credentials.password
     };
@@ -139,6 +139,14 @@ export class AuthService {
 
   getValidAccessToken(): string | null {
     return this.isAuthenticated() ? this.accessToken() : null;
+  }
+
+  getAccessToken(): string | null {
+    return this.getValidAccessToken();
+  }
+
+  getUserId(): string | null {
+    return this.currentUserId();
   }
 
   private storeAuth(
@@ -187,7 +195,9 @@ export class AuthService {
     }
 
     const token = window.sessionStorage.getItem(this.accessTokenKey)
-      ?? window.localStorage.getItem(this.accessTokenKey);
+      ?? window.localStorage.getItem(this.accessTokenKey)
+      ?? window.sessionStorage.getItem('customer-token')
+      ?? window.localStorage.getItem('customer-token');
     if (token && this.isTokenExpired(token)) {
       this.clearStoredAuth();
       return null;
@@ -202,7 +212,9 @@ export class AuthService {
     }
 
     return window.sessionStorage.getItem(this.userIdKey)
-      ?? window.localStorage.getItem(this.userIdKey);
+      ?? window.localStorage.getItem(this.userIdKey)
+      ?? window.sessionStorage.getItem('customer-user-id')
+      ?? window.localStorage.getItem('customer-user-id');
   }
 
   private readStoredUserName(): string {

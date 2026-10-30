@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { AuthService } from '../../core/auth/auth.service';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -83,7 +83,7 @@ export class LoginComponent {
     this.statusMessage.set(null);
 
     const credentials = this.loginForm.getRawValue();
-    this.authService.login(credentials.email, credentials.password, credentials.rememberMe).subscribe({
+    this.authService.login(credentials).subscribe({
       next: (response) => {
         this.isLoading.set(false);
         this.submissionStatus.set('success');
