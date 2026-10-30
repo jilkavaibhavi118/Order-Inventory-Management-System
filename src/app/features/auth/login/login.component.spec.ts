@@ -5,7 +5,7 @@ import { provideRouter, Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
-import { AuthService } from '../../../core/services/auth.service';
+import { AuthenticationError, AuthService } from '../../../core/services/auth.service';
 import { LoginComponent } from './login.component';
 
 describe('LoginComponent', () => {
@@ -127,6 +127,47 @@ describe('LoginComponent', () => {
       summary: 'Login successful'
     }));
     expect(navigateSpy).toHaveBeenCalledWith('/dashboard');
+  });
+
+  it('should report a failed dashboard navigation after successful authentication', async () => {
+    vi.spyOn(router, 'navigateByUrl').mockResolvedValue(false);
+    mockAuthService.login.mockReturnValue(of({
+      success: true,
+      message: 'Mock login successful',
+      data: {
+        userId: 'user-id',
+        name: 'Operator',
+        email: 'operator@orderflow.io',
+        role: 'Admin',
+        token: 'access-token'
+      },
+      errors: []
+    }));
+    component.emailCtrl.setValue('operator@orderflow.io');
+    component.passwordCtrl.setValue('SecurePass123!');
+
+    component.onSubmit();
+    await Promise.resolve();
+
+    expect(component.submissionStatus()).toBe('error');
+    expect(component.statusMessage()).toContain('dashboard could not be opened');
+    expect(mockMessageService.add).toHaveBeenCalledWith(expect.objectContaining({
+      severity: 'error',
+      summary: 'Navigation failed'
+    }));
+  });
+
+  it('does not navigate when authentication fails', () => {
+    const navigateSpy = vi.spyOn(router, 'navigateByUrl');
+    mockAuthService.login.mockReturnValue(throwError(() => new AuthenticationError('Invalid credentials')));
+    component.emailCtrl.setValue('operator@orderflow.io');
+    component.passwordCtrl.setValue('WrongPassword123!');
+
+    component.onSubmit();
+
+    expect(navigateSpy).not.toHaveBeenCalled();
+    expect(component.submissionStatus()).toBe('error');
+    expect(component.statusMessage()).toBe('Invalid credentials');
   });
 
   it('should prevent duplicate submission while already loading', () => {

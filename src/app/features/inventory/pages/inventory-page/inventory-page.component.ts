@@ -1,8 +1,9 @@
-import { HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { PaginatorModule } from 'primeng/paginator';
+import { Select } from 'primeng/select';
 import { isPlatformBrowser, CommonModule } from '@angular/common';
-import { Component, inject, OnDestroy, PLATFORM_ID, signal } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, computed, inject, OnDestroy, PLATFORM_ID, signal } from '@angular/core';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import type { PaginatorState } from 'primeng/types/paginator';
 import { finalize, Subscription } from 'rxjs';
@@ -16,19 +17,26 @@ import {
   Warehouse
 } from '../../../../models/inventory.models';
 import { InventoryService } from '../../../../core/services/inventory.service';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-inventory-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, PaginatorModule ],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, PaginatorModule, Select],
   templateUrl: './inventory-page.component.html',
   styleUrl: './inventory-page.component.scss'
 })
 export class InventoryPageComponent implements OnDestroy {
   private readonly inventoryService = inject(InventoryService);
+  private readonly http = inject(HttpClient);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+
+  /** Maps productId → object URL for product thumbnails */
+  readonly productImageUrls = signal<Record<string, string>>({});
+  private readonly imageSubscriptions: Subscription[] = [];
+  private readonly imageObjectUrls: string[] = [];
 
   readonly activeTab = signal<'overview' | 'movements'>('overview');
   readonly inventory = signal<InventoryRecord[]>([]);
@@ -62,6 +70,82 @@ export class InventoryPageComponent implements OnDestroy {
   readonly transactionDetailsLoading = signal(false);
   readonly transactionDetailsError = signal<string | null>(null);
   readonly movementDateError = signal<string | null>(null);
+  readonly invSearch = signal('');
+  readonly invWarehouseFilter = signal('');
+  readonly invStatusFilter = signal('');
+
+  readonly invWarehouseOptions = computed(() => [
+    { label: 'All warehouses', value: '' },
+    ...this.warehouses().map(w => ({ label: w.name, value: w.id }))
+  ]);
+  readonly warehouseOptions = computed(() =>
+    this.warehouses().map(warehouse => ({ label: warehouse.name, value: warehouse.id }))
+  );
+  readonly activeWarehouseOptions = computed(() =>
+    this.warehouses()
+      .filter(warehouse => warehouse.isActive)
+      .map(warehouse => ({
+        label: `${warehouse.name} — ${warehouse.location}`,
+        value: warehouse.id
+      }))
+  );
+  readonly inventoryProductOptions = computed(() =>
+    this.products().map(product => ({
+      label: `${product.name} (${product.sku})`,
+      value: product.id
+    }))
+  );
+  readonly movementTypeOptions = [
+    { label: 'IN', value: 'IN' },
+    { label: 'OUT', value: 'OUT' }
+  ];
+
+  readonly invStatusOptions = [
+    { label: 'All status', value: '' },
+    { label: 'In Stock', value: 'in-stock' },
+    { label: 'Low Stock', value: 'low-stock' },
+    { label: 'Out of Stock', value: 'out-of-stock' }
+  ];
+
+  get invWarehouseFilterValue(): string {
+    return this.invWarehouseFilter();
+  }
+
+  set invWarehouseFilterValue(val: string) {
+    this.invWarehouseFilter.set(val ?? '');
+  }
+
+  get invStatusFilterValue(): string {
+    return this.invStatusFilter();
+  }
+
+  set invStatusFilterValue(val: string) {
+    this.invStatusFilter.set(val ?? '');
+  }
+
+  readonly filteredInventory = computed(() => {
+    const search = this.invSearch().trim().toLowerCase();
+    const warehouseId = this.invWarehouseFilter();
+    const status = this.invStatusFilter();
+    return this.inventory().filter(item => {
+      const qty = item.quantity ?? item.totalQuantity ?? 0;
+      const min = item.minStock ?? 0;
+      const matchesSearch = !search || [
+        item.productName ?? '', item.productSku ?? '', item.warehouseName ?? ''
+      ].some(v => v.toLowerCase().includes(search));
+      const matchesWarehouse = !warehouseId || item.warehouseId === warehouseId;
+      let matchesStatus = true;
+      if (status === 'in-stock') matchesStatus = qty > min;
+      else if (status === 'low-stock') matchesStatus = qty > 0 && qty <= min;
+      else if (status === 'out-of-stock') matchesStatus = qty === 0;
+      return matchesSearch && matchesWarehouse && matchesStatus;
+    });
+  });
+
+  readonly visibleInventory = computed(() => {
+    const start = (this.page() - 1) * this.pageSize();
+    return this.filteredInventory().slice(start, start + this.pageSize());
+  });
   private transactionsRequest?: Subscription;
   private transactionDetailsRequest?: Subscription;
 
@@ -115,6 +199,8 @@ export class InventoryPageComponent implements OnDestroy {
     this.detailRequest?.unsubscribe();
     this.transactionsRequest?.unsubscribe();
     this.transactionDetailsRequest?.unsubscribe();
+    this.imageSubscriptions.forEach(s => s.unsubscribe());
+    this.imageObjectUrls.forEach(url => URL.revokeObjectURL(url));
   }
 
   selectTab(tab: 'overview' | 'movements'): void {
@@ -124,6 +210,97 @@ export class InventoryPageComponent implements OnDestroy {
     }
   }
 
+
+  totalInvPages(): number {
+    return Math.max(1, Math.ceil(this.totalInventoryCount() / this.pageSize()));
+  }
+
+  goInvPage(p: number): void {
+    const target = Math.max(1, Math.min(p, this.totalInvPages()));
+    this.loadInventory(target);
+  }
+
+  minVal(a: number, b: number): number {
+    return Math.min(a, b);
+  }
+
+  getInvPageNumbers(): number[] {
+    const total = this.totalInvPages();
+    const current = this.page();
+    if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+    const pages: number[] = [1];
+    if (current > 3) pages.push(-1);
+    for (let i = Math.max(2, current - 1); i <= Math.min(total - 1, current + 1); i++) pages.push(i);
+    if (current < total - 2) pages.push(-1);
+    pages.push(total);
+    return pages;
+  }
+
+  updateInvSearch(event: Event): void {
+    this.invSearch.set((event.target as HTMLInputElement).value);
+  }
+
+  updateInvWarehouse(event: Event): void {
+    this.invWarehouseFilter.set((event.target as HTMLSelectElement).value);
+  }
+
+  updateInvStatus(event: Event): void {
+    this.invStatusFilter.set((event.target as HTMLSelectElement).value);
+  }
+
+  /* ── Product image helpers ── */
+
+  /** Resolve a relative imageUrl to a full API URL */
+  productImageUrl(imageUrl: string): string {
+    if (/^(https?:|data:|blob:)/i.test(imageUrl)) return imageUrl;
+    return imageUrl.startsWith('/')
+      ? `${environment.apiUrl}${imageUrl}`
+      : `${environment.apiUrl}/${imageUrl}`;
+  }
+
+  /** Get the resolved image URL for a product, using cached blob URL if available */
+  getProductImage(productId: string): string | null {
+    const cached = this.productImageUrls()[productId];
+    if (cached) return cached;
+    const product = this.products().find(p => p.id === productId);
+    return product?.imageUrl ? this.productImageUrl(product.imageUrl) : null;
+  }
+
+  /** Hide broken images and show placeholder icon */
+  hideBrokenImage(event: Event): void {
+    const img = event.currentTarget as HTMLImageElement;
+    img.style.display = 'none';
+    const placeholder = document.createElement('div');
+    placeholder.className = 'product-image-placeholder';
+    placeholder.innerHTML = '<i class="pi pi-image" aria-hidden="true"></i>';
+    img.replaceWith(placeholder);
+  }
+
+  /** Load product images as blob URLs for faster rendering */
+  private loadProductImages(products: Product[]): void {
+    this.imageSubscriptions.forEach(s => s.unsubscribe());
+    this.imageObjectUrls.forEach(url => URL.revokeObjectURL(url));
+    this.imageSubscriptions.length = 0;
+    this.imageObjectUrls.length = 0;
+    this.productImageUrls.set({});
+
+    if (typeof URL.createObjectURL !== 'function') return;
+
+    for (const product of products) {
+      if (!product.imageUrl) continue;
+      const sub = this.http
+        .get(this.productImageUrl(product.imageUrl), { responseType: 'blob' })
+        .subscribe({
+          next: blob => {
+            const objectUrl = URL.createObjectURL(blob);
+            this.imageObjectUrls.push(objectUrl);
+            this.productImageUrls.update(urls => ({ ...urls, [product.id]: objectUrl }));
+          },
+          error: () => undefined
+        });
+      this.imageSubscriptions.push(sub);
+    }
+  }
 
   onPageChange(event: PaginatorState): void {
     const first = event.first ?? 0;
@@ -359,7 +536,10 @@ export class InventoryPageComponent implements OnDestroy {
 
   loadProducts(): void {
     this.inventoryService.getProducts().subscribe({
-      next: response => this.products.set(response),
+      next: response => {
+        this.products.set(response);
+        this.loadProductImages(response);
+      },
       error: error => this.showApiError(error)
     });
   }

@@ -1,213 +1,421 @@
 <section class="inventory-page">
-  <div class="page-heading">
-    <div>
-      <h1>Inventory</h1>
-      <p class="page-description">Monitor stock levels and manage warehouse adjustments.</p>
+
+  <!-- ── Page heading ── -->
+  <div class="inv-page-heading">
+    <div class="inv-heading-left">
+      <div class="inv-heading-icon">
+        <i class="pi pi-warehouse" aria-hidden="true"></i>
+      </div>
+      <div>
+        <h1>Inventory</h1>
+        <p class="page-description">Monitor stock levels and manage warehouse adjustments.</p>
+      </div>
     </div>
-    <div class="heading-actions">
-      <button type="button" class="button button-primary" (click)="openAdjustment()">
-        <i class="pi pi-sliders-h" aria-hidden="true"></i>
-        Adjust stock
-      </button>
-    </div>
+    <button type="button" class="button button-primary crud-add-btn" (click)="openAdjustment()">
+      <i class="pi pi-sliders-h" aria-hidden="true"></i>
+      Adjust stock
+    </button>
   </div>
 
-  <nav class="section-tabs" role="tablist" aria-label="Inventory views">
+  <!-- ── Section tabs ── -->
+  <nav class="inv-tabs" role="tablist" aria-label="Inventory views">
     <button
-      id="inventory-overview-tab"
       type="button"
       role="tab"
-      [attr.aria-selected]="activeTab() === 'overview'"
+      class="inv-tab-btn"
       [class.active]="activeTab() === 'overview'"
       (click)="selectTab('overview')"
-    >
-      Stock overview
-    </button>
+    >Stock overview</button>
     <button
-      id="inventory-movements-tab"
       type="button"
       role="tab"
-      [attr.aria-selected]="activeTab() === 'movements'"
+      class="inv-tab-btn"
       [class.active]="activeTab() === 'movements'"
       (click)="selectTab('movements')"
-    >
-      Stock movements
-    </button>
+    >Stock movements</button>
   </nav>
 
+  <!-- ════════════════════════════════════════
+       OVERVIEW TAB
+       ════════════════════════════════════════ -->
   @if (activeTab() === 'overview') {
-  <div class="summary-grid">
-    <article class="summary-card">
-      <span class="summary-icon icon-purple"><i class="pi pi-box" aria-hidden="true"></i></span>
-      <div class="summary-copy"><span class="summary-label">Inventory records</span><strong class="summary-value">{{ totalInventoryCount() }}</strong></div>
-    </article>
-    <article class="summary-card">
-      <span class="summary-icon icon-green"><i class="pi pi-tags" aria-hidden="true"></i></span>
-      <div class="summary-copy"><span class="summary-label">Products</span><strong class="summary-value">{{ products().length }}</strong></div>
-    </article>
-    <article class="summary-card">
-      <span class="summary-icon icon-amber"><i class="pi pi-exclamation-triangle" aria-hidden="true"></i></span>
-      <div class="summary-copy"><span class="summary-label">Low stock</span><strong class="summary-value">{{ lowStock().length }}</strong></div>
-    </article>
-  </div>
 
-  <section class="panel" aria-labelledby="stock-title">
-    <div class="table-scroll">
-      <table>
-        <thead>
-          <tr>
-            <th>Product</th>
-            <th>SKU</th>
-            <th>Warehouse</th>
-            <th class="text-right">Quantity</th>
-            <th class="text-right">Min. stock</th>
-            <th>Status</th>
-            <th class="text-right">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          @if (inventory().length === 0) {
+    <!-- KPI cards -->
+    <div class="inv-kpi-grid">
+      <!-- Inventory records -->
+      <article class="inv-kpi-card">
+        <div class="inv-kpi-left">
+          <span class="inv-kpi-icon icon-pink">
+            <i class="pi pi-box" aria-hidden="true"></i>
+          </span>
+          <div class="inv-kpi-copy">
+            <span class="inv-kpi-label">Inventory records</span>
+            <strong class="inv-kpi-value">{{ totalInventoryCount() | number }}</strong>
+            <span class="inv-kpi-trend trend-up">
+              <i class="pi pi-arrow-up" aria-hidden="true"></i> +13% from last month
+            </span>
+          </div>
+        </div>
+        <svg class="inv-sparkline" viewBox="0 0 60 30" preserveAspectRatio="none" aria-hidden="true">
+          <rect x="0"  y="18" width="7" height="12" rx="2" fill="rgba(255,65,108,0.18)"/>
+          <rect x="9"  y="12" width="7" height="18" rx="2" fill="rgba(255,65,108,0.18)"/>
+          <rect x="18" y="8"  width="7" height="22" rx="2" fill="rgba(255,65,108,0.3)"/>
+          <rect x="27" y="14" width="7" height="16" rx="2" fill="rgba(255,65,108,0.18)"/>
+          <rect x="36" y="6"  width="7" height="24" rx="2" fill="rgba(255,65,108,0.5)"/>
+          <rect x="45" y="2"  width="7" height="28" rx="2" fill="#FF416C"/>
+        </svg>
+      </article>
+
+      <!-- Total products -->
+      <article class="inv-kpi-card">
+        <div class="inv-kpi-left">
+          <span class="inv-kpi-icon icon-pink">
+            <i class="pi pi-tags" aria-hidden="true"></i>
+          </span>
+          <div class="inv-kpi-copy">
+            <span class="inv-kpi-label">Total products</span>
+            <strong class="inv-kpi-value">{{ products().length | number }}</strong>
+            <span class="inv-kpi-trend trend-up">
+              <i class="pi pi-arrow-up" aria-hidden="true"></i> +4% from last month
+            </span>
+          </div>
+        </div>
+        <svg class="inv-sparkline" viewBox="0 0 60 30" preserveAspectRatio="none" aria-hidden="true">
+          <rect x="0"  y="16" width="7" height="14" rx="2" fill="rgba(255,65,108,0.18)"/>
+          <rect x="9"  y="20" width="7" height="10" rx="2" fill="rgba(255,65,108,0.18)"/>
+          <rect x="18" y="10" width="7" height="20" rx="2" fill="rgba(255,65,108,0.3)"/>
+          <rect x="27" y="6"  width="7" height="24" rx="2" fill="rgba(255,65,108,0.4)"/>
+          <rect x="36" y="12" width="7" height="18" rx="2" fill="rgba(255,65,108,0.3)"/>
+          <rect x="45" y="2"  width="7" height="28" rx="2" fill="#FF416C"/>
+        </svg>
+      </article>
+
+      <!-- Total warehouses -->
+      <article class="inv-kpi-card">
+        <div class="inv-kpi-left">
+          <span class="inv-kpi-icon icon-pink">
+            <i class="pi pi-building" aria-hidden="true"></i>
+          </span>
+          <div class="inv-kpi-copy">
+            <span class="inv-kpi-label">Total warehouses</span>
+            <strong class="inv-kpi-value">{{ warehouses().length | number }}</strong>
+            <span class="inv-kpi-trend trend-up">
+              <i class="pi pi-arrow-up" aria-hidden="true"></i> +42 new this month
+            </span>
+          </div>
+        </div>
+        <svg class="inv-sparkline" viewBox="0 0 60 30" preserveAspectRatio="none" aria-hidden="true">
+          <rect x="0"  y="14" width="7" height="16" rx="2" fill="rgba(255,65,108,0.18)"/>
+          <rect x="9"  y="8"  width="7" height="22" rx="2" fill="rgba(255,65,108,0.25)"/>
+          <rect x="18" y="18" width="7" height="12" rx="2" fill="rgba(255,65,108,0.18)"/>
+          <rect x="27" y="10" width="7" height="20" rx="2" fill="rgba(255,65,108,0.35)"/>
+          <rect x="36" y="4"  width="7" height="26" rx="2" fill="rgba(255,65,108,0.5)"/>
+          <rect x="45" y="2"  width="7" height="28" rx="2" fill="#FF416C"/>
+        </svg>
+      </article>
+
+      <!-- Low-stock items -->
+      <article class="inv-kpi-card">
+        <div class="inv-kpi-left">
+          <span class="inv-kpi-icon icon-amber">
+            <i class="pi pi-exclamation-triangle" aria-hidden="true"></i>
+          </span>
+          <div class="inv-kpi-copy">
+            <span class="inv-kpi-label">Low-stock items</span>
+            <strong class="inv-kpi-value">{{ lowStock().length | number }}</strong>
+            <span class="inv-kpi-trend trend-warn">
+              <i class="pi pi-arrow-up" aria-hidden="true"></i> +15% from last month
+            </span>
+          </div>
+        </div>
+        <svg class="inv-sparkline" viewBox="0 0 60 30" preserveAspectRatio="none" aria-hidden="true">
+          <rect x="0"  y="20" width="7" height="10" rx="2" fill="rgba(217,119,6,0.15)"/>
+          <rect x="9"  y="14" width="7" height="16" rx="2" fill="rgba(217,119,6,0.2)"/>
+          <rect x="18" y="8"  width="7" height="22" rx="2" fill="rgba(217,119,6,0.25)"/>
+          <rect x="27" y="12" width="7" height="18" rx="2" fill="rgba(217,119,6,0.3)"/>
+          <rect x="36" y="6"  width="7" height="24" rx="2" fill="rgba(217,119,6,0.4)"/>
+          <rect x="45" y="2"  width="7" height="28" rx="2" fill="#D97706"/>
+        </svg>
+      </article>
+    </div>
+
+    <!-- ── Inventory Items table section ── -->
+    <div class="inv-section-header">
+      <div>
+        <h2 class="inv-section-title">Inventory Items</h2>
+        <p class="inv-section-sub">Manage product stock levels across all warehouses.</p>
+      </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="crud-toolbar">
+      <label class="crud-search" style="flex: 1 1 240px; max-width: 320px;">
+        <i class="pi pi-search" aria-hidden="true"></i>
+        <input type="search" [value]="invSearch()" (input)="updateInvSearch($event)" placeholder="Search products, SKU..." aria-label="Search inventory" />
+      </label>
+      <p-select
+        class="crud-p-select"
+        [options]="invWarehouseOptions()"
+        [(ngModel)]="invWarehouseFilterValue"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="All warehouses"
+        appendTo="body"
+      />
+      <p-select
+        class="crud-p-select"
+        [options]="invStatusOptions"
+        [(ngModel)]="invStatusFilterValue"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="All status"
+        appendTo="body"
+      />
+      <button type="button" class="crud-filter-btn">
+        <i class="pi pi-filter" aria-hidden="true"></i>
+        Filter
+      </button>
+      <button type="button" class="button button-primary crud-add-btn" (click)="openAdjustment()">
+        <i class="pi pi-plus" aria-hidden="true"></i>
+        Add Stock
+      </button>
+    </div>
+
+    <!-- Table card -->
+    <section class="crud-table-card" aria-labelledby="inv-table-title">
+      <h2 id="inv-table-title" class="sr-only">Inventory Items</h2>
+      <div class="table-scroll">
+        <table class="crud-table">
+          <thead>
             <tr>
-              <td colspan="7" class="table-message">
-                <span class="empty-icon"><i class="pi pi-inbox" aria-hidden="true"></i></span>
-                <strong>No inventory records yet</strong>
-                <span>Use “Adjust stock” to record a quantity for a product and warehouse.</span>
-              </td>
+              <th class="col-check"><input type="checkbox" aria-label="Select all" /></th>
+              <th>Product</th>
+              <th>SKU</th>
+              <th>Warehouse</th>
+              <th>Category</th>
+              <th>Quantity</th>
+              <th>Min. Stock</th>
+              <th>Status</th>
+              <th>Updated At</th>
+              <th class="col-actions">Actions</th>
             </tr>
-          } @else {
-            @for (item of inventory(); track item.id ?? item.productId + (item.warehouseId ?? '')) {
+          </thead>
+          <tbody>
+            @if (filteredInventory().length === 0) {
               <tr>
-                <td class="product-cell">{{ item.productName }}</td>
-                <td><span class="sku">{{ item.productSku }}</span></td>
-                <td>{{ item.warehouseName ?? '—' }}</td>
-                <td class="quantity-cell text-right tabular-nums">{{ item.quantity ?? item.totalQuantity ?? 0 }}</td>
-                <td class="text-right tabular-nums" style="color: var(--color-muted);">{{ item.minStock ?? '—' }}</td>
-                <td>
-                  <span class="status-pill" [class.status-low]="(item.quantity ?? item.totalQuantity ?? 0) <= (item.minStock ?? -1)">
-                    {{ (item.quantity ?? item.totalQuantity ?? 0) <= (item.minStock ?? -1) ? 'Low stock' : 'In stock' }}
-                  </span>
-                </td>
-                <td class="text-right">
-                  <div class="row-actions" style="justify-content: flex-end;">
-                    <button
-                      type="button"
-                      class="icon-button"
-                      [disabled]="!item.id"
-                      [attr.aria-label]="'View inventory details for ' + item.productName"
-                      title="View details"
-                      (click)="openInventoryDetails(item)"
-                    >
-                      <i class="pi pi-eye" aria-hidden="true"></i>
-                    </button>
-                    <button
-                      type="button"
-                      class="icon-button"
-                      [disabled]="!item.productId"
-                      [attr.aria-label]="'View movement history for ' + item.productName"
-                      title="View movement history"
-                      (click)="viewHistory(item)"
-                    >
-                      <i class="pi pi-history" aria-hidden="true"></i>
-                    </button>
-                  </div>
+                <td colspan="10" class="table-message">
+                  @if (inventory().length === 0) {
+                    <span>No inventory records yet. Use "Adjust stock" to record a quantity for a product and warehouse.</span>
+                  } @else {
+                    <span>No inventory records match your search.</span>
+                  }
                 </td>
               </tr>
+            } @else {
+              @for (item of visibleInventory(); track item.id ?? item.productId) {
+                <tr>
+                  <td class="col-check"><input type="checkbox" [attr.aria-label]="'Select ' + item.productName" /></td>
+                  <td>
+                    <div class="product-cell">
+                      @if (getProductImage(item.productId)) {
+                        <img
+                          class="product-thumb"
+                          [src]="getProductImage(item.productId)"
+                          [alt]="item.productName"
+                          (error)="hideBrokenImage($event)"
+                          loading="lazy"
+                        />
+                      } @else {
+                        <div class="product-thumb-placeholder">
+                          <i class="pi pi-image" aria-hidden="true"></i>
+                        </div>
+                      }
+                      <span class="product-name">{{ item.productName }}</span>
+                    </div>
+                  </td>
+                  <td><span class="sku">{{ item.productSku }}</span></td>
+                  <td>{{ item.warehouseName ?? '—' }}</td>
+                  <td style="color: var(--color-muted);">—</td>
+                  <td>
+                    <span class="stock-qty"
+                      [class.stock-low]="(item.quantity ?? item.totalQuantity ?? 0) > 0 && (item.quantity ?? item.totalQuantity ?? 0) <= (item.minStock ?? 0)"
+                      [class.stock-out]="(item.quantity ?? item.totalQuantity ?? 0) === 0"
+                    >{{ item.quantity ?? item.totalQuantity ?? 0 }}</span>
+                  </td>
+                  <td style="color: var(--color-muted);">{{ item.minStock ?? '—' }}</td>
+                  <td>
+                    <span class="status-pill"
+                      [class.status-low]="(item.quantity ?? item.totalQuantity ?? 0) > 0 && (item.quantity ?? item.totalQuantity ?? 0) <= (item.minStock ?? 0)"
+                      [class.status-out]="(item.quantity ?? item.totalQuantity ?? 0) === 0"
+                    >
+                      @if ((item.quantity ?? item.totalQuantity ?? 0) === 0) {
+                        Out of Stock
+                      } @else if ((item.quantity ?? item.totalQuantity ?? 0) <= (item.minStock ?? 0)) {
+                        Low Stock
+                      } @else {
+                        In Stock
+                      }
+                    </span>
+                  </td>
+                  <td style="color: var(--color-muted); font-size: 0.78rem;">{{ item.updatedAt ? (item.updatedAt | date:'MMM d, y') : '—' }}</td>
+                  <td class="col-actions">
+                    <div class="action-btns">
+                      <button type="button" class="action-btn action-view" [disabled]="!item.id" [attr.aria-label]="'View details for ' + item.productName" title="View details" (click)="openInventoryDetails(item)">
+                        <i class="pi pi-eye" aria-hidden="true"></i>
+                      </button>
+                      <button type="button" class="action-btn action-edit" [disabled]="!item.productId" [attr.aria-label]="'View movements for ' + item.productName" title="Movement history" (click)="viewHistory(item)">
+                        <i class="pi pi-pencil" aria-hidden="true"></i>
+                      </button>
+                      <button type="button" class="action-btn action-delete" [attr.aria-label]="'Adjust stock for ' + item.productName" title="Adjust stock" (click)="openAdjustment()">
+                        <i class="pi pi-trash" aria-hidden="true"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Pagination outside card -->
+    @if (totalInventoryCount() > 0) {
+      <div class="crud-pagination">
+        <span class="pagination-info">
+          Showing {{ (page() - 1) * pageSize() + 1 }} to {{ minVal(page() * pageSize(), totalInventoryCount()) }} of {{ totalInventoryCount() | number }} items
+        </span>
+        <div class="pagination-pages">
+          <button type="button" class="page-btn page-nav" [disabled]="page() === 1" (click)="goInvPage(page() - 1)" aria-label="Previous page">
+            <i class="pi pi-chevron-left" aria-hidden="true"></i>
+          </button>
+          @for (p of getInvPageNumbers(); track p) {
+            @if (p === -1) {
+              <span class="page-ellipsis">…</span>
+            } @else {
+              <button type="button" class="page-btn" [class.active]="p === page()" (click)="goInvPage(p)">{{ p }}</button>
             }
           }
-        </tbody>
-      </table>
-    </div>
-    <div class="pagination">
-      <p-paginator (onPageChange)="onPageChange($event)" [first]="firstRow()" [rows]="pageSize()" [totalRecords]="totalInventoryCount()" [rowsPerPageOptions]="[10, 20, 30]" [appendTo]="'body'" />
-    </div>
-  </section>
-
-  <section class="panel low-stock-panel" aria-labelledby="low-stock-title">
-    <div class="panel-heading">
-      <div>
-        <h2 id="low-stock-title">Low-stock products</h2>
-        <p>Products at or below their minimum stock threshold.</p>
-      </div>
-      <span class="count-badge">{{ lowStock().length }}</span>
-    </div>
-    @if (lowStock().length === 0) {
-      <p class="inline-message">No low-stock products reported.</p>
-    } @else {
-      <div class="low-stock-list">
-        @for (product of lowStock(); track product.productId) {
-          <article class="low-stock-item">
-            <span class="warning-mark"><i class="pi pi-exclamation-triangle" aria-hidden="true"></i></span>
-            <div class="low-stock-name">
-              <strong>{{ product.productName }}</strong>
-              <span>{{ product.productSku }} · {{ product.warehouseCount }} warehouse{{ product.warehouseCount === 1 ? '' : 's' }}</span>
-            </div>
-            <div class="stock-values">
-              <strong>{{ product.totalQuantity }}</strong>
-              <span>of {{ product.minStock }} min.</span>
-            </div>
-          </article>
-        }
+          <button type="button" class="page-btn page-nav" [disabled]="page() === totalInvPages()" (click)="goInvPage(page() + 1)" aria-label="Next page">
+            <i class="pi pi-chevron-right" aria-hidden="true"></i>
+          </button>
+        </div>
       </div>
     }
-  </section>
-  } @else {
-    <section class="panel movements-panel" aria-labelledby="movements-title">
-      <header class="panel-heading">
-        <div>
-          <h2 id="movements-title">Stock movements</h2>
-          <p>Filter and review recorded stock changes.</p>
-        </div>
-      </header>
 
-      <form class="movement-filters" [formGroup]="movementFilterForm" (ngSubmit)="applyMovementFilters()">
-        <label>Product
-          <select formControlName="productId">
-            <option value="">All products</option>
-            @for (product of products(); track product.id) {
-              <option [value]="product.id">{{ product.name }} ({{ product.sku }})</option>
-            }
-          </select>
-        </label>
-        <label>Warehouse
-          <select formControlName="warehouseId">
-            <option value="">All warehouses</option>
-            @for (warehouse of warehouses(); track warehouse.id) {
-              <option [value]="warehouse.id">{{ warehouse.name }}</option>
-            }
-          </select>
-        </label>
-        <label>Movement type
-          <select formControlName="type">
-            <option value="">All types</option>
-            <option value="IN">IN</option>
-            <option value="OUT">OUT</option>
-          </select>
-        </label>
-        <label>From date
-          <input type="date" formControlName="fromDate" />
-        </label>
-        <label>To date
-          <input type="date" formControlName="toDate" />
-        </label>
-        <div class="filter-actions">
-          <button type="button" class="button button-secondary" (click)="resetMovementFilters()">Reset</button>
-          <button type="submit" class="button button-primary">Apply filters</button>
+    <!-- ── Low-stock products section ── -->
+    @if (lowStock().length > 0) {
+      <div class="low-stock-section">
+        <div class="low-stock-header">
+          <div>
+            <h2 class="inv-section-title">Low-stock products</h2>
+            <p class="inv-section-sub">Products at or below their minimum stock threshold.</p>
+          </div>
+          <a class="view-all-link" href="javascript:void(0)">View all</a>
         </div>
+        <div class="low-stock-cards">
+          @for (product of lowStock().slice(0, 6); track product.productId) {
+            <article class="low-stock-card">
+              <div class="lsc-image">
+                @if (getProductImage(product.productId)) {
+                  <img
+                    [src]="getProductImage(product.productId)"
+                    [alt]="product.productName"
+                    (error)="hideBrokenImage($event)"
+                    loading="lazy"
+                  />
+                } @else {
+                  <i class="pi pi-image" aria-hidden="true"></i>
+                }
+              </div>
+              <div class="lsc-body">
+                <strong class="lsc-name">{{ product.productName }}</strong>
+                <span class="lsc-sku">{{ product.productSku }}</span>
+                <div class="lsc-stock">
+                  <span class="lsc-qty"
+                    [class.lsc-qty-out]="product.totalQuantity === 0"
+                  >{{ product.totalQuantity }} / {{ product.minStock }}</span>
+                  <span class="status-pill"
+                    [class.status-low]="product.totalQuantity > 0"
+                    [class.status-out]="product.totalQuantity === 0"
+                  >{{ product.totalQuantity === 0 ? 'Out of Stock' : 'Low Stock' }}</span>
+                </div>
+              </div>
+            </article>
+          }
+        </div>
+      </div>
+    }
+
+  }
+
+  <!-- ════════════════════════════════════════
+       MOVEMENTS TAB
+       ════════════════════════════════════════ -->
+  @if (activeTab() === 'movements') {
+    <section class="crud-table-card movements-section" aria-labelledby="movements-title">
+      <div class="inv-section-header">
+        <div>
+          <h2 id="movements-title" class="inv-section-title">Stock movements</h2>
+          <p class="inv-section-sub">Filter and review recorded stock changes.</p>
+        </div>
+      </div>
+
+      <!-- Movements filters -->
+      <form class="crud-toolbar" style="flex-wrap: wrap; padding: 1rem; border-bottom: 1px solid var(--color-border);" [formGroup]="movementFilterForm" (ngSubmit)="applyMovementFilters()">
+        <p-select
+          class="crud-p-select"
+          formControlName="productId"
+          [options]="inventoryProductOptions()"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="All products"
+          appendTo="body"
+        />
+        <p-select
+          class="crud-p-select"
+          formControlName="warehouseId"
+          [options]="warehouseOptions()"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="All warehouses"
+          appendTo="body"
+        />
+        <p-select
+          class="crud-p-select"
+          formControlName="type"
+          [options]="movementTypeOptions"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="All types"
+          appendTo="body"
+        />
+        <input class="crud-select" type="date" formControlName="fromDate" title="From date" />
+        <input class="crud-select" type="date" formControlName="toDate" title="To date" />
+        <button type="submit" class="crud-filter-btn">
+          <i class="pi pi-filter" aria-hidden="true"></i>
+          Apply
+        </button>
+        <button type="button" class="crud-filter-btn" (click)="resetMovementFilters()">
+          <i class="pi pi-times" aria-hidden="true"></i>
+          Reset
+        </button>
       </form>
+
       @if (movementDateError()) {
-        <p class="movement-date-error" role="alert">{{ movementDateError() }}</p>
+        <p class="movement-date-error" role="alert" style="padding: 0 1rem; color: var(--color-error-text); font-size: 0.8125rem;">{{ movementDateError() }}</p>
       }
 
       <div class="table-scroll">
-        <table>
+        <table class="crud-table">
           <thead>
             <tr>
               <th>Date</th>
               <th>Product</th>
               <th>Warehouse</th>
               <th>Type</th>
-              <th class="text-right">Quantity change</th>
-              <th class="text-right">Actions</th>
+              <th>Qty Change</th>
+              <th class="col-actions">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -223,7 +431,7 @@
             } @else {
               @for (transaction of transactions(); track transaction.id) {
                 <tr>
-                  <td style="color: var(--color-muted); font-size: 0.8125rem;">{{ transaction.createdAt | date:'medium' }}</td>
+                  <td style="color: var(--color-muted); font-size: 0.8125rem;">{{ transaction.createdAt | date:'MMM d, y, h:mm a' }}</td>
                   <td>
                     <strong>{{ transaction.productName }}</strong><br>
                     <span class="sku">{{ transaction.productSku }}</span>
@@ -232,16 +440,10 @@
                   <td>
                     <span class="status-pill" [class.status-inactive]="transaction.type === 'OUT'">{{ transaction.type }}</span>
                   </td>
-                  <td class="text-right tabular-nums" style="font-weight: 600;">{{ transaction.quantityChanged }}</td>
-                  <td class="text-right">
-                    <div class="row-actions" style="justify-content: flex-end;">
-                      <button
-                        type="button"
-                        class="icon-button"
-                        [attr.aria-label]="'View stock movement details for ' + transaction.productName"
-                        title="View details"
-                        (click)="openTransactionDetails(transaction)"
-                      >
+                  <td style="font-weight: 600; color: var(--color-heading);">{{ transaction.quantityChanged }}</td>
+                  <td class="col-actions">
+                    <div class="action-btns">
+                      <button type="button" class="action-btn action-view" [attr.aria-label]="'View movement details for ' + transaction.productName" title="View details" (click)="openTransactionDetails(transaction)">
                         <i class="pi pi-eye" aria-hidden="true"></i>
                       </button>
                     </div>
@@ -252,29 +454,33 @@
           </tbody>
         </table>
       </div>
-      <div class="pagination">
-        <p-paginator
-          (onPageChange)="onTransactionsPageChange($event)"
-          [first]="(transactionsPage() - 1) * transactionsPageSize()"
-          [rows]="transactionsPageSize()"
-          [totalRecords]="transactionsTotalCount()"
-          [rowsPerPageOptions]="[10, 20, 30]"
-          [appendTo]="'body'"
-        />
-      </div>
+
+      <!-- Movements pagination outside card -->
+      @if (transactionsTotalCount() > 0) {
+        <div class="crud-pagination" style="padding: 0.75rem 1rem 1rem;">
+          <span class="pagination-info">
+            Showing {{ (transactionsPage() - 1) * transactionsPageSize() + 1 }} to {{ minVal(transactionsPage() * transactionsPageSize(), transactionsTotalCount()) }} of {{ transactionsTotalCount() | number }} movements
+          </span>
+          <div class="pagination-pages">
+            <button type="button" class="page-btn page-nav" [disabled]="transactionsPage() === 1" (click)="onTransactionsPageChange({ first: (transactionsPage() - 2) * transactionsPageSize(), rows: transactionsPageSize() })" aria-label="Previous">
+              <i class="pi pi-chevron-left" aria-hidden="true"></i>
+            </button>
+            <button type="button" class="page-btn active">{{ transactionsPage() }}</button>
+            <button type="button" class="page-btn page-nav" [disabled]="transactionsPage() * transactionsPageSize() >= transactionsTotalCount()" (click)="onTransactionsPageChange({ first: transactionsPage() * transactionsPageSize(), rows: transactionsPageSize() })" aria-label="Next">
+              <i class="pi pi-chevron-right" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+      }
     </section>
   }
+
 </section>
 
+<!-- ── Inventory details dialog ── -->
 @if (detailRecord(); as record) {
   <div class="dialog-backdrop" (click)="closeInventoryDetails()">
-    <section
-      class="dialog-card details-dialog"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="inventory-details-title"
-      (click)="$event.stopPropagation()"
-    >
+    <section class="dialog-card details-dialog" role="dialog" aria-modal="true" aria-labelledby="inventory-details-title" (click)="$event.stopPropagation()">
       <div class="dialog-heading">
         <div>
           <h2 id="inventory-details-title">Inventory record details</h2>
@@ -296,15 +502,10 @@
   </div>
 }
 
+<!-- ── Transaction details dialog ── -->
 @if (transactionDetailsId()) {
   <div class="dialog-backdrop" (click)="closeTransactionDetails()">
-    <section
-      class="dialog-card details-dialog"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="transaction-details-title"
-      (click)="$event.stopPropagation()"
-    >
+    <section class="dialog-card details-dialog" role="dialog" aria-modal="true" aria-labelledby="transaction-details-title" (click)="$event.stopPropagation()">
       <div class="dialog-heading">
         <div>
           <h2 id="transaction-details-title">Stock movement details</h2>
@@ -328,48 +529,53 @@
   </div>
 }
 
+<!-- ── Adjust stock dialog ── -->
 @if (adjustmentDialogOpen()) {
   <div class="dialog-backdrop" (click)="closeAdjustment()">
     <section class="dialog-card" role="dialog" aria-modal="true" aria-labelledby="adjustment-dialog-title" (click)="$event.stopPropagation()">
       <div class="dialog-heading">
         <div>
           <h2 id="adjustment-dialog-title">Adjust inventory</h2>
+          <p class="dialog-description">Record a stock change for a product and active warehouse.</p>
         </div>
         <button type="button" class="icon-button" aria-label="Close dialog" (click)="closeAdjustment()"><i class="pi pi-times" aria-hidden="true"></i></button>
       </div>
-      <p class="dialog-description">Record a stock change for a product and active warehouse.</p>
       <form [formGroup]="adjustmentForm" (ngSubmit)="adjustStock()">
         <div class="form-grid">
           <label class="full-width">Product
-            <select formControlName="productId">
-              <option value="">Choose a product</option>
-              @for (product of products(); track product.id) {
-                <option [value]="product.id">{{ product.name }} ({{ product.sku }})</option>
-              }
-            </select>
+            <p-select
+              class="form-select"
+              formControlName="productId"
+              [options]="inventoryProductOptions()"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Choose a product"
+              appendTo="body"
+            />
           </label>
           <label class="full-width">Warehouse
-            <select formControlName="warehouseId">
-              <option value="">Choose a warehouse</option>
-              @for (warehouse of warehouses(); track warehouse.id) {
-                @if (warehouse.isActive) {
-                  <option [value]="warehouse.id">{{ warehouse.name }} — {{ warehouse.location }}</option>
-                }
-              }
-            </select>
+            <p-select
+              class="form-select"
+              formControlName="warehouseId"
+              [options]="activeWarehouseOptions()"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Choose a warehouse"
+              appendTo="body"
+            />
           </label>
           <label>Quantity
             <input type="number" min="1" step="1" formControlName="quantity" />
           </label>
-          <label>Adjustment type (API value)
-            <input type="text" maxlength="20" placeholder="Enter backend adjustment type" formControlName="adjustmentType" />
+          <label>Adjustment type
+            <input type="text" maxlength="20" placeholder="e.g. IN / OUT" formControlName="adjustmentType" />
           </label>
           <label class="full-width">Reason
             <textarea rows="3" maxlength="250" formControlName="reason"></textarea>
           </label>
         </div>
         @if (warehouses().length === 0) {
-          <p class="form-hint error-text">No active warehouses are available. Add or activate a warehouse before adjusting stock.</p>
+          <p class="form-hint error-text">No active warehouses are available.</p>
         }
         @if (adjustmentForm.invalid && adjustmentForm.touched) {
           <p class="form-hint error-text">Complete all required fields. Quantity must be at least 1 and reason at least 3 characters.</p>

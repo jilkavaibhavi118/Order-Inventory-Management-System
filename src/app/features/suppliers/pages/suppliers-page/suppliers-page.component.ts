@@ -23,9 +23,17 @@ export class SuppliersPageComponent {
   readonly suppliers = signal<Supplier[]>([]);
   readonly page = signal(1);
   readonly pageSize = signal(10);
+  readonly supplierSearch = signal('');
+  readonly filteredSuppliers = computed(() => {
+    const search = this.supplierSearch().trim().toLowerCase();
+    if (!search) return this.suppliers();
+    return this.suppliers().filter(s =>
+      [s.name, s.email ?? '', s.phone ?? '', s.address ?? ''].some(v => v.toLowerCase().includes(search))
+    );
+  });
   readonly visibleSuppliers = computed(() => {
     const start = (this.page() - 1) * this.pageSize();
-    return this.suppliers().slice(start, start + this.pageSize());
+    return this.filteredSuppliers().slice(start, start + this.pageSize());
   });
   readonly loading = signal(false);
   readonly saving = signal(false);
@@ -54,6 +62,35 @@ export class SuppliersPageComponent {
 
   constructor() {
     this.loadSuppliers();
+  }
+
+  totalPages(): number {
+    return Math.max(1, Math.ceil(this.filteredSuppliers().length / this.pageSize()));
+  }
+
+  setPage(p: number): void {
+    this.page.set(Math.max(1, Math.min(p, this.totalPages())));
+  }
+
+  minVal(a: number, b: number): number {
+    return Math.min(a, b);
+  }
+
+  getPageNumbers(): number[] {
+    const total = this.totalPages();
+    const current = this.page();
+    if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+    const pages: number[] = [1];
+    if (current > 3) pages.push(-1);
+    for (let i = Math.max(2, current - 1); i <= Math.min(total - 1, current + 1); i++) pages.push(i);
+    if (current < total - 2) pages.push(-1);
+    pages.push(total);
+    return pages;
+  }
+
+  updateSupplierSearch(event: Event): void {
+    this.supplierSearch.set((event.target as HTMLInputElement).value);
+    this.page.set(1);
   }
 
   onPageChange(event: PaginatorState): void {

@@ -1,87 +1,199 @@
 <section class="products-page">
+  <!-- Page heading -->
   <div class="page-heading">
     <div>
       <h1>Products</h1>
-      <p class="page-description">Manage product catalog, pricing, and supplier assignments.</p>
+      <p class="page-description">Manage your products, stock levels and categories.</p>
     </div>
     <div class="heading-actions">
-      <button type="button" class="button button-primary" (click)="openCreateProduct()">
+      <button
+        type="button"
+        class="button button-primary crud-add-btn"
+        (click)="openCreateProduct()"
+      >
         <i class="pi pi-plus" aria-hidden="true"></i>
-        Add product
+        Add Product
       </button>
     </div>
   </div>
 
-  <section class="panel" aria-labelledby="products-title">
+  <!-- Status filter tabs -->
+  <div class="status-filter-tabs">
+    <button
+      type="button"
+      class="tab-btn"
+      [class.active]="statusFilter() === ''"
+      (click)="statusFilter.set(''); page.set(1)"
+    >
+      All ({{ products().length }})
+    </button>
+    <button
+      type="button"
+      class="tab-btn"
+      [class.active]="statusFilter() === 'in-stock'"
+      (click)="statusFilter.set('in-stock'); page.set(1)"
+    >
+      In Stock ({{ inStockCount() }})
+    </button>
+    <button
+      type="button"
+      class="tab-btn"
+      [class.active]="statusFilter() === 'low-stock'"
+      (click)="statusFilter.set('low-stock'); page.set(1)"
+    >
+      Low Stock ({{ lowStockCount() }})
+    </button>
+    <button
+      type="button"
+      class="tab-btn"
+      [class.active]="statusFilter() === 'out-of-stock'"
+      (click)="statusFilter.set('out-of-stock'); page.set(1)"
+    >
+      Out of Stock ({{ outOfStockCount() }})
+    </button>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="crud-toolbar">
+    <label class="crud-search">
+      <i class="pi pi-search" aria-hidden="true"></i>
+      <input
+        type="search"
+        [value]="searchTerm()"
+        (input)="updateSearch($event)"
+        placeholder="Search products..."
+        aria-label="Search products"
+      />
+    </label>
+    <p-select
+      class="crud-p-select"
+      [options]="categoryOptions()"
+      [(ngModel)]="categoryFilterValue"
+      optionLabel="label"
+      optionValue="value"
+      placeholder="All Categories"
+      appendTo="body"
+    />
+    <p-select
+      class="crud-p-select"
+      [options]="statusOptions"
+      [(ngModel)]="statusFilterValue"
+      optionLabel="label"
+      optionValue="value"
+      placeholder="All Status"
+      appendTo="body"
+    />
+    <button type="button" class="crud-filter-btn">
+      <i class="pi pi-filter" aria-hidden="true"></i>
+      Filter
+    </button>
+    <button type="button" class="crud-grid-btn" title="Grid view">
+      <i class="pi pi-th-large" aria-hidden="true"></i>
+    </button>
+  </div>
+
+  <!-- Table card -->
+  <section class="crud-table-card" aria-labelledby="products-title">
+    <h2 id="products-title" class="sr-only">Products</h2>
     <div class="table-scroll">
-      <table>
+      <table class="crud-table">
         <thead>
           <tr>
-            <th>Image</th>
+            <th class="col-check"><input type="checkbox" aria-label="Select all" /></th>
             <th>Product</th>
             <th>SKU</th>
             <th>Category</th>
-            <th>Supplier</th>
-            <th class="text-right">Cost price</th>
-            <th class="text-right">Sell price</th>
-            <th class="text-right">Min. stock</th>
+            <th>Warehouse</th>
+            <th>Stock</th>
             <th>Status</th>
-            <th class="text-right">Actions</th>
+            <th class="col-actions">Actions</th>
           </tr>
         </thead>
         <tbody>
-          @if (products().length === 0) {
-            <tr><td colspan="10" class="table-message">No products found. Add your first product to get started.</td></tr>
+          @if (filteredProducts().length === 0) {
+            <tr>
+              <td colspan="8" class="table-message">
+                {{
+                  products().length === 0
+                    ? 'No products found. Add your first product to get started.'
+                    : 'No products match your search.'
+                }}
+              </td>
+            </tr>
           } @else {
             @for (product of visibleProducts(); track product.id) {
               <tr>
-                <td class="product-image-cell">
-                  @if (getProductImageUrl(product); as imageUrl) {
-                    <img
-                      class="product-image"
-                      [src]="imageUrl"
-                      [alt]="product.name"
-                      loading="lazy"
-                      (error)="hideBrokenImage($event)"
-                    />
-                  } @else {
-                    <div class="product-image-placeholder" aria-label="No image">
-                      <i class="pi pi-image" aria-hidden="true"></i>
-                    </div>
-                  }
+                <td class="col-check">
+                  <input type="checkbox" [attr.aria-label]="'Select ' + product.name" />
                 </td>
-                <td class="product-name">{{ product.name }}</td>
-                <td><span class="sku">{{ product.sku }}</span></td>
+                <td class="product-col">
+                  <div class="product-cell">
+                    @if (getProductImageUrl(product); as imageUrl) {
+                      <img
+                        class="product-image"
+                        [src]="imageUrl"
+                        [alt]="product.name"
+                        loading="lazy"
+                        (error)="hideBrokenImage($event)"
+                      />
+                    } @else {
+                      <div class="product-thumb-placeholder">
+                        <i class="pi pi-image"></i>
+                      </div>
+                    }
+
+                    <span class="product-name">
+                      {{ product.name }}
+                    </span>
+                  </div>
+                </td>
+                <td>
+                  <span class="sku">{{ product.sku }}</span>
+                </td>
                 <td>{{ product.category }}</td>
                 <td>{{ supplierName(product.supplierId) }}</td>
-                <td class="text-right tabular-nums">{{ product.costPrice | number:'1.2-2' }}</td>
-                <td class="text-right tabular-nums" style="font-weight: 600;">{{ product.sellPrice | number:'1.2-2' }}</td>
-                <td class="text-right tabular-nums" style="color: var(--color-muted);">{{ product.minStock }}</td>
-                <td><span class="status-pill" [class.status-inactive]="!product.isActive">{{ product.isActive ? 'Active' : 'Inactive' }}</span></td>
-                <td class="text-right">
-                  <div class="row-actions" style="justify-content: flex-end;">
+                <td>
+                  <span
+                    class="stock-qty"
+                    [class.stock-low]="product.minStock > 0 && product.minStock <= 10"
+                    [class.stock-out]="product.minStock === 0"
+                  >
+                    {{ product.minStock }}
+                  </span>
+                </td>
+                <td>
+                  <span class="status-pill" [class.status-inactive]="!product.isActive">
+                    {{ product.isActive ? 'In Stock' : 'Inactive' }}
+                  </span>
+                </td>
+                <td class="col-actions">
+                  <div class="action-btns">
                     <button
                       type="button"
-                      class="icon-button"
+                      class="action-btn action-edit"
+                      [attr.aria-label]="'Edit ' + product.name"
+                      title="Edit"
+                      (click)="openEditProduct(product)"
+                    >
+                      <i class="pi pi-pencil" aria-hidden="true"></i>
+                    </button>
+                    <button
+                      type="button"
+                      class="action-btn action-view"
                       [attr.aria-label]="'View stock for ' + product.name"
                       title="View stock"
                       (click)="viewStock(product)"
                     >
-                      <i class="pi pi-warehouse" aria-hidden="true"></i>
+                      <i class="pi pi-eye" aria-hidden="true"></i>
                     </button>
                     <button
                       type="button"
-                      class="icon-button"
-                      [attr.aria-label]="'View movement history for ' + product.name"
-                      title="Movement history"
-                      (click)="viewMovementHistory(product)"
+                      class="action-btn action-delete"
+                      [disabled]="saving()"
+                      [attr.aria-label]="'Delete ' + product.name"
+                      title="Delete"
+                      (click)="deleteProduct(product)"
                     >
-                      <i class="pi pi-history" aria-hidden="true"></i>
-                    </button>
-                    <button type="button" class="icon-button" [attr.aria-label]="'Edit ' + product.name" title="Edit" (click)="openEditProduct(product)">
-                      <i class="pi pi-pencil" aria-hidden="true"></i>
-                    </button>
-                    <button type="button" class="icon-button delete-action" [disabled]="saving()" [attr.aria-label]="'Delete ' + product.name" title="Delete" (click)="deleteProduct(product)">
                       <i class="pi pi-trash" aria-hidden="true"></i>
                     </button>
                   </div>
@@ -92,19 +204,55 @@
         </tbody>
       </table>
     </div>
-    <div class="pagination">
-      <p-paginator
-        (onPageChange)="onPageChange($event)"
-        [first]="(page() - 1) * pageSize()"
-        [rows]="pageSize()"
-        [totalRecords]="products().length"
-        [rowsPerPageOptions]="[10, 20, 30]"
-        [appendTo]="'body'"
-      />
-    </div>
   </section>
+
+  <!-- Pagination OUTSIDE the card -->
+  @if (filteredProducts().length > 0) {
+    <div class="crud-pagination">
+      <span class="pagination-info"
+        >Showing {{ (page() - 1) * pageSize() + 1 }} to
+        {{ minVal(page() * pageSize(), filteredProducts().length) }} of
+        {{ filteredProducts().length }} products</span
+      >
+      <div class="pagination-pages">
+        <button
+          type="button"
+          class="page-btn page-nav"
+          [disabled]="page() === 1"
+          (click)="setPage(page() - 1)"
+          aria-label="Previous page"
+        >
+          <i class="pi pi-chevron-left" aria-hidden="true"></i>
+        </button>
+        @for (p of getPageNumbers(); track p) {
+          @if (p === -1) {
+            <span class="page-ellipsis">…</span>
+          } @else {
+            <button
+              type="button"
+              class="page-btn"
+              [class.active]="p === page()"
+              (click)="setPage(p)"
+            >
+              {{ p }}
+            </button>
+          }
+        }
+        <button
+          type="button"
+          class="page-btn page-nav"
+          [disabled]="page() === totalPages()"
+          (click)="setPage(page() + 1)"
+          aria-label="Next page"
+        >
+          <i class="pi pi-chevron-right" aria-hidden="true"></i>
+        </button>
+      </div>
+    </div>
+  }
 </section>
 
+<!-- Stock details dialog -->
 @if (stockProduct(); as product) {
   <div class="dialog-backdrop" (click)="closeProductStock()">
     <section
@@ -119,14 +267,21 @@
           <h2 id="product-stock-title">Stock details</h2>
           <p>{{ product.name }} · {{ product.sku }}</p>
         </div>
-        <button type="button" class="icon-button" aria-label="Close stock details" (click)="closeProductStock()">
+        <button
+          type="button"
+          class="icon-button"
+          aria-label="Close stock details"
+          (click)="closeProductStock()"
+        >
           <i class="pi pi-times" aria-hidden="true"></i>
         </button>
       </div>
       @if (stockError()) {
         <div class="stock-error" role="alert">
           <p>{{ stockError() }}</p>
-          <button type="button" class="button button-secondary" (click)="retryProductStock()">Retry</button>
+          <button type="button" class="button button-secondary" (click)="retryProductStock()">
+            Retry
+          </button>
         </div>
       } @else {
         <pre class="stock-payload">{{ formatPayload(stockPayload()) }}</pre>
@@ -135,68 +290,153 @@
   </div>
 }
 
+<!-- Add / Edit product dialog -->
 @if (dialogOpen()) {
   <div class="dialog-backdrop" (click)="closeDialog()">
-    <section class="dialog-card" role="dialog" aria-modal="true" aria-labelledby="product-dialog-title" (click)="$event.stopPropagation()">
+    <section
+      class="dialog-card product-dialog"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="product-dialog-title"
+      (click)="$event.stopPropagation()"
+    >
       <div class="dialog-heading">
         <div>
-          <h2 id="product-dialog-title">{{ editingProductId() ? 'Edit product' : 'Add product' }}</h2>
+          <h2 id="product-dialog-title">
+            {{ editingProductId() ? 'Edit product' : 'Add product' }}
+          </h2>
+          <p class="dialog-description">
+            {{
+              editingProductId()
+                ? 'Update product information.'
+                : 'Create a new product to manage your inventory.'
+            }}
+          </p>
         </div>
-        <button type="button" class="icon-button" aria-label="Close dialog" (click)="closeDialog()"><i class="pi pi-times" aria-hidden="true"></i></button>
-      </div>
-      <form [formGroup]="productForm" (ngSubmit)="saveProduct()">
-        <div class="form-grid">
-          <label>Product name
-            <input type="text" formControlName="name" autocomplete="off" />
-          </label>
-          <label>SKU
-            <input type="text" formControlName="sku" autocomplete="off" />
-          </label>
-          <label>Category
-            <input type="text" formControlName="category" autocomplete="off" />
-          </label>
-          <label>Supplier
-            <select formControlName="supplierId">
-              <option value="">Choose a supplier</option>
-              @for (supplier of suppliers(); track supplier.id) {
-                <option [value]="supplier.id">{{ supplier.name }}</option>
-              }
-            </select>
-          </label>
-          <label>Cost price
-            <input type="number" min="0.01" step="0.01" formControlName="costPrice" />
-          </label>
-          <label>Sell price
-            <input type="number" min="0.01" step="0.01" formControlName="sellPrice" />
-          </label>
-          <label>Minimum stock
-            <input type="number" min="0" step="1" formControlName="minStock" />
-          </label>
-          <label class="full-width-field">Description
-            <textarea formControlName="description" rows="4" maxlength="1000" placeholder="Enter a product description"></textarea>
-          </label>
-          <label class="full-width-field">Product image
-            <input type="file" accept="image/*" (change)="onImageSelected($event)" />
-          </label>
-          <label class="active-checkbox">
-            <input type="checkbox" formControlName="isActive" />
-            Active product
-          </label>
-        </div>
-        @if (productForm.invalid && productForm.touched) {
-          <p class="form-hint error-text">Complete all required fields. Prices must be greater than zero.</p>
-        }
-        <div class="dialog-actions">
-          <button type="button" class="button button-secondary" (click)="closeDialog()">Cancel</button>
-          <button type="submit" class="button button-primary" [disabled]="saving()">
-            {{ saving() ? 'Saving…' : (editingProductId() ? 'Save changes' : 'Create product') }}
+        <div class="dialog-heading-actions">
+          <button type="button" class="button button-secondary" (click)="closeDialog()">
+            Cancel
+          </button>
+          <button
+            type="button"
+            class="button button-primary"
+            [disabled]="saving()"
+            (click)="saveProduct()"
+          >
+            <i class="pi pi-save" aria-hidden="true"></i>
+            {{ saving() ? 'Saving…' : 'Save Product' }}
           </button>
         </div>
+      </div>
+      <form [formGroup]="productForm" (ngSubmit)="saveProduct()">
+        <div class="form-grid product-form-grid">
+          <div class="product-form-column">
+            <section class="form-section">
+              <h3>Product information</h3>
+              <label
+                >Product Name <span class="required-mark">*</span>
+                <input
+                  type="text"
+                  formControlName="name"
+                  autocomplete="off"
+                  placeholder="Enter product name"
+                />
+              </label>
+              <label
+                >SKU <span class="required-mark">*</span>
+                <input
+                  type="text"
+                  formControlName="sku"
+                  autocomplete="off"
+                  placeholder="Enter SKU"
+                />
+              </label>
+              <label
+                >Category <span class="required-mark">*</span>
+                <input
+                  type="text"
+                  formControlName="category"
+                  autocomplete="off"
+                  placeholder="Select category"
+                />
+              </label>
+              <label
+                >Description
+                <textarea
+                  formControlName="description"
+                  rows="4"
+                  maxlength="1000"
+                  placeholder="Enter product description"
+                ></textarea>
+              </label>
+            </section>
+          </div>
+          <div class="product-form-column">
+            <section class="form-section">
+              <h3>Product Image</h3>
+              <label class="image-upload-field">
+                <i
+                  class="pi pi-upload"
+                  style="font-size: 1.5rem; color: #ccc"
+                  aria-hidden="true"
+                ></i>
+                <span>Drag & drop an image here, or<br /><strong>click to browse</strong></span>
+                <small>Supports: JPG, PNG (Max 5MB)</small>
+                <input type="file" accept="image/*" (change)="onImageSelected($event)" />
+              </label>
+            </section>
+            <section class="form-section stock-information">
+              <h3>Stock Information</h3>
+              <label
+                >Supplier <span class="required-mark">*</span>
+                <p-select
+                  class="form-select"
+                  formControlName="supplierId"
+                  [options]="suppliers()"
+                  optionLabel="name"
+                  optionValue="id"
+                  placeholder="Select supplier"
+                  appendTo="body"
+                />
+              </label>
+              <div class="price-fields">
+                <label
+                  >Quantity <span class="required-mark">*</span>
+                  <input type="number" min="0" step="1" formControlName="minStock" />
+                </label>
+                <label
+                  >Minimum Stock <span class="required-mark">*</span>
+                  <input type="number" min="0" step="1" formControlName="minStock" />
+                </label>
+              </div>
+              <div class="price-fields">
+                <label
+                  >Cost price <span class="required-mark">*</span>
+                  <input type="number" min="0.01" step="0.01" formControlName="costPrice" />
+                </label>
+                <label
+                  >Sell price <span class="required-mark">*</span>
+                  <input type="number" min="0.01" step="0.01" formControlName="sellPrice" />
+                </label>
+              </div>
+              <label class="active-checkbox">
+                <input type="checkbox" formControlName="isActive" />
+                Active product
+              </label>
+            </section>
+          </div>
+        </div>
+        @if (productForm.invalid && productForm.touched) {
+          <p class="form-hint error-text">
+            Complete all required fields. Prices must be greater than zero.
+          </p>
+        }
       </form>
     </section>
   </div>
 }
 
+<!-- Delete confirmation dialog -->
 @if (productPendingDeletion(); as product) {
   <div class="dialog-backdrop" (click)="cancelDeleteConfirmation()">
     <section

@@ -1,67 +1,88 @@
 <section class="orders-page">
+  <!-- Page heading -->
   <div class="page-heading">
     <div>
       <h1>Orders</h1>
       <p class="page-description">Track customer orders, sales volume, and fulfillment workflows.</p>
     </div>
     <div class="heading-actions">
-      <button type="button" class="button button-primary" (click)="openCreateOrder()">
+      <button type="button" class="button button-primary crud-add-btn" (click)="openCreateOrder()">
         <i class="pi pi-plus" aria-hidden="true"></i>
         Create order
       </button>
     </div>
   </div>
 
-  <section class="panel filters-panel" aria-label="Filter orders">
-    <div class="filters-grid">
-      <label>Status
-        <input type="text" [value]="statusFilter()" (input)="setStatusFilter($event)" maxlength="20" placeholder="Any status" />
-      </label>
-      <label>From date
-        <input type="date" [value]="fromDateFilter()" (input)="setFromDateFilter($event)" />
-      </label>
-      <label>To date
-        <input type="date" [value]="toDateFilter()" (input)="setToDateFilter($event)" />
-      </label>
-      <div class="filter-actions">
-        <button type="button" class="button button-secondary" (click)="clearFilters()">Clear</button>
-        <button type="button" class="button button-primary" (click)="applyFilters()">Apply filters</button>
-      </div>
-    </div>
-  </section>
+  <!-- Status filter tabs -->
+  <div class="status-filter-tabs">
+    <button type="button" class="tab-btn" [class.active]="statusFilter() === ''" (click)="setStatusFilterTab('')">
+      All ({{ orders().length }})
+    </button>
+    <button type="button" class="tab-btn" [class.active]="statusFilter() === 'pending'" (click)="setStatusFilterTab('pending')">
+      Pending
+    </button>
+    <button type="button" class="tab-btn" [class.active]="statusFilter() === 'processing'" (click)="setStatusFilterTab('processing')">
+      Processing
+    </button>
+    <button type="button" class="tab-btn" [class.active]="statusFilter() === 'delivered'" (click)="setStatusFilterTab('delivered')">
+      Delivered
+    </button>
+    <button type="button" class="tab-btn" [class.active]="statusFilter() === 'cancelled'" (click)="setStatusFilterTab('cancelled')">
+      Cancelled
+    </button>
+  </div>
 
-  <section class="panel" aria-labelledby="orders-title">
+  <!-- Toolbar -->
+  <div class="crud-toolbar">
+    <label class="crud-search">
+      <i class="pi pi-search" aria-hidden="true"></i>
+      <input type="search" [value]="orderSearch()" (input)="updateOrderSearch($event)" placeholder="Search orders..." aria-label="Search orders" />
+    </label>
+    <input class="crud-select" type="date" [value]="fromDateFilter()" (input)="setFromDateFilter($event)" title="From date" />
+    <input class="crud-select" type="date" [value]="toDateFilter()" (input)="setToDateFilter($event)" title="To date" />
+    <button type="button" class="crud-filter-btn" (click)="applyFilters()">
+      <i class="pi pi-filter" aria-hidden="true"></i>
+      Filter
+    </button>
+    @if (fromDateFilter() || toDateFilter() || orderSearch()) {
+      <button type="button" class="crud-filter-btn" (click)="clearFilters()">
+        <i class="pi pi-times" aria-hidden="true"></i>
+        Clear
+      </button>
+    }
+  </div>
+
+  <!-- Table card -->
+  <section class="crud-table-card" aria-labelledby="orders-title">
+    <h2 id="orders-title" class="sr-only">Orders</h2>
     <div class="table-scroll">
-      <table>
+      <table class="crud-table">
         <thead>
           <tr>
-            <th>Order No</th>
-
+            <th class="col-check"><input type="checkbox" aria-label="Select all" /></th>
+            <th>Order #</th>
             <th><button type="button" class="sort-button" (click)="sortBy('customer')">Customer <i class="pi pi-sort-alt" aria-hidden="true"></i></button></th>
             <th>Warehouse</th>
             <th>Items</th>
-            <th><button type="button" class="sort-button" (click)="sortBy('orderDate')">Created At <i class="pi pi-sort-alt" aria-hidden="true"></i></button></th>
-            <th><button type="button" class="sort-button" (click)="sortBy('total')">Total <i class="pi pi-sort-alt" aria-hidden="true"></i></button></th>
-            <th><button type="button" class="sort-button" (click)="sortBy('status')">Status <i class="pi pi-sort-alt" aria-hidden="true"></i></button></th>
-            <th>Order</th>
-            <th>Actions</th>
+            <th><button type="button" class="sort-button" (click)="sortBy('orderDate')">Date <i class="pi pi-sort-alt" aria-hidden="true"></i></button></th>
+            <th><button type="button" class="sort-button" (click)="sortBy('total')">Amount <i class="pi pi-sort-alt" aria-hidden="true"></i></button></th>
+            <th>Status</th>
+            <th class="col-actions">Actions</th>
           </tr>
         </thead>
         <tbody>
-          @if (orders().length === 0) {
-            <tr><td colspan="8" class="table-message">No orders found. Create an order to get started.</td></tr>
+          @if (filteredOrders().length === 0) {
+            <tr><td colspan="9" class="table-message">{{ orders().length === 0 ? 'No orders found. Create an order to get started.' : 'No orders match your search.' }}</td></tr>
           } @else {
-            @for (order of sortedOrders(); track order.id ?? order.orderId ?? $index) {
+            @for (order of visibleOrders(); track order.id ?? order.orderId ?? $index) {
               <tr>
-                <td>{{order.orderNo}}</td>
-
+                <td class="col-check"><input type="checkbox" [attr.aria-label]="'Select order ' + displayOrderId(order)" /></td>
+                <td><span class="sku">{{ displayOrderId(order) }}</span></td>
                 <td>{{ displayCustomer(order) }}</td>
                 <td>{{ displayWarehouse(order) }}</td>
-                <td class="items-cell">{{ displayItems(order) }}</td>
+                <td>{{ displayItems(order) }}</td>
                 <td>{{ displayOrderDate(order) }}</td>
                 <td>{{ order.total === undefined ? '—' : (order.total | number:'1.2-2') }}</td>
-                <td><span class="status-pill">{{ order.status || '—' }}</span></td>
-                <td class="order-id">{{ displayOrderId(order) }}</td>
                 <td>
                   <span class="status-pill"
                     [class.status-pending]="(order.status || '').toLowerCase() === 'pending'"
@@ -71,15 +92,15 @@
                     {{ order.status || '—' }}
                   </span>
                 </td>
-                <td class="text-right">
-                  <div class="row-actions" style="justify-content: flex-end;">
-                    <button type="button" class="icon-button" [disabled]="saving() || loading()" [attr.aria-label]="'Edit ' + displayOrderId(order)" title="Edit" (click)="openEditOrder(order)">
+                <td class="col-actions">
+                  <div class="action-btns">
+                    <button type="button" class="action-btn action-edit" [disabled]="saving() || loading()" [attr.aria-label]="'Edit ' + displayOrderId(order)" title="Edit" (click)="openEditOrder(order)">
                       <i class="pi pi-pencil" aria-hidden="true"></i>
                     </button>
-                    <button type="button" class="icon-button" [disabled]="saving() || loading()" [attr.aria-label]="'Change status for ' + displayOrderId(order)" title="Update status" (click)="openStatusDialog(order)">
+                    <button type="button" class="action-btn action-view" [disabled]="saving() || loading()" [attr.aria-label]="'Change status for ' + displayOrderId(order)" title="Update status" (click)="openStatusDialog(order)">
                       <i class="pi pi-tag" aria-hidden="true"></i>
                     </button>
-                    <button type="button" class="icon-button delete-action" [disabled]="saving() || loading()" [attr.aria-label]="'Delete ' + displayOrderId(order)" title="Delete" (click)="deleteOrder(order)">
+                    <button type="button" class="action-btn action-delete" [disabled]="saving() || loading()" [attr.aria-label]="'Delete ' + displayOrderId(order)" title="Delete" (click)="deleteOrder(order)">
                       <i class="pi pi-trash" aria-hidden="true"></i>
                     </button>
                   </div>
@@ -90,19 +111,32 @@
         </tbody>
       </table>
     </div>
-    <div class="pagination">
-      <p-paginator
-        (onPageChange)="onPageChange($event)"
-        [first]="(page() - 1) * pageSize()"
-        [rows]="pageSize()"
-        [totalRecords]="totalCount()"
-        [rowsPerPageOptions]="[10, 20, 30]"
-        [appendTo]="'body'"
-      />
-    </div>
   </section>
+
+  <!-- Pagination outside card -->
+  @if (filteredOrders().length > 0) {
+    <div class="crud-pagination">
+      <span class="pagination-info">Showing {{ (page() - 1) * pageSize() + 1 }} to {{ minVal(page() * pageSize(), filteredOrders().length) }} of {{ filteredOrders().length }} orders</span>
+      <div class="pagination-pages">
+        <button type="button" class="page-btn page-nav" [disabled]="page() === 1" (click)="setPage(page() - 1)" aria-label="Previous page">
+          <i class="pi pi-chevron-left" aria-hidden="true"></i>
+        </button>
+        @for (p of getPageNumbers(); track p) {
+          @if (p === -1) {
+            <span class="page-ellipsis">…</span>
+          } @else {
+            <button type="button" class="page-btn" [class.active]="p === page()" (click)="setPage(p)">{{ p }}</button>
+          }
+        }
+        <button type="button" class="page-btn page-nav" [disabled]="page() === totalPages()" (click)="setPage(page() + 1)" aria-label="Next page">
+          <i class="pi pi-chevron-right" aria-hidden="true"></i>
+        </button>
+      </div>
+    </div>
+  }
 </section>
 
+<!-- Create / Edit Order dialog -->
 @if (orderDialogOpen()) {
   <div class="dialog-backdrop" (click)="closeOrderDialog()">
     <section class="dialog-card" role="dialog" aria-modal="true" aria-labelledby="order-dialog-title" (click)="$event.stopPropagation()">
@@ -119,12 +153,15 @@
             <input type="text" formControlName="customerId" />
           </label>
           <label>Warehouse
-            <select formControlName="warehouseId">
-              <option value="">Choose a warehouse</option>
-              @for (warehouse of warehouses(); track warehouse.id) {
-                <option [value]="warehouse.id">{{ warehouse.name }}</option>
-              }
-            </select>
+            <p-select
+              class="form-select"
+              formControlName="warehouseId"
+              [options]="warehouseOptions()"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Choose a warehouse"
+              appendTo="body"
+            />
           </label>
         </div>
         @if (orderForm.controls.customerId.invalid && orderForm.controls.customerId.touched) {
@@ -145,12 +182,15 @@
           @for (itemForm of orderForm.controls.items.controls; track $index; let index = $index) {
             <div class="item-row" [formGroup]="itemForm">
               <label>Product
-                <select formControlName="productId">
-                  <option value="">Choose a product</option>
-                  @for (product of products(); track product.id) {
-                    <option [value]="product.id">{{ product.name }} ({{ product.sku }})</option>
-                  }
-                </select>
+                <p-select
+                  class="form-select"
+                  formControlName="productId"
+                  [options]="orderProductOptions()"
+                  optionLabel="label"
+                  optionValue="value"
+                  placeholder="Choose a product"
+                  appendTo="body"
+                />
               </label>
               <label>Quantity
                 <input type="number" min="1" max="2147483647" step="1" formControlName="quantity" />
@@ -178,6 +218,7 @@
   </div>
 }
 
+<!-- Status update dialog -->
 @if (statusDialogOpen()) {
   <div class="dialog-backdrop" (click)="closeStatusDialog()">
     <section class="dialog-card status-dialog" role="dialog" aria-modal="true" aria-labelledby="status-dialog-title" (click)="$event.stopPropagation()">
@@ -204,6 +245,7 @@
   </div>
 }
 
+<!-- Delete confirmation dialog -->
 @if (orderPendingDeletion(); as order) {
   <div class="dialog-backdrop" (click)="cancelDeleteOrder()">
     <section
@@ -221,9 +263,7 @@
         Are you sure you want to delete {{ displayOrderId(order) }}? This action cannot be undone.
       </p>
       <div class="dialog-actions">
-        <button type="button" class="button button-secondary" [disabled]="saving()" (click)="cancelDeleteOrder()">
-          Cancel
-        </button>
+        <button type="button" class="button button-secondary" [disabled]="saving()" (click)="cancelDeleteOrder()">Cancel</button>
         <button type="button" class="button button-danger" [disabled]="saving()" (click)="confirmDeleteOrder()">
           {{ saving() ? 'Deleting…' : 'Delete order' }}
         </button>

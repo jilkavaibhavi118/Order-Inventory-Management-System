@@ -2,8 +2,9 @@ import { Component, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { MessageService } from 'primeng/api';
-import { AuthService } from '../../../core/services/auth.service';
+import { AuthenticationError, AuthService } from '../../../core/services/auth.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import { ThemeService } from '../../../core/services/theme.service';
 
 @Component({
   selector: 'app-login',
@@ -16,13 +17,19 @@ export class LoginComponent {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly messageService = inject(MessageService);
+  private readonly themeService = inject(ThemeService);
 
   // Local UI State Signals
+  readonly theme = this.themeService.theme;
   readonly showPassword = signal<boolean>(false);
   readonly isLoading = signal<boolean>(false);
   readonly submissionStatus = signal<'idle' | 'success' | 'error'>('idle');
   readonly statusMessage = signal<string | null>(null);
   readonly showForgotPasswordModal = signal<boolean>(false);
+
+  toggleTheme(): void {
+    this.themeService.toggleTheme();
+  }
 
   // Strongly-typed reactive form
   readonly loginForm = new FormGroup({
@@ -99,8 +106,14 @@ export class LoginComponent {
           detail: response.message,
           life: 3000
         });
-        // A successful sign-in always opens the workspace selector first.
-        void this.router.navigate(['/select-panel']);
+        void this.router.navigateByUrl('/dashboard').then(
+          navigated => {
+            if (!navigated) {
+              this.handleNavigationFailure();
+            }
+          },
+          () => this.handleNavigationFailure()
+        );
       },
       error: (err) => {
         this.isLoading.set(false);
@@ -118,7 +131,23 @@ export class LoginComponent {
     });
   }
 
+  private handleNavigationFailure(): void {
+    const message = 'You signed in successfully, but the dashboard could not be opened. Please try again.';
+    this.submissionStatus.set('error');
+    this.statusMessage.set(message);
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Navigation failed',
+      detail: message,
+      life: 5000
+    });
+  }
+
   private getApiMessage(error: unknown): string | null {
+    if (error instanceof AuthenticationError) {
+      return error.message.trim() || null;
+    }
+
     if (!(error instanceof HttpErrorResponse) || error.status === 0) {
       return null;
     }

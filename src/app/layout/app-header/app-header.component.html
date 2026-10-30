@@ -1,31 +1,44 @@
 <header class="topbar">
+  <!-- Search -->
   <div class="topbar-left">
-    <button
-      type="button"
-      class="sidebar-toggle"
-      (click)="sidebarToggle.emit()"
-      aria-label="Toggle sidebar"
-      title="Toggle sidebar">
-      <i class="pi pi-align-justify" aria-hidden="true"></i>
-    </button>
+    <label class="global-search" for="global-search-input">
+      <i class="pi pi-search" aria-hidden="true"></i>
+      <input
+        id="global-search-input"
+        type="search"
+        aria-label="Search products, orders, and suppliers"
+        placeholder="Search products, orders, suppliers..." />
+    </label>
   </div>
 
+  <!-- Right controls -->
   <div class="user-summary">
-    <button
-      type="button"
-      class="theme-toggle"
-      (click)="toggleTheme()"
-      [attr.aria-label]="theme() === 'light' ? 'Switch to dark theme' : 'Switch to light theme'"
-      [attr.title]="theme() === 'light' ? 'Switch to dark theme' : 'Switch to light theme'">
-      <i [class]="theme() === 'light' ? 'pi pi-moon' : 'pi pi-sun'" aria-hidden="true"></i>
-    </button>
-    <div class="user-capsule">
-      <span class="user-avatar" aria-hidden="true">{{ userName() ? userName().charAt(0).toUpperCase() : 'U' }}</span>
-      <span class="user-copy">
-        <strong>{{ userName() || 'Account' }}</strong>
-        <span class="role-badge">Admin</span>
+    <!-- Theme toggle (iOS pill switch) -->
+    <label class="topbar-toggle" [attr.aria-label]="theme() === 'light' ? 'Switch to dark theme' : 'Switch to light theme'" [attr.title]="theme() === 'light' ? 'Switch to dark theme' : 'Switch to light theme'">
+      <input type="checkbox" [checked]="theme() === 'dark'" (change)="toggleTheme()" />
+      <span class="toggle-track">
+        <span class="toggle-thumb">
+          <i [class]="theme() === 'dark' ? 'pi pi-sun' : 'pi pi-moon'" aria-hidden="true"></i>
+        </span>
       </span>
+    </label>
+
+    <!-- Notifications -->
+    <button type="button" class="topbar-icon-btn notification-btn" aria-label="Notifications" title="Notifications">
+      <i class="pi pi-bell" aria-hidden="true"></i>
+      <span class="notif-dot" aria-hidden="true"></span>
+    </button>
+
+    <!-- User capsule -->
+    <div class="user-capsule">
+      <span class="user-avatar" aria-hidden="true">{{ userInitials() }}</span>
+      <span class="user-copy">
+        <strong>{{ userName() }}</strong>
+        @if (roleLabel()) {
+          <span class="role-label">{{ roleLabel() }}</span>
+        }
+      </span>
+      <i class="pi pi-chevron-down chevron-icon" aria-hidden="true"></i>
     </div>
   </div>
 </header>
-

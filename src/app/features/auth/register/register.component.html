@@ -1,21 +1,18 @@
 <div class="auth-layout-container">
+  <div class="auth-shell">
   <aside class="auth-brand-pane" aria-label="Brand overview">
-    <div class="brand-ambient-glow brand-ambient-glow-top" aria-hidden="true"></div>
-    <div class="brand-ambient-glow brand-ambient-glow-bottom" aria-hidden="true"></div>
-
     <div class="brand-content-wrapper">
       <header class="brand-header">
         <div class="brand-logo-container">
           <svg class="brand-logo-svg" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <rect width="40" height="40" rx="10" fill="url(#brand-logo-grad)" />
+            <rect width="40" height="40" rx="12" fill="url(#brand-logo-grad)" />
             <path d="M12 15L20 10L28 15V25L20 30L12 25V15Z" stroke="#FFFFFF" stroke-width="2" stroke-linejoin="round" />
             <path d="M20 10V20M20 20L28 15M20 20L12 15" stroke="#FFFFFF" stroke-width="2" stroke-linejoin="round" />
             <path d="M20 20V30" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" />
-            <circle cx="20" cy="20" r="2.5" fill="#818CF8" />
             <defs>
               <linearGradient id="brand-logo-grad" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
-                <stop stop-color="#4F46E5" />
-                <stop offset="1" stop-color="#312E81" />
+                <stop stop-color="#FF7896" />
+                <stop offset="1" stop-color="#FF2D65" />
               </linearGradient>
             </defs>
           </svg>
@@ -23,11 +20,12 @@
             <span class="brand-name">OrderFlow</span>
           </div>
         </div>
+        <span class="brand-category-badge"><i class="pi pi-box" aria-hidden="true"></i>Inventory &amp; Order Management</span>
       </header>
 
       <div class="brand-hero-section">
-        <h1 class="brand-headline">Track Orders. Streamline Deliveries.</h1>
-        <p class="brand-description">Join OrderFlow as a customer to browse catalog items, place wholesale or retail orders, and monitor real-time shipment milestones.</p>
+        <h1 class="brand-headline"><span>Manage Orders.</span><span class="headline-accent">Simplify Operations.</span></h1>
+        <p class="brand-description">Track inventory, manage orders, and streamline warehouse operations with real-time insights.</p>
       </div>
 
       <div class="brand-features-list" role="list">
@@ -37,7 +35,7 @@
           </div>
           <div class="feature-text-group">
             <span class="feature-title">Real-Time Inventory Sync</span>
-            <span class="feature-subtitle">Continuous multi-warehouse stock coordination &amp; automated alert triggers</span>
+            <span class="feature-subtitle">Keep stock levels coordinated across your warehouses.</span>
           </div>
         </div>
 
@@ -47,7 +45,7 @@
           </div>
           <div class="feature-text-group">
             <span class="feature-title">Automated Order Routing</span>
-            <span class="feature-subtitle">Dynamic dispatch rules minimize delivery turnaround and shipping overhead</span>
+            <span class="feature-subtitle">Move each order through a clear fulfillment workflow.</span>
           </div>
         </div>
 
@@ -57,7 +55,24 @@
           </div>
           <div class="feature-text-group">
             <span class="feature-title">Enterprise-Grade Security</span>
-            <span class="feature-subtitle">Role-based access controls for Admins and Customers with strict isolation</span>
+            <span class="feature-subtitle">Role-based access keeps workspace data protected.</span>
+          </div>
+        </div>
+      </div>
+      <div class="inventory-preview" aria-hidden="true">
+        <div class="preview-sidebar"><span></span><span></span><span></span><span></span></div>
+        <div class="preview-content">
+          <div class="preview-topline"><strong>Workspace overview</strong><span>LIVE</span></div>
+          <div class="preview-metrics">
+            <div><small>Inventory</small><strong>Stock overview</strong><i class="pi pi-box"></i></div>
+            <div><small>Fulfillment</small><strong>Order activity</strong><i class="pi pi-truck"></i></div>
+          </div>
+          <div class="preview-chart">
+            <div class="preview-chart-label"><span>Stock movement</span><span>Recent activity</span></div>
+            <svg viewBox="0 0 360 92" preserveAspectRatio="none">
+              <path class="preview-chart-fill" d="M0 75 C35 69 44 42 79 54 S126 75 158 45 S205 58 236 30 S279 50 310 18 S338 35 360 8 V92 H0Z" />
+              <path class="preview-chart-line" d="M0 75 C35 69 44 42 79 54 S126 75 158 45 S205 58 236 30 S279 50 310 18 S338 35 360 8" />
+            </svg>
           </div>
         </div>
       </div>
@@ -74,8 +89,8 @@
           <path d="M20 20V30" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" />
           <defs>
             <linearGradient id="mobile-logo-grad" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
-              <stop stop-color="#4F46E5" />
-              <stop offset="1" stop-color="#312E81" />
+              <stop stop-color="#FF7896" />
+              <stop offset="1" stop-color="#FF2D65" />
             </linearGradient>
           </defs>
         </svg>
@@ -85,10 +100,18 @@
 
     <div class="form-wrapper-center">
 
+  <div class="auth-card-tools">
+    <span class="auth-form-brand"><span class="brand-mark-small"><i class="pi pi-box" aria-hidden="true"></i></span>OrderFlow</span>
+    <button type="button" class="auth-theme-toggle" (click)="toggleTheme()" [attr.aria-label]="theme() === 'light' ? 'Switch to dark theme' : 'Switch to light theme'">
+      <i [class]="theme() === 'light' ? 'pi pi-moon' : 'pi pi-sun'" aria-hidden="true"></i>
+      <span>{{ theme() === 'light' ? 'Dark mode' : 'Light mode' }}</span>
+    </button>
+  </div>
   <div class="auth-card">
     <!-- Header Block -->
     <div class="auth-card-header">
-      <h1 class="auth-title">Create Your account</h1>
+      <h1 class="auth-title">Create your account</h1>
+      <p class="auth-subtitle">Join OrderFlow to manage your orders with confidence.</p>
     </div>
 
     <!-- Status / Feedback Banner -->
@@ -375,4 +398,5 @@
 
     </div>
   </main>
+  </div>
 </div>
