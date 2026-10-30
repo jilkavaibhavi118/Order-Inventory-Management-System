@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { PasswordStrength, RegisterFormModel } from '../../../models/auth.models';
 import { AuthService } from '../../../core/services/auth.service';
+import { ThemeService } from '../../../core/services/theme.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { evaluatePasswordStrength, passwordMatchValidator } from '../validators/password-match.validator';
 
@@ -17,8 +18,10 @@ import { evaluatePasswordStrength, passwordMatchValidator } from '../validators/
 export class RegisterComponent {
   private readonly authService = inject(AuthService);
   private readonly messageService = inject(MessageService);
+  private readonly themeService = inject(ThemeService);
 
   // Local UI State Signals
+  readonly theme = this.themeService.theme;
   readonly showPassword = signal<boolean>(false);
   readonly showConfirmPassword = signal<boolean>(false);
   readonly isLoading = signal<boolean>(false);
@@ -34,6 +37,10 @@ export class RegisterComponent {
   readonly passwordStrength = computed<PasswordStrength>(() =>
     evaluatePasswordStrength(this.currentPassword())
   );
+
+  toggleTheme(): void {
+    this.themeService.toggleTheme();
+  }
 
   readonly registerForm = new FormGroup<RegisterFormModel>(
     {

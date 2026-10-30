@@ -4,6 +4,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { PaginatorModule } from 'primeng/paginator';
+import { Select } from 'primeng/select';
 import type { PaginatorState } from 'primeng/types/paginator';
 import { finalize } from 'rxjs';
 import { AuthService } from '../../../../core/services/auth.service';
@@ -26,7 +27,7 @@ type SortField = 'orderDate' | 'status' | 'customer' | 'total';
 @Component({
   selector: 'app-orders-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, PaginatorModule],
+  imports: [CommonModule, ReactiveFormsModule, PaginatorModule, Select],
   templateUrl: './orders-page.component.html',
   styleUrl: './orders-page.component.scss'
 })
@@ -55,6 +56,34 @@ export class OrdersPageComponent {
   readonly editingOrderId = signal<string | null>(null);
   readonly statusOrderId = signal<string | null>(null);
 
+  readonly orderSearch = signal('');
+  readonly warehouseOptions = computed(() =>
+    this.warehouses().map(warehouse => ({ label: warehouse.name, value: warehouse.id }))
+  );
+  readonly orderProductOptions = computed(() =>
+    this.products().map(product => ({
+      label: `${product.name} (${product.sku})`,
+      value: product.id
+    }))
+  );
+  readonly filteredOrders = computed(() => {
+    const search = this.orderSearch().trim().toLowerCase();
+    const status = this.statusFilter().trim().toLowerCase();
+    return this.orders().filter(order => {
+      const matchesStatus = !status || (order.status || '').toLowerCase().includes(status);
+      const matchesSearch = !search || [
+        this.displayOrderId(order),
+        this.displayCustomer(order),
+        this.displayWarehouse(order),
+        order.status ?? ''
+      ].some(v => v.toLowerCase().includes(search));
+      return matchesStatus && matchesSearch;
+    });
+  });
+  readonly visibleOrders = computed(() => {
+    const start = (this.page() - 1) * this.pageSize();
+    return this.filteredOrders().slice(start, start + this.pageSize());
+  });
   readonly sortedOrders = computed(() => {
     const direction = this.sortDirection() === 'asc' ? 1 : -1;
     const field = this.sortField();
@@ -99,6 +128,40 @@ export class OrdersPageComponent {
 
   get pageCount(): number {
     return Math.max(1, Math.ceil(this.totalCount() / this.pageSize()));
+  }
+
+  totalPages(): number {
+    return Math.max(1, Math.ceil(this.filteredOrders().length / this.pageSize()));
+  }
+
+  setPage(p: number): void {
+    this.page.set(Math.max(1, Math.min(p, this.totalPages())));
+  }
+
+  minVal(a: number, b: number): number {
+    return Math.min(a, b);
+  }
+
+  getPageNumbers(): number[] {
+    const total = this.totalPages();
+    const current = this.page();
+    if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+    const pages: number[] = [1];
+    if (current > 3) pages.push(-1);
+    for (let i = Math.max(2, current - 1); i <= Math.min(total - 1, current + 1); i++) pages.push(i);
+    if (current < total - 2) pages.push(-1);
+    pages.push(total);
+    return pages;
+  }
+
+  setStatusFilterTab(status: string): void {
+    this.statusFilter.set(status);
+    this.page.set(1);
+  }
+
+  updateOrderSearch(event: Event): void {
+    this.orderSearch.set((event.target as HTMLInputElement).value);
+    this.page.set(1);
   }
 
   onPageChange(event: PaginatorState): void {

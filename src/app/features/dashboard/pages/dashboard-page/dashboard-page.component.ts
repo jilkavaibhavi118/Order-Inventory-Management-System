@@ -1,10 +1,12 @@
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, inject, PLATFORM_ID, signal } from '@angular/core';
+import { Component, computed, inject, PLATFORM_ID, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { InventoryService } from '../../../../core/services/inventory.service';
 import { OrdersService } from '../../../../core/services/orders.service';
-import { InventoryTransaction, LowStockRecord } from '../../../../models/inventory.models';
+import { AuthService } from '../../../../core/services/auth.service';
+import { InventoryRecord, InventoryTransaction, LowStockRecord } from '../../../../models/inventory.models';
+import { Order } from '../../../../models/order.models';
 
 @Component({
   selector: 'app-dashboard-page',
@@ -16,22 +18,97 @@ import { InventoryTransaction, LowStockRecord } from '../../../../models/invento
 export class DashboardPageComponent {
   private readonly inventoryService = inject(InventoryService);
   private readonly ordersService = inject(OrdersService);
+  private readonly authService = inject(AuthService);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
+  readonly userName = this.authService.currentUserName;
+  readonly today = new Date();
+  readonly chartBuckets = computed(() => {
+    const now = this.today;
+    const buckets = Array.from({ length: 6 }, (_, index) => {
+      const month = new Date(now.getFullYear(), now.getMonth() - 5 + index, 1);
+      return {
+        key: month.getFullYear() * 12 + month.getMonth(),
+        label: month.toLocaleString('en', { month: 'short' }),
+        orders: 0,
+        movements: 0
+      };
+    });
+
+    for (const order of this.recentOrders()) {
+      const date = new Date(order.orderDate ?? order.createdAt ?? '');
+      if (Number.isNaN(date.getTime())) {
+        continue;
+      }
+
+      const bucket = buckets.find(item => item.key === date.getFullYear() * 12 + date.getMonth());
+      if (bucket) {
+        bucket.orders += 1;
+      }
+    }
+
+    for (const transaction of this.transactionsPreview()) {
+      const date = new Date(transaction.createdAt);
+      if (Number.isNaN(date.getTime())) {
+        continue;
+      }
+
+      const bucket = buckets.find(item => item.key === date.getFullYear() * 12 + date.getMonth());
+      if (bucket) {
+        bucket.movements += 1;
+      }
+    }
+
+    return buckets;
+  });
+  readonly chartMax = computed(() =>
+    Math.max(1, ...this.chartBuckets().flatMap(bucket => [bucket.orders, bucket.movements]))
+  );
+  readonly stockRecords = signal<InventoryRecord[]>([]);
+  readonly stockRecordsLoading = signal(false);
+  readonly stockRecordsError = signal<string | null>(null);
+  readonly stockDistribution = computed(() => {
+    const records = this.stockRecords();
+    const outOfStock = records.filter(record => (record.quantity ?? record.totalQuantity ?? 0) <= 0).length;
+    const lowStock = records.filter(record => {
+      const quantity = record.quantity ?? record.totalQuantity ?? 0;
+      return quantity > 0 && record.minStock !== undefined && quantity <= record.minStock;
+    }).length;
+    const inStock = records.length - outOfStock - lowStock;
+    const total = records.length;
+    const outPercent = total ? outOfStock / total * 100 : 0;
+    const lowPercent = total ? lowStock / total * 100 : 0;
+    const inPercent = total ? inStock / total * 100 : 0;
+
+    return {
+      inStock,
+      lowStock,
+      outOfStock,
+      total,
+      inPercent,
+      lowPercent,
+      outPercent,
+      gradient: `conic-gradient(#ff416c 0 ${inPercent}%, #f5c862 ${inPercent}% ${inPercent + lowPercent}%, #9b76e8 ${inPercent + lowPercent}% 100%)`
+    };
+  });
   readonly productsCount = signal<number | null>(null);
   readonly ordersCount = signal<number | null>(null);
   readonly warehousesCount = signal<number | null>(null);
+  readonly suppliersCount = signal<number | null>(null);
   readonly lowStockCount = signal<number | null>(null);
   readonly lowStockPreview = signal<LowStockRecord[]>([]);
+  readonly recentOrders = signal<Order[]>([]);
   readonly transactionsPreview = signal<InventoryTransaction[]>([]);
   readonly productsLoading = signal(false);
   readonly ordersLoading = signal(false);
   readonly warehousesLoading = signal(false);
+  readonly suppliersLoading = signal(false);
   readonly lowStockLoading = signal(false);
   readonly transactionsLoading = signal(false);
   readonly productsError = signal<string | null>(null);
   readonly ordersError = signal<string | null>(null);
   readonly warehousesError = signal<string | null>(null);
+  readonly suppliersError = signal<string | null>(null);
   readonly lowStockError = signal<string | null>(null);
   readonly transactionsError = signal<string | null>(null);
 
@@ -45,8 +122,10 @@ export class DashboardPageComponent {
     this.loadProducts();
     this.loadOrders();
     this.loadWarehouses();
+    this.loadSuppliers();
     this.loadLowStock();
     this.loadTransactions();
+    this.loadStockRecords();
   }
 
   retryProducts(): void {
@@ -59,6 +138,10 @@ export class DashboardPageComponent {
 
   retryWarehouses(): void {
     this.loadWarehouses();
+  }
+
+  retrySuppliers(): void {
+    this.loadSuppliers();
   }
 
   retryLowStock(): void {
@@ -85,8 +168,11 @@ export class DashboardPageComponent {
   private loadOrders(): void {
     this.ordersLoading.set(true);
     this.ordersError.set(null);
-    this.ordersService.getOrders({ page: 1, pageSize: 1 }).subscribe({
-      next: response => this.ordersCount.set(response.totalCount),
+    this.ordersService.getOrders({ page: 1, pageSize: 100 }).subscribe({
+      next: response => {
+        this.ordersCount.set(response.totalCount);
+        this.recentOrders.set(response.orders);
+      },
       error: error => {
         this.ordersError.set(this.getErrorMessage(error));
         this.ordersLoading.set(false);
@@ -105,6 +191,19 @@ export class DashboardPageComponent {
         this.warehousesLoading.set(false);
       },
       complete: () => this.warehousesLoading.set(false)
+    });
+  }
+
+  private loadSuppliers(): void {
+    this.suppliersLoading.set(true);
+    this.suppliersError.set(null);
+    this.inventoryService.getSuppliers().subscribe({
+      next: suppliers => this.suppliersCount.set(suppliers.length),
+      error: error => {
+        this.suppliersError.set(this.getErrorMessage(error));
+        this.suppliersLoading.set(false);
+      },
+      complete: () => this.suppliersLoading.set(false)
     });
   }
 
@@ -127,7 +226,7 @@ export class DashboardPageComponent {
   private loadTransactions(): void {
     this.transactionsLoading.set(true);
     this.transactionsError.set(null);
-    this.inventoryService.getInventoryTransactions({ page: 1, pageSize: 5 }).subscribe({
+    this.inventoryService.getInventoryTransactions({ page: 1, pageSize: 100 }).subscribe({
       next: response => this.transactionsPreview.set(response.transactions),
       error: error => {
         this.transactionsError.set(this.getErrorMessage(error));
@@ -135,6 +234,40 @@ export class DashboardPageComponent {
       },
       complete: () => this.transactionsLoading.set(false)
     });
+  }
+
+  private loadStockRecords(): void {
+    this.stockRecordsLoading.set(true);
+    this.stockRecordsError.set(null);
+    this.inventoryService.getInventory(1, 100).subscribe({
+      next: response => this.stockRecords.set(response.items),
+      error: error => {
+        this.stockRecordsError.set(this.getErrorMessage(error));
+        this.stockRecordsLoading.set(false);
+      },
+      complete: () => this.stockRecordsLoading.set(false)
+    });
+  }
+
+  chartPath(series: 'orders' | 'movements'): string {
+    const points = this.chartBuckets().map((bucket, index) => ({
+      x: 42 + index * 92,
+      y: 180 - (bucket[series] / this.chartMax()) * 145
+    }));
+
+    return points.reduce((path, point, index) => {
+      if (index === 0) {
+        return `M ${point.x} ${point.y}`;
+      }
+
+      const previous = points[index - 1];
+      const middleX = (previous.x + point.x) / 2;
+      return `${path} C ${middleX} ${previous.y}, ${middleX} ${point.y}, ${point.x} ${point.y}`;
+    }, '');
+  }
+
+  chartArea(series: 'orders' | 'movements'): string {
+    return `${this.chartPath(series)} L 502 180 L 42 180 Z`;
   }
 
   private getErrorMessage(error: unknown): string {

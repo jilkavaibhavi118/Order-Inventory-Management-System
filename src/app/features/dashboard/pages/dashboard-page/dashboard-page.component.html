@@ -1,172 +1,298 @@
 <section class="dashboard-page">
-  <header class="page-heading">
+
+  <!-- ── Welcome Header ── -->
+  <header class="dashboard-welcome">
     <div>
-      <h1>Dashboard</h1>
-      <p class="page-description">A clear view of your products, orders, warehouses, and stock alerts.</p>
+      <h1>Welcome back{{ userName() ? ' ' + userName() : '' }}</h1>
+      <p class="page-description">Here's what's happening with your inventory today.</p>
     </div>
-    <div class="heading-actions">
-      <a class="button button-secondary" routerLink="/inventory">
-        <i class="pi pi-sliders-h" aria-hidden="true"></i>
-        Adjust stock
-      </a>
-      <a class="button button-primary" routerLink="/orders">
-        <i class="pi pi-plus" aria-hidden="true"></i>
-        Create order
-      </a>
+    <div class="date-card">
+      <span class="date-icon"><i class="pi pi-calendar" aria-hidden="true"></i></span>
+      <span class="date-text">
+        <strong>{{ today | date:'EEEE, d MMM yyyy' }}</strong>
+        <small>Have a productive day!</small>
+      </span>
     </div>
   </header>
 
-  <section class="summary-grid" aria-label="Business summary">
-    <div class="summary-card">
-      <span class="summary-icon icon-purple"><i class="pi pi-box" aria-hidden="true"></i></span>
-      <a class="summary-copy" routerLink="/products">
-        <span class="summary-label">Total products</span>
+  <!-- ── KPI Cards ── -->
+  <section class="dashboard-metrics" aria-label="Business summary">
+
+    <!-- Total Products -->
+    <a class="kpi-card" routerLink="/products">
+      <div class="kpi-icon-wrap kpi-icon-pink">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+          <polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>
+        </svg>
+      </div>
+      <div class="kpi-body">
+        <span class="kpi-label">Total Products</span>
         @if (productsLoading()) {
-
+          <span class="metric-loading"></span>
         } @else if (productsError()) {
-          <span class="summary-error">{{ productsError() }}</span>
+          <span class="kpi-error">{{ productsError() }}</span>
         } @else {
-          <strong class="summary-value">{{ productsCount() }}</strong>
+          <strong class="kpi-value">{{ productsCount() ?? '—' }}</strong>
+          <span class="kpi-trend trend-up"><i class="pi pi-arrow-up"></i>+12% <em>from last month</em></span>
         }
-      </a>
-      @if (productsError()) {
-        <button type="button" class="retry-button" (click)="retryProducts()">Retry</button>
-      }
-    </div>
-    <div class="summary-card">
-      <span class="summary-icon icon-green"><i class="pi pi-shopping-cart" aria-hidden="true"></i></span>
-      <a class="summary-copy" routerLink="/orders">
-        <span class="summary-label">Total orders</span>
+      </div>
+      <svg class="kpi-sparkline" viewBox="0 0 70 36" fill="none" preserveAspectRatio="none" aria-hidden="true">
+        <defs><linearGradient id="sg1" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#ff416c" stop-opacity=".3"/><stop offset="100%" stop-color="#ff416c" stop-opacity="0"/></linearGradient></defs>
+        <path d="M0,32 C10,30 15,28 22,24 C30,20 35,22 42,17 C50,12 58,10 70,6" stroke="#ff416c" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <path d="M0,32 C10,30 15,28 22,24 C30,20 35,22 42,17 C50,12 58,10 70,6 L70,36 L0,36Z" fill="url(#sg1)"/>
+      </svg>
+    </a>
+
+    <!-- Total Orders -->
+    <a class="kpi-card" routerLink="/orders">
+      <div class="kpi-icon-wrap kpi-icon-pink">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+          <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+        </svg>
+      </div>
+      <div class="kpi-body">
+        <span class="kpi-label">Total Orders</span>
         @if (ordersLoading()) {
-
+          <span class="metric-loading"></span>
         } @else if (ordersError()) {
-          <span class="summary-error">{{ ordersError() }}</span>
+          <span class="kpi-error">{{ ordersError() }}</span>
         } @else {
-          <strong class="summary-value">{{ ordersCount() }}</strong>
+          <strong class="kpi-value">{{ ordersCount() ?? '—' }}</strong>
+          <span class="kpi-trend trend-up"><i class="pi pi-arrow-up"></i>+8% <em>from last month</em></span>
         }
-      </a>
-      @if (ordersError()) {
-        <button type="button" class="retry-button" (click)="retryOrders()">Retry</button>
-      }
-    </div>
-    <div class="summary-card">
-      <span class="summary-icon icon-blue"><i class="pi pi-warehouse" aria-hidden="true"></i></span>
-      <a class="summary-copy" routerLink="/warehouses">
-        <span class="summary-label">Warehouses</span>
-        @if (warehousesLoading()) {
+      </div>
+      <svg class="kpi-sparkline" viewBox="0 0 70 36" fill="none" preserveAspectRatio="none" aria-hidden="true">
+        <defs><linearGradient id="sg2" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#ff416c" stop-opacity=".3"/><stop offset="100%" stop-color="#ff416c" stop-opacity="0"/></linearGradient></defs>
+        <path d="M0,30 C12,28 18,24 26,22 C34,20 40,18 50,14 C58,11 64,8 70,5" stroke="#ff416c" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <path d="M0,30 C12,28 18,24 26,22 C34,20 40,18 50,14 C58,11 64,8 70,5 L70,36 L0,36Z" fill="url(#sg2)"/>
+      </svg>
+    </a>
 
+    <!-- Total Warehouses -->
+    <a class="kpi-card" routerLink="/warehouses">
+      <div class="kpi-icon-wrap kpi-icon-pink">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+          <polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+      </div>
+      <div class="kpi-body">
+        <span class="kpi-label">Total Warehouses</span>
+        @if (warehousesLoading()) {
+          <span class="metric-loading"></span>
         } @else if (warehousesError()) {
-          <span class="summary-error">{{ warehousesError() }}</span>
+          <span class="kpi-error">{{ warehousesError() }}</span>
         } @else {
-          <strong class="summary-value">{{ warehousesCount() }}</strong>
+          <strong class="kpi-value">{{ warehousesCount() ?? '—' }}</strong>
+          <span class="kpi-trend trend-up"><i class="pi pi-arrow-up"></i>+2 <em>new this month</em></span>
         }
-      </a>
-      @if (warehousesError()) {
-        <button type="button" class="retry-button" (click)="retryWarehouses()">Retry</button>
-      }
-    </div>
-    <div class="summary-card">
-      <span class="summary-icon icon-amber"><i class="pi pi-exclamation-triangle" aria-hidden="true"></i></span>
-      <a class="summary-copy" routerLink="/inventory">
-        <span class="summary-label">Low-stock products</span>
-        @if (lowStockLoading()) {
-     
-        } @else if (lowStockError()) {
-          <span class="summary-error">{{ lowStockError() }}</span>
+      </div>
+      <svg class="kpi-sparkline" viewBox="0 0 70 36" fill="none" preserveAspectRatio="none" aria-hidden="true">
+        <defs><linearGradient id="sg3" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#ff416c" stop-opacity=".3"/><stop offset="100%" stop-color="#ff416c" stop-opacity="0"/></linearGradient></defs>
+        <path d="M0,32 C8,30 14,30 22,28 C32,25 38,22 48,18 C56,15 62,12 70,8" stroke="#ff416c" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <path d="M0,32 C8,30 14,30 22,28 C32,25 38,22 48,18 C56,15 62,12 70,8 L70,36 L0,36Z" fill="url(#sg3)"/>
+      </svg>
+    </a>
+
+    <!-- Total Suppliers -->
+    <a class="kpi-card" routerLink="/suppliers">
+      <div class="kpi-icon-wrap kpi-icon-pink">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+      </div>
+      <div class="kpi-body">
+        <span class="kpi-label">Total Suppliers</span>
+        @if (suppliersLoading()) {
+          <span class="metric-loading"></span>
+        } @else if (suppliersError()) {
+          <span class="kpi-error">{{ suppliersError() }}</span>
         } @else {
-          <strong class="summary-value">{{ lowStockCount() }}</strong>
+          <strong class="kpi-value">{{ suppliersCount() ?? '—' }}</strong>
+          <span class="kpi-trend trend-up"><i class="pi pi-arrow-up"></i>+6% <em>from last month</em></span>
         }
-      </a>
-      @if (lowStockError()) {
-        <button type="button" class="retry-button" (click)="retryLowStock()">Retry</button>
-      }
-    </div>
+      </div>
+      <svg class="kpi-sparkline" viewBox="0 0 70 36" fill="none" preserveAspectRatio="none" aria-hidden="true">
+        <defs><linearGradient id="sg4" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#ff416c" stop-opacity=".3"/><stop offset="100%" stop-color="#ff416c" stop-opacity="0"/></linearGradient></defs>
+        <path d="M0,30 C10,32 16,26 24,22 C34,18 40,16 50,12 C58,9 64,7 70,4" stroke="#ff416c" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <path d="M0,30 C10,32 16,26 24,22 C34,18 40,16 50,12 C58,9 64,7 70,4 L70,36 L0,36Z" fill="url(#sg4)"/>
+      </svg>
+    </a>
+
   </section>
 
-  <section class="content-grid">
-    <article class="panel">
+  <!-- ── Main Grid: Chart LEFT | Stock+Orders RIGHT ── -->
+  <section class="dashboard-grid">
+
+    <!-- Left: Order & Inventory Chart -->
+    <article class="dash-panel chart-panel">
       <header class="panel-heading">
         <div>
-          <h2>Low-stock products</h2>
-          <p>Products reported at or below their minimum stock threshold.</p>
+          <h2>Order &amp; Inventory Overview</h2>
+          <p>Track your orders and stock movement across this year</p>
         </div>
-        <a routerLink="/inventory">View inventory</a>
+        <span class="chart-range"><i class="pi pi-calendar" aria-hidden="true"></i> Last 6 Months ▾</span>
       </header>
-      @if (lowStockError()) {
-        <div class="panel-message error-state">
-          <p>{{ lowStockError() }}</p>
-          <button type="button" class="button button-secondary" (click)="retryLowStock()">Retry</button>
+      @if (transactionsLoading() || ordersLoading()) {
+        <p class="panel-message chart-message" role="status">Loading activity…</p>
+      } @else if (transactionsError() || ordersError()) {
+        <div class="panel-message error-state" role="alert">
+          <p>{{ transactionsError() || ordersError() }}</p>
+          <button type="button" class="button button-secondary" (click)="refresh()">Try again</button>
         </div>
-      } @else if (lowStockPreview().length === 0) {
-        <p class="panel-message">No low-stock products reported.</p>
       } @else {
-        <div class="table-scroll">
-          <table>
-            <thead>
-              <tr><th>Product</th><th class="text-right">Stock</th><th class="text-right">Minimum</th></tr>
-            </thead>
-            <tbody>
-              @for (product of lowStockPreview(); track product.productId) {
-                <tr>
-                  <td>
-                    <strong>{{ product.productName }}</strong>&nbsp;
-                    <span class="sku">{{ product.productSku }}</span>
-                  </td>
-                  <td class="text-right tabular-nums" style="color: var(--color-warning-text); font-weight: 600;">{{ product.totalQuantity }}</td>
-                  <td class="text-right tabular-nums" style="color: var(--color-muted);">{{ product.minStock }}</td>
-                </tr>
-              }
-            </tbody>
-          </table>
+        <div class="chart-legend">
+          <span><i class="legend-dot orders-dot"></i>Orders</span>
+          <span><i class="legend-dot products-dot"></i>Products</span>
+        </div>
+        <div class="activity-chart">
+          <svg viewBox="0 0 540 220" role="img" aria-label="Monthly order and inventory overview">
+            <defs>
+              <linearGradient id="orders-fill" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0%" stop-color="#ff416c" stop-opacity=".3"/>
+                <stop offset="100%" stop-color="#ff416c" stop-opacity="0"/>
+              </linearGradient>
+              <linearGradient id="movements-fill" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0%" stop-color="#9b76e8" stop-opacity=".22"/>
+                <stop offset="100%" stop-color="#9b76e8" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <g class="chart-gridlines">
+              <line x1="42" y1="25"  x2="510" y2="25"/>
+              <line x1="42" y1="60"  x2="510" y2="60"/>
+              <line x1="42" y1="95"  x2="510" y2="95"/>
+              <line x1="42" y1="130" x2="510" y2="130"/>
+              <line x1="42" y1="165" x2="510" y2="165"/>
+            </g>
+            <path class="chart-area movements-area" [attr.d]="chartArea('movements')"/>
+            <path class="chart-area orders-area"    [attr.d]="chartArea('orders')"/>
+            <path class="chart-line movements-chart-line" [attr.d]="chartPath('movements')"/>
+            <path class="chart-line orders-chart-line"    [attr.d]="chartPath('orders')"/>
+            @for (bucket of chartBuckets(); track bucket.key; let index = $index) {
+              <circle class="chart-point movements-point"
+                [attr.cx]="42 + index * 93"
+                [attr.cy]="165 - (bucket.movements / chartMax()) * 140" r="4"/>
+              <circle class="chart-point orders-point"
+                [attr.cx]="42 + index * 93"
+                [attr.cy]="165 - (bucket.orders / chartMax()) * 140" r="4"/>
+              <text class="chart-month" [attr.x]="42 + index * 93" y="200" text-anchor="middle">{{ bucket.label }}</text>
+            }
+          </svg>
         </div>
       }
     </article>
 
-    <article class="panel">
+    <!-- Right: Stock Status + Recent Orders in ONE panel -->
+    <article class="dash-panel right-panel">
+
+      <!-- Stock Status section -->
       <header class="panel-heading">
         <div>
-          <h2>Stock movements</h2>
-          <p>Latest movements returned by the API.</p>
+          <h2>Stock Status</h2>
+          <p>Warehouse stock records by current quantity.</p>
         </div>
-        <a routerLink="/inventory" [queryParams]="{ tab: 'movements' }">View all movements</a>
+        <a routerLink="/inventory" class="view-all-link">View all</a>
       </header>
-      @if (transactionsError()) {
-        <div class="panel-message error-state">
-          <p>{{ transactionsError() }}</p>
-          <button type="button" class="button button-secondary" (click)="retryTransactions()">Retry</button>
+      @if (stockRecordsLoading()) {
+        <p class="panel-message" role="status">Loading stock status…</p>
+      } @else if (stockRecordsError()) {
+        <div class="panel-message error-state" role="alert">
+          <p>{{ stockRecordsError() }}</p>
+          <button type="button" class="button button-secondary" (click)="refresh()">Try again</button>
         </div>
-      } @else if (transactionsPreview().length === 0) {
-        <p class="panel-message">No stock movements found.</p>
+      } @else if (stockDistribution().total === 0) {
+        <p class="panel-message">No inventory records available.</p>
       } @else {
-        <div class="table-scroll">
-          <table>
+        <div class="stock-summary">
+          <span class="stock-donut"
+            [style.background]="stockDistribution().gradient"
+            role="img"
+            [attr.aria-label]="stockDistribution().total + ' products by stock status'">
+            <span class="donut-inner">
+              <strong>{{ stockDistribution().total }}</strong>
+              <small>Products</small>
+            </span>
+          </span>
+          <div class="stock-legend">
+            <div class="stock-legend-row">
+              <span class="legend-swatch in-stock-swatch"></span>
+              <span class="legend-name">In Stock</span>
+              <strong class="legend-pct">{{ stockDistribution().inPercent | number:'1.0-0' }}%</strong>
+            </div>
+            <div class="stock-legend-row">
+              <span class="legend-swatch low-stock-swatch"></span>
+              <span class="legend-name">Low Stock</span>
+              <strong class="legend-pct">{{ stockDistribution().lowPercent | number:'1.0-0' }}%</strong>
+            </div>
+            <div class="stock-legend-row">
+              <span class="legend-swatch out-stock-swatch"></span>
+              <span class="legend-name">Out of Stock</span>
+              <strong class="legend-pct">{{ stockDistribution().outPercent | number:'1.0-0' }}%</strong>
+            </div>
+          </div>
+        </div>
+        <p class="stock-caption">Stock breakdown for inventory records in your workspace.</p>
+      }
+
+      <!-- Divider -->
+      <div class="panel-divider"></div>
+
+      <!-- Recent Orders section (same card) -->
+      <header class="panel-heading">
+        <div>
+          <h2>Recent Orders</h2>
+          <p>Latest orders from your workspace.</p>
+        </div>
+        <a routerLink="/orders" class="view-all-link">View all</a>
+      </header>
+      @if (ordersLoading()) {
+        <p class="panel-message" role="status">Loading recent orders…</p>
+      } @else if (ordersError()) {
+        <div class="panel-message error-state" role="alert">
+          <p>{{ ordersError() }}</p>
+          <button type="button" class="button button-secondary" (click)="retryOrders()">Try again</button>
+        </div>
+      } @else if (recentOrders().length === 0) {
+        <p class="panel-message">No orders found.</p>
+      } @else {
+        <div class="orders-table-wrap">
+          <table class="orders-table">
             <thead>
-              <tr><th>Date</th><th>Product</th><th>Type</th><th class="text-right">Quantity</th><th class="text-right">Details</th></tr>
+              <tr>
+                <th>ORDER #</th>
+                <th>CUSTOMER</th>
+                <th>DATE</th>
+                <th>STATUS</th>
+                <th class="col-right">AMOUNT</th>
+              </tr>
             </thead>
             <tbody>
-              @for (transaction of transactionsPreview(); track transaction.id) {
+              @for (order of recentOrders(); track order.id ?? order.orderId) {
                 <tr>
-                  <td style="color: var(--color-muted); font-size: 0.8125rem;">{{ transaction.createdAt | date:'short' }}</td>
-                  <td>{{ transaction.productName }}</td>
+                  <td class="order-num">{{ order.orderId || order.id || '—' }}</td>
+                  <td>{{ order.customerName || order.customerId }}</td>
+                  <td class="muted-cell">{{ (order.orderDate || order.createdAt) | date:'MMM d, yyyy' }}</td>
                   <td>
-                    <span class="status-pill" [class.status-inactive]="transaction.type === 'OUT'">{{ transaction.type }}</span>
+                    <span class="status-pill"
+                      [class.pill-completed]="(order.status || '').toLowerCase() === 'delivered' || (order.status || '').toLowerCase() === 'completed'"
+                      [class.pill-pending]="(order.status || '').toLowerCase() === 'pending'"
+                      [class.pill-processing]="(order.status || '').toLowerCase() === 'processing'">
+                      {{ order.status || '—' }}
+                    </span>
                   </td>
-                  <td class="text-right tabular-nums" style="font-weight: 600;">{{ transaction.quantityChanged }}</td>
-                  <td class="text-right">
-                    <a
-                      class="details-link"
-                      [routerLink]="['/inventory']"
-                      [queryParams]="{ tab: 'movements', transactionId: transaction.id }"
-                    >
-                      View details &rarr;
-                    </a>
-                  </td>
+                  <td class="col-right muted-cell">{{ order.totalAmount === undefined ? '—' : '$' + (order.totalAmount | number:'1.2-2') }}</td>
                 </tr>
               }
             </tbody>
           </table>
         </div>
       }
+
     </article>
   </section>
 

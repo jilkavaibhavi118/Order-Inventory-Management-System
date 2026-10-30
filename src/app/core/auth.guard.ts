@@ -14,7 +14,19 @@ export const authGuard: CanActivateFn = (_route, state) => {
     return true;
   }
 
-  return authService.accessToken()
+  return authService.isAuthenticated()
     ? true
     : router.createUrlTree(['/login'], { queryParams: { returnUrl: state.url } });
+};
+
+export const guestGuard: CanActivateFn = () => {
+  const platformId = inject(PLATFORM_ID);
+  const authService = inject(AuthService);
+  const router = inject(Router);
+
+  if (!isPlatformBrowser(platformId) || !authService.isAuthenticated()) {
+    return true;
+  }
+
+  return router.createUrlTree(['/dashboard']);
 };

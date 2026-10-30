@@ -21,7 +21,9 @@
 
 .active-checkbox {
   display: flex !important;
+  flex-direction: row !important;
   align-items: center;
+  justify-content: flex-start;
   gap: 0.55rem !important;
 
   input[type='checkbox'] {

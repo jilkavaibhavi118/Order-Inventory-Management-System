@@ -1,39 +1,47 @@
 <aside class="sidebar" aria-label="Main navigation">
-  <a class="brand" routerLink="/inventory" aria-label="OrderFlow home">
-    <span class="brand-mark"><i class="pi pi-box" aria-hidden="true"></i></span>
-    <span>OrderFlow</span>
+  <!-- Brand -->
+  <a class="brand" routerLink="/dashboard" aria-label="OrderFlow home">
+    <span class="brand-mark">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <rect x="1" y="1" width="6" height="6" rx="1.5" fill="white" opacity="0.9"/>
+        <rect x="9" y="1" width="6" height="6" rx="1.5" fill="white" opacity="0.7"/>
+        <rect x="1" y="9" width="6" height="6" rx="1.5" fill="white" opacity="0.7"/>
+        <rect x="9" y="9" width="6" height="6" rx="1.5" fill="white" opacity="0.5"/>
+      </svg>
+    </span>
+    <span class="brand-name">OrderFlow</span>
   </a>
 
-  <nav class="navigation-links">
+  <!-- Main Navigation -->
+  <nav class="navigation-links" aria-label="Main menu">
     <a routerLink="/dashboard" routerLinkActive="active" class="navigation-link">
-      <i class="pi pi-chart-bar" aria-hidden="true"></i>
+      <span class="nav-icon"><i class="pi pi-th-large" aria-hidden="true"></i></span>
       <span>Dashboard</span>
     </a>
-    <a
-      routerLink="/inventory"
-      routerLinkActive="active"
-      [routerLinkActiveOptions]="{ exact: true }"
-      class="navigation-link">
-      <i class="pi pi-warehouse" aria-hidden="true"></i>
+    <a routerLink="/inventory" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="navigation-link">
+      <span class="nav-icon"><i class="pi pi-warehouse" aria-hidden="true"></i></span>
       <span>Inventory</span>
     </a>
     <a routerLink="/products" routerLinkActive="active" class="navigation-link">
-      <i class="pi pi-box" aria-hidden="true"></i>
+      <span class="nav-icon"><i class="pi pi-box" aria-hidden="true"></i></span>
       <span>Products</span>
     </a>
     <a routerLink="/suppliers" routerLinkActive="active" class="navigation-link">
-      <i class="pi pi-truck" aria-hidden="true"></i>
+      <span class="nav-icon"><i class="pi pi-truck" aria-hidden="true"></i></span>
       <span>Suppliers</span>
     </a>
     <a routerLink="/warehouses" routerLinkActive="active" class="navigation-link">
-      <i class="pi pi-warehouse" aria-hidden="true"></i>
+      <span class="nav-icon"><i class="pi pi-building" aria-hidden="true"></i></span>
       <span>Warehouses</span>
     </a>
     <a routerLink="/orders" routerLinkActive="active" class="navigation-link">
-      <i class="pi pi-shopping-cart" aria-hidden="true"></i>
+      <span class="nav-icon"><i class="pi pi-shopping-cart" aria-hidden="true"></i></span>
       <span>Orders</span>
     </a>
   </nav>
+
+  <!-- Need Help Card -->
+
 
   <div class="sidebar-bottom">
     <button type="button" class="logout-button" (click)="logout()">
