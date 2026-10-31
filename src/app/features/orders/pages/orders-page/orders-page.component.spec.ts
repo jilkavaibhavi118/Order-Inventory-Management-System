@@ -1,3 +1,4 @@
+import { provideRouter } from '@angular/router';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MessageService } from 'primeng/api';
 import { of } from 'rxjs';
@@ -35,6 +36,7 @@ describe('OrdersPageComponent', () => {
     await TestBed.configureTestingModule({
       imports: [OrdersPageComponent],
       providers: [
+        provideRouter([]),
         { provide: OrdersService, useValue: mockOrdersService },
         { provide: AuthService, useValue: { currentUserId: () => customerId } },
         {
@@ -106,6 +108,36 @@ describe('OrdersPageComponent', () => {
       fromDate: undefined,
       toDate: undefined
     });
+  });
+
+  it('selects and deselects visible orders with the table checkboxes', () => {
+    const orders = [
+      { id: 'order-1', customerId, warehouseId: 'warehouse-id' },
+      { id: 'order-2', customerId, warehouseId: 'warehouse-id' }
+    ];
+    component.orders.set(orders);
+
+    component.toggleVisibleOrderSelection(true);
+
+    expect(component.areVisibleOrdersSelected()).toBe(true);
+    expect(component.isOrderSelected(orders[0])).toBe(true);
+
+    component.toggleOrderSelection(orders[0], false);
+    expect(component.areVisibleOrdersSelected()).toBe(false);
+
+    component.toggleVisibleOrderSelection(false);
+    expect(component.isOrderSelected(orders[1])).toBe(false);
+  });
+
+  it('keeps datepicker filter values as API-friendly date strings', () => {
+    component.updateFromDateFilter('2026-10-25');
+    component.updateToDateFilter('2026-10-31');
+
+    expect(component.fromDateFilter()).toBe('2026-10-25');
+    expect(component.toDateFilter()).toBe('2026-10-31');
+
+    component.updateFromDateFilter(null);
+    expect(component.fromDateFilter()).toBe('');
   });
 
   it('uses the confirmation dialog before deleting an order', () => {

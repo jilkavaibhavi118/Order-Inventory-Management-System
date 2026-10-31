@@ -1,8 +1,10 @@
+import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
-import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormArray, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MessageService } from 'primeng/api';
+import { CheckboxModule } from 'primeng/checkbox';
 import { PaginatorModule } from 'primeng/paginator';
 import { Select } from 'primeng/select';
 import type { PaginatorState } from 'primeng/types/paginator';
@@ -21,13 +23,14 @@ import {
   OrderRequest
 } from '../../../../models/order.models';
 import { OrdersService } from '../../../../core/services/orders.service';
+import { DatePickerModule } from 'primeng/datepicker';
 
 type SortField = 'orderDate' | 'status' | 'customer' | 'total';
 
 @Component({
   selector: 'app-orders-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, PaginatorModule, Select],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, PaginatorModule, Select, DatePickerModule, CheckboxModule, RouterLink],
   templateUrl: './orders-page.component.html',
   styleUrl: './orders-page.component.scss'
 })
@@ -57,6 +60,7 @@ export class OrdersPageComponent {
   readonly statusOrderId = signal<string | null>(null);
 
   readonly orderSearch = signal('');
+  readonly selectedOrderIds = signal<Set<string>>(new Set());
   readonly warehouseOptions = computed(() =>
     this.warehouses().map(warehouse => ({ label: warehouse.name, value: warehouse.id }))
   );
@@ -164,6 +168,60 @@ export class OrdersPageComponent {
     this.page.set(1);
   }
 
+  updateFromDateFilter(value: string | null): void {
+    this.fromDateFilter.set(value ?? '');
+  }
+
+  updateToDateFilter(value: string | null): void {
+    this.toDateFilter.set(value ?? '');
+  }
+
+  orderSelectionKey(order: Order): string | null {
+    return order.id ?? order.orderId ?? null;
+  }
+
+  isOrderSelected(order: Order): boolean {
+    const key = this.orderSelectionKey(order);
+    return key !== null && this.selectedOrderIds().has(key);
+  }
+
+  areVisibleOrdersSelected(): boolean {
+    const visibleOrders = this.visibleOrders();
+    return visibleOrders.length > 0 && visibleOrders.every(order => this.isOrderSelected(order));
+  }
+
+  toggleOrderSelection(order: Order, selected: boolean): void {
+    const key = this.orderSelectionKey(order);
+    if (!key) {
+      return;
+    }
+
+    const selectedIds = new Set(this.selectedOrderIds());
+    if (selected) {
+      selectedIds.add(key);
+    } else {
+      selectedIds.delete(key);
+    }
+    this.selectedOrderIds.set(selectedIds);
+  }
+
+  toggleVisibleOrderSelection(selected: boolean): void {
+    const selectedIds = new Set(this.selectedOrderIds());
+    for (const order of this.visibleOrders()) {
+      const key = this.orderSelectionKey(order);
+      if (!key) {
+        continue;
+      }
+
+      if (selected) {
+        selectedIds.add(key);
+      } else {
+        selectedIds.delete(key);
+      }
+    }
+    this.selectedOrderIds.set(selectedIds);
+  }
+
   onPageChange(event: PaginatorState): void {
     if (this.loading()) {
       return;
@@ -221,14 +279,6 @@ export class OrdersPageComponent {
 
   setStatusFilter(event: Event): void {
     this.statusFilter.set((event.target as HTMLInputElement).value);
-  }
-
-  setFromDateFilter(event: Event): void {
-    this.fromDateFilter.set((event.target as HTMLInputElement).value);
-  }
-
-  setToDateFilter(event: Event): void {
-    this.toDateFilter.set((event.target as HTMLInputElement).value);
   }
 
   sortBy(field: SortField): void {

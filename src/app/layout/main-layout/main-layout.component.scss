@@ -1,73 +1,51 @@
-/* ==========================================================================
-   Main Layout Shell – Full viewport, no outer padding
-   ========================================================================== */
+/* Shell: fixed sidebar, scrolling main column with a sticky glass topbar. */
 
 :host {
   display: block;
   height: 100vh;
   overflow: hidden;
-  background:
-    radial-gradient(ellipse 72% 70% at 0% 0%, rgba(255, 128, 163, 0.26) 0%, transparent 58%),
-    radial-gradient(ellipse 66% 62% at 100% 4%, rgba(245, 165, 190, 0.25) 0%, transparent 55%),
-    radial-gradient(ellipse 70% 60% at 70% 100%, rgba(255, 154, 181, 0.22) 0%, transparent 58%),
-    linear-gradient(135deg, #fff0f3 0%, #fbe3eb 36%, #f6dce7 68%, #fff0f4 100%);
+  background: var(--color-bg);
 }
 
-/* ── Workspace: full width + height, no rounded border ── */
 .workspace-layout {
   display: flex;
   width: 100%;
   height: 100vh;
   overflow: hidden;
   position: relative;
-
   background:
-    radial-gradient(ellipse 72% 70% at 0% 0%, rgba(255, 128, 163, 0.24) 0%, transparent 58%),
-    radial-gradient(ellipse 66% 62% at 100% 4%, rgba(245, 165, 190, 0.22) 0%, transparent 55%),
-    radial-gradient(ellipse 70% 60% at 70% 100%, rgba(255, 154, 181, 0.2) 0%, transparent 58%),
-    linear-gradient(135deg, #fff0f3 0%, #fbe3eb 36%, #f6dce7 68%, #fff0f4 100%);
+    radial-gradient(50rem 24rem at 80% -8rem, rgba(37, 99, 235, 0.12), transparent 70%),
+    radial-gradient(40rem 22rem at 10% 110%, rgba(59, 130, 246, 0.06), transparent 70%),
+    var(--color-bg);
 }
 
-/* ── Main column ── */
 .workspace-main {
+  position: relative;
   display: flex;
   flex: 1;
   flex-direction: column;
   min-width: 0;
   height: 100%;
-  overflow-y: auto;
   overflow-x: hidden;
-  position: relative;
-  isolation: isolate;
-
-  /* Soft pink top-right glow behind the content area */
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0; right: 0; left: 0;
-    z-index: 0;
-    height: 20rem;
-    pointer-events: none;
-    background:
-      radial-gradient(ellipse 65% 70% at 78% -32%, rgba(255, 125, 160, 0.18) 0%, transparent 52%),
-      radial-gradient(ellipse 70% 75% at 75% -36%, rgba(255, 235, 241, 0.4) 0%, transparent 52%),
-      linear-gradient(150deg, transparent 46%, rgba(255, 160, 185, 0.1) 46.2% 56%, transparent 56.2%);
-  }
+  overflow-y: auto;
 }
 
-/* ── Content area ── */
 .workspace-content {
   position: relative;
   flex: 1;
   width: 100%;
-  padding: 0.9rem 1.1rem 2rem;
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-6) var(--space-10);
 }
 
-/* ── Top navigation progress bar ── */
+/* Navigation progress bar */
 .top-nav-loader {
   position: fixed;
-  top: 0; left: 0; right: 0;
-  height: 3px;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
   z-index: 99999;
   overflow: hidden;
   pointer-events: none;
@@ -75,64 +53,65 @@
 
 .top-nav-loader-bar {
   position: absolute;
-  top: 0; left: 0; bottom: 0;
-  background: linear-gradient(90deg, #ff416c, #ff8aac, #ff416c);
-  box-shadow: 0 0 10px rgba(255,65,108,0.6);
+  top: 0;
+  bottom: 0;
+  background: var(--color-primary);
   animation: nav-bar 1.2s infinite ease-in-out;
 }
 
 @keyframes nav-bar {
-  0%   { left: 0%;   right: 100%; }
-  50%  { left: 20%;  right: 20%;  }
-  100% { left: 100%; right: 0%;   }
+  0% { left: 0; right: 100%; }
+  50% { left: 20%; right: 20%; }
+  100% { left: 100%; right: 0; }
 }
 
-/* ── Route loading overlay ── */
+/* Route loading overlay */
 .route-loader {
   position: fixed;
   z-index: 2000;
   inset: 0;
   display: grid;
   place-items: center;
-  background: rgba(255,245,250,0.72);
+  background: var(--color-overlay);
   backdrop-filter: blur(4px);
 }
 
 .route-spinner {
-  width: 3rem; height: 3rem;
-  border: 3px solid rgba(255,65,108,0.2);
-  border-top-color: #ff416c;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 3px solid var(--color-primary-light);
+  border-top-color: var(--color-primary);
   border-radius: 50%;
   animation: route-spin 0.7s linear infinite;
 }
 
-@keyframes route-spin { to { transform: rotate(360deg); } }
-
-@media (prefers-reduced-motion: reduce) {
-  .route-spinner { animation-duration: 1.5s; }
+@keyframes route-spin {
+  to { transform: rotate(360deg); }
 }
 
-@media (max-width: 700px) {
-  .workspace-content { padding: 0.75rem 0.75rem 2rem; }
+.mobile-nav-backdrop {
+  display: none;
 }
 
-/* ── Dark Theme: gradient background so glass blur is visible ── */
-:host-context([data-theme='dark']) {
-  background:
-    radial-gradient(ellipse 60% 55% at 15% 10%, rgba(255, 65, 108, 0.06) 0%, transparent 50%),
-    radial-gradient(ellipse 55% 50% at 85% 90%, rgba(60, 10, 50, 0.2) 0%, transparent 50%),
-    #0c1220;
-
-  .workspace-layout {
-    background:
-      radial-gradient(ellipse 70% 50% at 72% -18%, rgba(255, 65, 108, 0.1) 0%, transparent 52%),
-      radial-gradient(ellipse 55% 45% at 15% 96%, rgba(80, 20, 60, 0.12) 0%, transparent 55%),
-      linear-gradient(160deg, #0c1220 0%, #0f172a 55%, #0d1528 100%);
+@media (max-width: 900px) {
+  .workspace-content {
+    padding: var(--space-4) var(--space-4) var(--space-8);
   }
 
-  .workspace-main::before {
-    background:
-      radial-gradient(ellipse 65% 70% at 78% -32%, rgba(255, 65, 108, 0.1) 0%, transparent 50%),
-      radial-gradient(ellipse 70% 75% at 75% -36%, rgba(80, 0, 50, 0.18) 0%, transparent 50%);
+  .mobile-nav-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 900;
+    background: var(--color-overlay);
+    backdrop-filter: blur(3px);
+    cursor: default;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .top-nav-loader-bar,
+  .route-spinner {
+    animation-duration: 1.8s;
   }
 }

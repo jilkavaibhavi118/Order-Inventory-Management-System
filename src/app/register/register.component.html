@@ -30,8 +30,8 @@
         <p class="brand-description">Join OrderFlow as a customer to browse catalog items, place wholesale or retail orders, and monitor real-time shipment milestones.</p>
       </div>
 
-      <div class="brand-features-list" role="list">
-        <div class="feature-item" role="listitem">
+      <ul class="brand-features-list">
+        <li class="feature-item" >
           <div class="feature-icon-wrapper" aria-hidden="true">
             <i class="pi pi-sync feature-icon"></i>
           </div>
@@ -39,9 +39,9 @@
             <span class="feature-title">Real-Time Inventory Sync</span>
             <span class="feature-subtitle">Continuous multi-warehouse stock coordination &amp; automated alert triggers</span>
           </div>
-        </div>
+        </li>
 
-        <div class="feature-item" role="listitem">
+        <li class="feature-item">
           <div class="feature-icon-wrapper" aria-hidden="true">
             <i class="pi pi-bolt feature-icon"></i>
           </div>
@@ -49,9 +49,9 @@
             <span class="feature-title">Automated Order Routing</span>
             <span class="feature-subtitle">Dynamic dispatch rules minimize delivery turnaround and shipping overhead</span>
           </div>
-        </div>
+        </li>
 
-        <div class="feature-item" role="listitem">
+        <li class="feature-item">
           <div class="feature-icon-wrapper" aria-hidden="true">
             <i class="pi pi-shield feature-icon"></i>
           </div>
@@ -59,8 +59,8 @@
             <span class="feature-title">Enterprise-Grade Security</span>
             <span class="feature-subtitle">Role-based access controls for Admins and Customers with strict isolation</span>
           </div>
-        </div>
-      </div>
+        </li>
+      </ul>
     </div>
   </aside>
 
@@ -97,7 +97,6 @@
         class="feedback-banner"
         [class.feedback-success]="submissionStatus() === 'success'"
         [class.feedback-error]="submissionStatus() === 'error'"
-        role="status"
         aria-live="polite">
         <div class="feedback-icon-wrapper" aria-hidden="true">
           @if (submissionStatus() === 'success') {
@@ -258,9 +257,8 @@
             </span>
           </div>
 
-          <div
+          <p-progressBar
             class="strength-track"
-            role="progressbar"
             [attr.aria-valuenow]="passwordStrength().percent"
             aria-valuemin="0"
             aria-valuemax="100"
@@ -273,7 +271,7 @@
               [class.bar-strong]="passwordStrength().level === 'strong'"
               [style.width.%]="passwordStrength().percent">
             </div>
-          </div>
+          </p-progressBar>
 
           <!-- Requirements Checklist with PrimeIcons and Text -->
           <ul class="strength-rules-list" aria-label="Password requirements">

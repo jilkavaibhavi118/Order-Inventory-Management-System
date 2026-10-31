@@ -3,10 +3,13 @@
   <!-- ── Page heading ── -->
   <div class="inv-page-heading">
     <div class="inv-heading-left">
-      <div class="inv-heading-icon">
-        <i class="pi pi-warehouse" aria-hidden="true"></i>
-      </div>
+
       <div>
+        <nav class="breadcrumb" aria-label="Breadcrumb">
+          <a routerLink="/dashboard">OrderFlow</a>
+          <i class="pi pi-chevron-right" aria-hidden="true"></i>
+          <span aria-current="page">Inventory</span>
+        </nav>
         <h1>Inventory</h1>
         <p class="page-description">Monitor stock levels and manage warehouse adjustments.</p>
       </div>
@@ -18,7 +21,7 @@
   </div>
 
   <!-- ── Section tabs ── -->
-  <nav class="inv-tabs" role="tablist" aria-label="Inventory views">
+  <nav class="inv-tabs"  aria-label="Inventory views">
     <button
       type="button"
       role="tab"
@@ -41,136 +44,69 @@
   @if (activeTab() === 'overview') {
 
     <!-- KPI cards -->
-    <div class="inv-kpi-grid">
-      <!-- Inventory records -->
-      <article class="inv-kpi-card">
-        <div class="inv-kpi-left">
-          <span class="inv-kpi-icon icon-pink">
-            <i class="pi pi-box" aria-hidden="true"></i>
-          </span>
-          <div class="inv-kpi-copy">
-            <span class="inv-kpi-label">Inventory records</span>
-            <strong class="inv-kpi-value">{{ totalInventoryCount() | number }}</strong>
-            <span class="inv-kpi-trend trend-up">
-              <i class="pi pi-arrow-up" aria-hidden="true"></i> +13% from last month
-            </span>
-          </div>
+    <div class="stat-grid" aria-label="Inventory summary">
+      <article class="stat-card">
+        <span class="stat-icon"><i class="pi pi-database" aria-hidden="true"></i></span>
+        <div class="stat-copy">
+          <span class="stat-label">Inventory records</span>
+          <strong class="stat-value">{{ totalInventoryCount() | number }}</strong>
         </div>
-        <svg class="inv-sparkline" viewBox="0 0 60 30" preserveAspectRatio="none" aria-hidden="true">
-          <rect x="0"  y="18" width="7" height="12" rx="2" fill="rgba(255,65,108,0.18)"/>
-          <rect x="9"  y="12" width="7" height="18" rx="2" fill="rgba(255,65,108,0.18)"/>
-          <rect x="18" y="8"  width="7" height="22" rx="2" fill="rgba(255,65,108,0.3)"/>
-          <rect x="27" y="14" width="7" height="16" rx="2" fill="rgba(255,65,108,0.18)"/>
-          <rect x="36" y="6"  width="7" height="24" rx="2" fill="rgba(255,65,108,0.5)"/>
-          <rect x="45" y="2"  width="7" height="28" rx="2" fill="#FF416C"/>
-        </svg>
       </article>
-
-      <!-- Total products -->
-      <article class="inv-kpi-card">
-        <div class="inv-kpi-left">
-          <span class="inv-kpi-icon icon-pink">
-            <i class="pi pi-tags" aria-hidden="true"></i>
-          </span>
-          <div class="inv-kpi-copy">
-            <span class="inv-kpi-label">Total products</span>
-            <strong class="inv-kpi-value">{{ products().length | number }}</strong>
-            <span class="inv-kpi-trend trend-up">
-              <i class="pi pi-arrow-up" aria-hidden="true"></i> +4% from last month
-            </span>
-          </div>
+      <article class="stat-card">
+        <span class="stat-icon tone-info"><i class="pi pi-tags" aria-hidden="true"></i></span>
+        <div class="stat-copy">
+          <span class="stat-label">Total products</span>
+          <strong class="stat-value">{{ products().length | number }}</strong>
         </div>
-        <svg class="inv-sparkline" viewBox="0 0 60 30" preserveAspectRatio="none" aria-hidden="true">
-          <rect x="0"  y="16" width="7" height="14" rx="2" fill="rgba(255,65,108,0.18)"/>
-          <rect x="9"  y="20" width="7" height="10" rx="2" fill="rgba(255,65,108,0.18)"/>
-          <rect x="18" y="10" width="7" height="20" rx="2" fill="rgba(255,65,108,0.3)"/>
-          <rect x="27" y="6"  width="7" height="24" rx="2" fill="rgba(255,65,108,0.4)"/>
-          <rect x="36" y="12" width="7" height="18" rx="2" fill="rgba(255,65,108,0.3)"/>
-          <rect x="45" y="2"  width="7" height="28" rx="2" fill="#FF416C"/>
-        </svg>
       </article>
-
-      <!-- Total warehouses -->
-      <article class="inv-kpi-card">
-        <div class="inv-kpi-left">
-          <span class="inv-kpi-icon icon-pink">
-            <i class="pi pi-building" aria-hidden="true"></i>
-          </span>
-          <div class="inv-kpi-copy">
-            <span class="inv-kpi-label">Total warehouses</span>
-            <strong class="inv-kpi-value">{{ warehouses().length | number }}</strong>
-            <span class="inv-kpi-trend trend-up">
-              <i class="pi pi-arrow-up" aria-hidden="true"></i> +42 new this month
-            </span>
-          </div>
+      <article class="stat-card">
+        <span class="stat-icon tone-success"><i class="pi pi-building" aria-hidden="true"></i></span>
+        <div class="stat-copy">
+          <span class="stat-label">Total warehouses</span>
+          <strong class="stat-value">{{ warehouses().length | number }}</strong>
         </div>
-        <svg class="inv-sparkline" viewBox="0 0 60 30" preserveAspectRatio="none" aria-hidden="true">
-          <rect x="0"  y="14" width="7" height="16" rx="2" fill="rgba(255,65,108,0.18)"/>
-          <rect x="9"  y="8"  width="7" height="22" rx="2" fill="rgba(255,65,108,0.25)"/>
-          <rect x="18" y="18" width="7" height="12" rx="2" fill="rgba(255,65,108,0.18)"/>
-          <rect x="27" y="10" width="7" height="20" rx="2" fill="rgba(255,65,108,0.35)"/>
-          <rect x="36" y="4"  width="7" height="26" rx="2" fill="rgba(255,65,108,0.5)"/>
-          <rect x="45" y="2"  width="7" height="28" rx="2" fill="#FF416C"/>
-        </svg>
       </article>
-
-      <!-- Low-stock items -->
-      <article class="inv-kpi-card">
-        <div class="inv-kpi-left">
-          <span class="inv-kpi-icon icon-amber">
-            <i class="pi pi-exclamation-triangle" aria-hidden="true"></i>
-          </span>
-          <div class="inv-kpi-copy">
-            <span class="inv-kpi-label">Low-stock items</span>
-            <strong class="inv-kpi-value">{{ lowStock().length | number }}</strong>
-            <span class="inv-kpi-trend trend-warn">
-              <i class="pi pi-arrow-up" aria-hidden="true"></i> +15% from last month
-            </span>
-          </div>
+      <article class="stat-card">
+        <span class="stat-icon tone-warning"><i class="pi pi-exclamation-triangle" aria-hidden="true"></i></span>
+        <div class="stat-copy">
+          <span class="stat-label">Low-stock items</span>
+          <strong class="stat-value">{{ lowStock().length | number }}</strong>
         </div>
-        <svg class="inv-sparkline" viewBox="0 0 60 30" preserveAspectRatio="none" aria-hidden="true">
-          <rect x="0"  y="20" width="7" height="10" rx="2" fill="rgba(217,119,6,0.15)"/>
-          <rect x="9"  y="14" width="7" height="16" rx="2" fill="rgba(217,119,6,0.2)"/>
-          <rect x="18" y="8"  width="7" height="22" rx="2" fill="rgba(217,119,6,0.25)"/>
-          <rect x="27" y="12" width="7" height="18" rx="2" fill="rgba(217,119,6,0.3)"/>
-          <rect x="36" y="6"  width="7" height="24" rx="2" fill="rgba(217,119,6,0.4)"/>
-          <rect x="45" y="2"  width="7" height="28" rx="2" fill="#D97706"/>
-        </svg>
       </article>
-    </div>
-
-    <!-- ── Inventory Items table section ── -->
-    <div class="inv-section-header">
-      <div>
-        <h2 class="inv-section-title">Inventory Items</h2>
-        <p class="inv-section-sub">Manage product stock levels across all warehouses.</p>
-      </div>
     </div>
 
     <!-- Toolbar -->
-    <div class="crud-toolbar">
+    <div class="crud-toolbar inventory-filters">
       <label class="crud-search" style="flex: 1 1 240px; max-width: 320px;">
         <i class="pi pi-search" aria-hidden="true"></i>
         <input type="search" [value]="invSearch()" (input)="updateInvSearch($event)" placeholder="Search products, SKU..." aria-label="Search inventory" />
       </label>
-      <p-select
-        class="crud-p-select"
-        [options]="invWarehouseOptions()"
-        [(ngModel)]="invWarehouseFilterValue"
-        optionLabel="label"
-        optionValue="value"
-        placeholder="All warehouses"
-        appendTo="body"
-      />
-      <p-select
-        class="crud-p-select"
-        [options]="invStatusOptions"
-        [(ngModel)]="invStatusFilterValue"
-        optionLabel="label"
-        optionValue="value"
-        placeholder="All status"
-        appendTo="body"
-      />
+      <div class="inv-filter-field">
+        <label class="inv-filter-label" for="inventory-warehouse-filter">Warehouse</label>
+        <p-select
+          inputId="inventory-warehouse-filter"
+          class="crud-p-select"
+          [options]="invWarehouseOptions()"
+          [(ngModel)]="invWarehouseFilterValue"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="All warehouses"
+          appendTo="body"
+        />
+      </div>
+      <div class="inv-filter-field">
+        <label class="inv-filter-label" for="inventory-status-filter">Status</label>
+        <p-select
+          inputId="inventory-status-filter"
+          class="crud-p-select"
+          [options]="invStatusOptions"
+          [(ngModel)]="invStatusFilterValue"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="All status"
+          appendTo="body"
+        />
+      </div>
 
 
     </div>
@@ -182,7 +118,7 @@
         <table class="crud-table">
           <thead>
             <tr>
-              <th class="col-check"><input type="checkbox" aria-label="Select all" /></th>
+              <th class="col-check"><p-checkbox [binary]="true" ariaLabel="Select all" /></th>
               <th>Product</th>
               <th>SKU</th>
               <th>Warehouse</th>
@@ -208,7 +144,7 @@
             } @else {
               @for (item of visibleInventory(); track item.id ?? item.productId) {
                 <tr>
-                  <td class="col-check"><input type="checkbox" [attr.aria-label]="'Select ' + item.productName" /></td>
+                  <td class="col-check"><p-checkbox [binary]="true" [ariaLabel]="'Select ' + item.productName" /></td>
                   <td>
                     <div class="product-cell">
                       @if (getProductImage(item.productId)) {
@@ -257,11 +193,11 @@
                       <button type="button" class="action-btn action-view" [disabled]="!item.id" [attr.aria-label]="'View details for ' + item.productName" title="View details" (click)="openInventoryDetails(item)">
                         <i class="pi pi-eye" aria-hidden="true"></i>
                       </button>
-                      <button type="button" class="action-btn action-edit" [disabled]="!item.productId" [attr.aria-label]="'View movements for ' + item.productName" title="Movement history" (click)="viewHistory(item)">
-                        <i class="pi pi-pencil" aria-hidden="true"></i>
+                      <button type="button" class="action-btn" [disabled]="!item.productId" [attr.aria-label]="'View movements for ' + item.productName" title="Movement history" (click)="viewHistory(item)">
+                        <i class="pi pi-history" aria-hidden="true"></i>
                       </button>
-                      <button type="button" class="action-btn action-delete" [attr.aria-label]="'Adjust stock for ' + item.productName" title="Adjust stock" (click)="openAdjustment()">
-                        <i class="pi pi-trash" aria-hidden="true"></i>
+                      <button type="button" class="action-btn action-edit" [attr.aria-label]="'Adjust stock for ' + item.productName" title="Adjust stock" (click)="openAdjustment()">
+                        <i class="pi pi-sliders-h" aria-hidden="true"></i>
                       </button>
                     </div>
                   </td>
@@ -356,36 +292,54 @@
       </div>
 
       <!-- Movements filters -->
-      <form class="crud-toolbar" style="flex-wrap: wrap; padding: 1rem; border-bottom: 1px solid var(--color-border);" [formGroup]="movementFilterForm" (ngSubmit)="applyMovementFilters()">
-        <p-select
-          class="crud-p-select"
-          formControlName="productId"
-          [options]="inventoryProductOptions()"
-          optionLabel="label"
-          optionValue="value"
-          placeholder="All products"
-          appendTo="body"
-        />
-        <p-select
-          class="crud-p-select"
-          formControlName="warehouseId"
-          [options]="warehouseOptions()"
-          optionLabel="label"
-          optionValue="value"
-          placeholder="All warehouses"
-          appendTo="body"
-        />
-        <p-select
-          class="crud-p-select"
-          formControlName="type"
-          [options]="movementTypeOptions"
-          optionLabel="label"
-          optionValue="value"
-          placeholder="All types"
-          appendTo="body"
-        />
-        <input class="crud-select" type="date" formControlName="fromDate" title="From date" />
-        <input class="crud-select" type="date" formControlName="toDate" title="To date" />
+      <form class="crud-toolbar movement-filters" [formGroup]="movementFilterForm" (ngSubmit)="applyMovementFilters()">
+        <div class="inv-filter-field">
+          <label class="inv-filter-label" for="movement-product-filter">Product</label>
+          <p-select
+            inputId="movement-product-filter"
+            class="crud-p-select"
+            formControlName="productId"
+            [options]="inventoryProductOptions()"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="All products"
+            appendTo="body"
+          />
+        </div>
+        <div class="inv-filter-field">
+          <label class="inv-filter-label" for="movement-warehouse-filter">Warehouse</label>
+          <p-select
+            inputId="movement-warehouse-filter"
+            class="crud-p-select"
+            formControlName="warehouseId"
+            [options]="warehouseOptions()"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="All warehouses"
+            appendTo="body"
+          />
+        </div>
+        <div class="inv-filter-field">
+          <label class="inv-filter-label" for="movement-type-filter">Type</label>
+          <p-select
+            inputId="movement-type-filter"
+            class="crud-p-select"
+            formControlName="type"
+            [options]="movementTypeOptions"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="All types"
+            appendTo="body"
+          />
+        </div>
+        <div class="inv-filter-field">
+          <label class="inv-filter-label" for="movement-from-date">From date</label>
+          <input id="movement-from-date" class="crud-select" type="date" formControlName="fromDate" />
+        </div>
+        <div class="inv-filter-field">
+          <label class="inv-filter-label" for="movement-to-date">To date</label>
+          <input id="movement-to-date" class="crud-select" type="date" formControlName="toDate" />
+        </div>
         <button type="submit" class="crud-filter-btn">
           <i class="pi pi-filter" aria-hidden="true"></i>
           Apply
@@ -473,8 +427,8 @@
 
 <!-- ── Inventory details dialog ── -->
 @if (detailRecord(); as record) {
-  <div class="dialog-backdrop" (click)="closeInventoryDetails()">
-    <section class="dialog-card details-dialog" role="dialog" aria-modal="true" aria-labelledby="inventory-details-title" (click)="$event.stopPropagation()">
+  <dialog open class="dialog-backdrop" aria-labelledby="inventory-details-title" (click)="$event.target === $event.currentTarget && closeInventoryDetails()" (keydown.escape)="closeInventoryDetails()">
+    <section class="dialog-card details-dialog">
       <div class="dialog-heading">
         <div>
           <h2 id="inventory-details-title">Inventory record details</h2>
@@ -493,13 +447,13 @@
         <pre class="details-payload">{{ formatPayload(detailPayload()) }}</pre>
       }
     </section>
-  </div>
+  </dialog>
 }
 
 <!-- ── Transaction details dialog ── -->
 @if (transactionDetailsId()) {
-  <div class="dialog-backdrop" (click)="closeTransactionDetails()">
-    <section class="dialog-card details-dialog" role="dialog" aria-modal="true" aria-labelledby="transaction-details-title" (click)="$event.stopPropagation()">
+  <dialog open class="dialog-backdrop" aria-labelledby="transaction-details-title" (click)="$event.target === $event.currentTarget && closeTransactionDetails()" (keydown.escape)="closeTransactionDetails()">
+    <section class="dialog-card details-dialog">
       <div class="dialog-heading">
         <div>
           <h2 id="transaction-details-title">Stock movement details</h2>
@@ -520,13 +474,13 @@
         <pre class="details-payload">{{ formatPayload(transactionDetailsPayload()) }}</pre>
       }
     </section>
-  </div>
+  </dialog>
 }
 
 <!-- ── Adjust stock dialog ── -->
 @if (adjustmentDialogOpen()) {
-  <div class="dialog-backdrop" (click)="closeAdjustment()">
-    <section class="dialog-card" role="dialog" aria-modal="true" aria-labelledby="adjustment-dialog-title" (click)="$event.stopPropagation()">
+  <dialog open class="dialog-backdrop" aria-labelledby="adjustment-dialog-title" (click)="$event.target === $event.currentTarget && closeAdjustment()" (keydown.escape)="closeAdjustment()">
+    <section class="dialog-card">
       <div class="dialog-heading">
         <div>
           <h2 id="adjustment-dialog-title">Adjust inventory</h2>
@@ -535,8 +489,9 @@
       </div>
       <form [formGroup]="adjustmentForm" (ngSubmit)="adjustStock()">
         <div class="form-grid">
-          <label class="full-width">Product
+          <label class="full-width" for="adjustment-product">Product
             <p-select
+              inputId="adjustment-product"
               class="form-select"
               formControlName="productId"
               [options]="inventoryProductOptions()"
@@ -546,8 +501,9 @@
               appendTo="body"
             />
           </label>
-          <label class="full-width">Warehouse
+          <label class="full-width" for="adjustment-warehouse">Warehouse
             <p-select
+              inputId="adjustment-warehouse"
               class="form-select"
               formControlName="warehouseId"
               [options]="activeWarehouseOptions()"
@@ -581,5 +537,5 @@
         </div>
       </form>
     </section>
-  </div>
+  </dialog>
 }

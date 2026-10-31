@@ -1,3 +1,5 @@
+import { CheckboxModule } from 'primeng/checkbox';
+import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
@@ -12,7 +14,7 @@ import { Warehouse, WarehouseRequest } from '../../../../models/inventory.models
 @Component({
   selector: 'app-warehouses-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, PaginatorModule],
+  imports: [CommonModule, ReactiveFormsModule, PaginatorModule, RouterLink, CheckboxModule],
   templateUrl: './warehouses-page.component.html',
   styleUrl: './warehouses-page.component.scss'
 })

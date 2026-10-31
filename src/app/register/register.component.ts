@@ -10,21 +10,10 @@ import {
 } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
-import { AuthService } from '../../core/services/auth.service';
+import { ProgressBarModule } from 'primeng/progressbar';
+import { PasswordRule, PasswordStrength } from '../models/auth.models';
+import { AuthService } from '../core/services/auth.service';
 
-interface PasswordRule {
-  id: string;
-  label: string;
-  met: boolean;
-}
-
-interface PasswordStrength {
-  score: number;
-  level: 'empty' | 'weak' | 'fair' | 'good' | 'strong';
-  label: string;
-  percent: number;
-  rules: PasswordRule[];
-}
 
 function passwordMatchValidator(passwordName: string, confirmationName: string): ValidatorFn {
   return (group: AbstractControl): ValidationErrors | null => {
@@ -34,7 +23,7 @@ function passwordMatchValidator(passwordName: string, confirmationName: string):
       return null;
     }
 
-    const errors = { ...(confirmation.errors ?? {}) };
+    const errors = { ...confirmation.errors };
     if (!confirmation.value) {
       delete errors['passwordMismatch'];
       confirmation.setErrors(Object.keys(errors).length ? errors : null);
@@ -61,15 +50,20 @@ function evaluatePasswordStrength(password: string): PasswordStrength {
     { id: 'special', label: 'At least one special character', met: /[^A-Za-z0-9]/.test(password) }
   ];
   const score = rules.filter((rule) => rule.met).length;
-  const level: PasswordStrength['level'] = !password
-    ? 'empty'
-    : score <= 2
-      ? 'weak'
-      : score === 3
-        ? 'fair'
-        : score === 4
-          ? 'good'
-          : 'strong';
+  let level: PasswordStrength['level'];
+
+  if (!password) {
+    level = 'empty';
+  } else if (score <= 2) {
+    level = 'weak';
+  } else if (score === 3) {
+    level = 'fair';
+  } else if (score === 4) {
+    level = 'good';
+  } else {
+    level = 'strong';
+  }
+
   const labels: Record<PasswordStrength['level'], string> = {
     empty: 'Enter password',
     weak: 'Weak',
@@ -87,11 +81,39 @@ function evaluatePasswordStrength(password: string): PasswordStrength {
   };
 }
 
+function getNonEmptyMessage(value: unknown): string | null {
+  return typeof value === 'string' && value.trim() ? value : null;
+}
+
+function getMessageFromObject(value: unknown): string | null {
+  if (typeof value !== 'object' || value === null || !('message' in value)) {
+    return null;
+  }
+
+  return getNonEmptyMessage(value.message);
+}
+
+function getMessageFromText(responseText: string): string | null {
+  try {
+    const parsed: unknown = JSON.parse(responseText);
+    return typeof parsed === 'string'
+      ? getNonEmptyMessage(parsed)
+      : getMessageFromObject(parsed);
+  } catch {
+    return responseText.startsWith('<') ? null : responseText || null;
+  }
+}
+
+function getMessageFromBody(body: unknown): string | null {
+  return typeof body === 'string'
+    ? getMessageFromText(body.trim())
+    : getMessageFromObject(body);
+}
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, ProgressBarModule],
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss'
 })
@@ -134,7 +156,7 @@ export class RegisterComponent {
         validators: [
           Validators.required,
           Validators.minLength(8),
-          Validators.pattern(/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9])/)
+          Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9])/)
         ]
       }),
       confirmPassword: new FormControl('', {
@@ -242,30 +264,7 @@ export class RegisterComponent {
       return null;
     }
 
-    const body: unknown = error.error;
-    if (typeof body === 'string') {
-      const responseText = body.trim();
-      try {
-        const parsed: unknown = JSON.parse(responseText);
-        if (typeof parsed === 'string' && parsed.trim()) {
-          return parsed;
-        }
-        if (typeof parsed === 'object' && parsed !== null && 'message' in parsed) {
-          const message = parsed.message;
-          return typeof message === 'string' && message.trim() ? message : null;
-        }
-        return null;
-      } catch {
-        return responseText.startsWith('<') ? null : responseText || null;
-      }
-    }
-
-    if (typeof body !== 'object' || body === null || !('message' in body)) {
-      return null;
-    }
-
-    const message = body.message;
-    return typeof message === 'string' && message.trim() ? message : null;
+    return getMessageFromBody(error.error);
   }
 
   private focusFirstInvalidField(): void {

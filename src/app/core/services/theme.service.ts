@@ -27,10 +27,10 @@ export class ThemeService {
 
   private getInitialTheme(): ColorTheme {
     if (!isPlatformBrowser(this.platformId)) {
-      return 'light';
+      return 'dark';
     }
 
-    return localStorage.getItem('orderflow-theme') === 'dark' ? 'dark' : 'light';
+    return localStorage.getItem('orderflow-theme') === 'light' ? 'light' : 'dark';
   }
 
   private applyTheme(theme: ColorTheme): void {

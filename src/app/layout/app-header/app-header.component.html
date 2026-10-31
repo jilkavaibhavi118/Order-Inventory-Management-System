@@ -1,44 +1,118 @@
 <header class="topbar">
-  <!-- Search -->
+  <!-- Left: menu toggle and page context -->
   <div class="topbar-left">
+    <button
+      type="button"
+      class="topbar-icon-btn menu-toggle"
+      (click)="sidebarToggle.emit()"
+      [attr.aria-label]="mobileNavOpen() ? 'Close navigation' : (sidebarCollapsed() ? 'Expand sidebar' : 'Collapse sidebar')"
+      [attr.aria-expanded]="mobileNavOpen() || !sidebarCollapsed()"
+    >
+      <i class="pi" [class.pi-bars]="!mobileNavOpen()" [class.pi-times]="mobileNavOpen()" aria-hidden="true"></i>
+    </button>
+  </div>
+
+  <!-- Centre: global search -->
+  <div class="global-search-wrap">
     <label class="global-search" for="global-search-input">
       <i class="pi pi-search" aria-hidden="true"></i>
       <input
         id="global-search-input"
         type="search"
-        aria-label="Search products, orders, and suppliers"
-        placeholder="Search products, orders, suppliers..." />
+        autocomplete="off"
+        placeholder="Search pages and products…"
+        aria-label="Search pages and products"
+        aria-controls="global-search-results"
+        [attr.aria-expanded]="openMenu() === 'search'"
+        [value]="searchQuery()"
+        (focus)="openSearch()"
+        (input)="updateSearch($event)"
+        (keydown.arrowdown)="moveResult(1, $event)"
+        (keydown.arrowup)="moveResult(-1, $event)"
+        (keydown.enter)="submitSearch($event)"
+      />
     </label>
+
+    @if (openMenu() === 'search') {
+      <div class="dropdown search-results" id="global-search-results" role="menu" aria-label="Search results">
+        @if (pageResults().length > 0) {
+          <span class="dropdown-label">Pages</span>
+          @for (page of pageResults(); track page.path; let i = $index) {
+            <button type="button" role="menuitem" class="dropdown-item" [class.active]="activeResult() === i" (click)="goToPage(page)">
+              <i class="pi" [class]="page.icon" aria-hidden="true"></i>
+              <span>{{ page.label }}</span>
+            </button>
+          }
+        }
+        @if (productResults().length > 0) {
+          <span class="dropdown-label">Products</span>
+          @for (product of productResults(); track product.id; let i = $index) {
+            <button type="button" role="menuitem" class="dropdown-item" [class.active]="activeResult() === pageResults().length + i" (click)="goToProduct(product)">
+              <i class="pi pi-box" aria-hidden="true"></i>
+              <span class="dropdown-item-text">
+                <span>{{ product.name }}</span>
+                <small>{{ product.sku }}</small>
+              </span>
+            </button>
+          }
+        }
+        @if (pageResults().length === 0 && productResults().length === 0) {
+          <p class="dropdown-empty">No pages or products match “{{ searchQuery() }}”.</p>
+        }
+      </div>
+    }
   </div>
 
-  <!-- Right controls -->
+  <!-- Right: theme, notifications, account -->
   <div class="user-summary">
-    <!-- Theme toggle (iOS pill switch) -->
-    <label class="topbar-toggle" [attr.aria-label]="theme() === 'light' ? 'Switch to dark theme' : 'Switch to light theme'" [attr.title]="theme() === 'light' ? 'Switch to dark theme' : 'Switch to light theme'">
-      <input type="checkbox" [checked]="theme() === 'dark'" (change)="toggleTheme()" />
-      <span class="toggle-track">
-        <span class="toggle-thumb">
-          <i [class]="theme() === 'dark' ? 'pi pi-sun' : 'pi pi-moon'" aria-hidden="true"></i>
-        </span>
-      </span>
-    </label>
-
-    <!-- Notifications -->
-    <button type="button" class="topbar-icon-btn notification-btn" aria-label="Notifications" title="Notifications">
-      <i class="pi pi-bell" aria-hidden="true"></i>
-      <span class="notif-dot" aria-hidden="true"></span>
+    <button
+      type="button"
+      class="topbar-icon-btn"
+      (click)="toggleTheme()"
+      [attr.aria-label]="theme() === 'light' ? 'Switch to dark theme' : 'Switch to light theme'"
+      [attr.title]="theme() === 'light' ? 'Switch to dark theme' : 'Switch to light theme'"
+    >
+      <i class="pi" [class.pi-moon]="theme() === 'light'" [class.pi-sun]="theme() === 'dark'" aria-hidden="true"></i>
     </button>
 
-    <!-- User capsule -->
-    <div class="user-capsule">
-      <span class="user-avatar" aria-hidden="true">{{ userInitials() }}</span>
-      <span class="user-copy">
-        <strong>{{ userName() }}</strong>
-        @if (roleLabel()) {
-          <span class="role-label">{{ roleLabel() }}</span>
-        }
-      </span>
-      <i class="pi pi-chevron-down chevron-icon" aria-hidden="true"></i>
+    <div class="menu-anchor">
+      <button
+        type="button"
+        class="user-capsule"
+        (click)="toggleMenu('user')"
+        [attr.aria-expanded]="openMenu() === 'user'"
+        aria-haspopup="true"
+        aria-label="Account menu"
+      >
+        <span class="user-avatar" aria-hidden="true">{{ userInitials() }}</span>
+        <span class="user-copy">
+          <strong>{{ userName() }}</strong>
+          @if (roleLabel()) {
+            <span class="role-label">{{ roleLabel() }}</span>
+          }
+        </span>
+        <i class="pi pi-chevron-down chevron-icon" aria-hidden="true"></i>
+      </button>
+
+      @if (openMenu() === 'user') {
+        <div class="dropdown user-menu" role="menu" aria-label="Account menu">
+          <div class="dropdown-head user-menu-head">
+            <span class="user-avatar large" aria-hidden="true">{{ userInitials() }}</span>
+            <span class="dropdown-item-text">
+              <strong>{{ userName() }}</strong>
+              <small>{{ userEmail() || roleLabel() }}</small>
+            </span>
+          </div>
+          <button type="button" class="dropdown-item" role="menuitem" (click)="toggleTheme()">
+            <i class="pi" [class.pi-moon]="theme() === 'light'" [class.pi-sun]="theme() === 'dark'" aria-hidden="true"></i>
+            <span>{{ theme() === 'light' ? 'Dark theme' : 'Light theme' }}</span>
+          </button>
+          <button type="button" class="dropdown-item danger" role="menuitem" (click)="logout()">
+            <i class="pi pi-sign-out" aria-hidden="true"></i>
+            <span>Sign out</span>
+          </button>
+        </div>
+      }
     </div>
   </div>
 </header>

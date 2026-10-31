@@ -85,3 +85,5 @@ export interface PasswordStrength {
   percent: number; // 0 to 100
   rules: PasswordRule[];
 }
+
+

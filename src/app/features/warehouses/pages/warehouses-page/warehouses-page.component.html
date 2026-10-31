@@ -2,6 +2,11 @@
   <!-- Page heading -->
   <div class="page-heading">
     <div>
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a routerLink="/dashboard">OrderFlow</a>
+        <i class="pi pi-chevron-right" aria-hidden="true"></i>
+        <span aria-current="page">Warehouses</span>
+      </nav>
       <h1>Warehouses</h1>
       <p class="page-description">Manage physical storage facilities, capacity, and operational hubs.</p>
     </div>
@@ -41,7 +46,7 @@
       <table class="crud-table">
         <thead>
           <tr>
-            <th class="col-check"><input type="checkbox" aria-label="Select all" /></th>
+            <th class="col-check"><p-checkbox [binary]="true" ariaLabel="Select all" /></th>
             <th>Warehouse</th>
             <th>Location</th>
             <th>Status</th>
@@ -54,7 +59,7 @@
           } @else {
             @for (warehouse of visibleWarehouses(); track warehouse.id) {
               <tr>
-                <td class="col-check"><input type="checkbox" [attr.aria-label]="'Select ' + warehouse.name" /></td>
+                <td class="col-check"><p-checkbox [binary]="true" [ariaLabel]="'Select ' + warehouse.name" /></td>
                 <td class="warehouse-name">{{ warehouse.name }}</td>
                 <td style="color: var(--color-muted);">{{ warehouse.location }}</td>
                 <td>
@@ -105,8 +110,8 @@
 
 <!-- Add / Edit warehouse dialog -->
 @if (dialogOpen()) {
-  <div class="dialog-backdrop" (click)="closeDialog()">
-    <section class="dialog-card" role="dialog" aria-modal="true" aria-labelledby="warehouse-dialog-title" (click)="$event.stopPropagation()">
+  <div class="dialog-backdrop" (onclick)="closeDialog()">
+    <p-dialog class="dialog-card" aria-modal="true" aria-labelledby="warehouse-dialog-title" (onclick)="$event.stopPropagation()">
       <div class="dialog-heading">
         <div>
           <h2 id="warehouse-dialog-title">{{ editingWarehouseId() ? 'Edit warehouse' : 'Add warehouse' }}</h2>
@@ -124,7 +129,7 @@
           </label>
           <label>
             Location
-            <input type="text" formControlName="location" autocomplete="street-address" placeholder="City, State or full address" />
+            <input type="text" formControlName="location" autocomplete="address-line1" placeholder="City, State or full address" />
           </label>
           <label class="active-checkbox full-width">
             <input type="checkbox" formControlName="isActive" />
@@ -141,19 +146,19 @@
           </button>
         </div>
       </form>
-    </section>
+    </p-dialog>
   </div>
 }
 
 <!-- Delete confirmation dialog -->
 @if (warehousePendingDeletion(); as warehouse) {
-  <div class="dialog-backdrop" (click)="cancelDelete()">
+  <div class="dialog-backdrop" (onclick)="cancelDelete()">
     <section
       class="dialog-card confirmation-card"
       role="alertdialog"
       aria-modal="true"
       aria-labelledby="delete-warehouse-title"
-      (click)="$event.stopPropagation()"
+      (onclick)="$event.stopPropagation()"
     >
       <div class="dialog-heading">
         <h2 id="delete-warehouse-title">Delete warehouse?</h2>

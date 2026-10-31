@@ -1,0 +1,230 @@
+/* ==========================================================================
+   PrimeNG components restyled to the OrderFlow tokens.
+   The preset in app.config.ts maps PrimeNG colour scales; the rules below
+   fix shape, height and surfaces so every control matches our own inputs.
+   ========================================================================== */
+
+/* ── Select ──────────────────────────────────────────────────────────────── */
+
+.p-select {
+  min-height: var(--control-height);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-input-bg);
+  color: var(--color-heading);
+  box-shadow: none;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+
+  &:not(.p-disabled):hover {
+    border-color: var(--color-border-hover);
+  }
+
+  &.p-focus,
+  &.p-select-open {
+    border-color: var(--color-border-focus);
+    box-shadow: var(--shadow-focus);
+  }
+
+  .p-select-label {
+    padding: 0 var(--space-3);
+    display: flex;
+    align-items: center;
+    font-size: var(--font-size-base);
+    color: var(--color-heading);
+
+    &.p-placeholder {
+      color: var(--color-subtle);
+    }
+  }
+
+  .p-select-dropdown {
+    width: 2.5rem;
+    color: var(--color-muted);
+  }
+
+  &.ng-invalid.ng-touched {
+    border-color: var(--color-error);
+  }
+}
+
+.crud-p-select,
+.form-select {
+  display: block;
+  min-width: 11rem;
+
+  &.form-select {
+    width: 100%;
+  }
+}
+
+.crud-p-select .p-select {
+  width: 100%;
+}
+
+.form-select .p-select {
+  width: 100%;
+}
+
+.p-select-overlay,
+.p-datepicker-panel,
+.p-multiselect-overlay {
+  border: 1px solid var(--color-border-hover) !important;
+  border-radius: var(--radius-lg) !important;
+  background: var(--color-surface-elevated) !important;
+  box-shadow: var(--shadow-lg) !important;
+  color: var(--color-body) !important;
+}
+
+.p-select-list-container {
+  padding: var(--space-1);
+}
+
+.p-select-option {
+  margin: 1px 0;
+  padding: 0.5rem var(--space-3);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-base);
+  color: var(--color-body);
+
+  &.p-focus,
+  &:not(.p-select-option-selected):not(.p-disabled):hover {
+    background: var(--color-surface-hover);
+    color: var(--color-heading);
+  }
+
+  &.p-select-option-selected {
+    background: var(--color-primary-light);
+    color: var(--color-primary-hover);
+    font-weight: var(--font-weight-semibold);
+  }
+}
+
+/* ── Datepicker ──────────────────────────────────────────────────────────── */
+
+.p-datepicker {
+  width: 100%;
+
+  .p-inputtext {
+    min-height: var(--control-height);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-input-bg);
+    color: var(--color-heading);
+    font-size: var(--font-size-base);
+    box-shadow: none;
+
+    &:hover {
+      border-color: var(--color-border-hover);
+    }
+
+    &:focus {
+      border-color: var(--color-border-focus);
+      box-shadow: var(--shadow-focus);
+    }
+  }
+
+  .p-datepicker-dropdown {
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    background: var(--color-primary-solid);
+    border-color: var(--color-primary-solid);
+    color: #fff;
+  }
+}
+
+.order-date-picker {
+  display: block;
+  min-width: 10.5rem;
+}
+
+.p-datepicker-panel {
+  .p-datepicker-day.p-datepicker-day-selected,
+  .p-datepicker-month.p-datepicker-month-selected,
+  .p-datepicker-year.p-datepicker-year-selected {
+    background: var(--color-primary-solid);
+    color: #fff;
+  }
+
+  .p-datepicker-today > .p-datepicker-day:not(.p-datepicker-day-selected) {
+    background: var(--color-primary-light);
+    color: var(--color-primary-hover);
+  }
+}
+
+/* ── Checkbox ────────────────────────────────────────────────────────────── */
+
+.p-checkbox-box {
+  border-radius: var(--radius-sm);
+  border-color: var(--color-border-hover);
+  background: var(--color-input-bg);
+
+  &.p-checkbox-checked {
+    background: var(--color-primary-solid);
+    border-color: var(--color-primary-solid);
+  }
+}
+
+/* ── Toast: solid surface tinted by severity ─────────────────────────────── */
+
+.p-toast .p-toast-message {
+  --toast-tone: var(--color-primary);
+  --toast-tint: var(--color-primary-light);
+  --toast-text: var(--color-heading);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--toast-tone);
+  border-left-width: 4px;
+  background-color: var(--color-surface-elevated);
+  background-image: linear-gradient(var(--toast-tint), var(--toast-tint));
+  box-shadow: var(--shadow-lg);
+  color: var(--toast-text);
+
+  .p-toast-message-content,
+  .p-toast-message-text {
+    color: var(--toast-text);
+  }
+
+  .p-toast-summary {
+    font-weight: var(--font-weight-semibold);
+    color: var(--toast-text);
+  }
+
+  .p-toast-detail {
+    color: var(--color-body);
+  }
+
+  .p-toast-message-icon,
+  .p-toast-close-icon {
+    color: var(--toast-tone);
+  }
+
+  &.p-toast-message-success {
+    --toast-tone: var(--color-success);
+    --toast-tint: var(--color-success-light);
+    --toast-text: var(--color-success-text);
+  }
+
+  &.p-toast-message-error {
+    --toast-tone: var(--color-error);
+    --toast-tint: var(--color-error-light);
+    --toast-text: var(--color-error-text);
+  }
+
+  &.p-toast-message-warn {
+    --toast-tone: var(--color-warning);
+    --toast-tint: var(--color-warning-light);
+    --toast-text: var(--color-warning-text);
+  }
+
+  &.p-toast-message-info {
+    --toast-tone: var(--color-info);
+    --toast-tint: var(--color-info-light);
+    --toast-text: var(--color-info-text);
+  }
+}
+
+/* ── Paginator (kept consistent with .page-btn) ──────────────────────────── */
+
+.p-paginator {
+  background: transparent;
+  border: 0;
+  color: var(--color-muted);
+}

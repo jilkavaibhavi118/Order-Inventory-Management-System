@@ -1,3 +1,5 @@
+import { CheckboxModule } from 'primeng/checkbox';
+import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
@@ -12,7 +14,7 @@ import { Supplier, SupplierRequest } from '../../../../models/inventory.models';
 @Component({
   selector: 'app-suppliers-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, PaginatorModule],
+  imports: [CommonModule, ReactiveFormsModule, PaginatorModule, RouterLink, CheckboxModule],
   templateUrl: './suppliers-page.component.html',
   styleUrl: './suppliers-page.component.scss'
 })

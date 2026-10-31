@@ -1,299 +1,410 @@
 <section class="dashboard-page">
 
-  <!-- ── Welcome Header ── -->
-  <header class="dashboard-welcome">
+  <!-- ── Page header ── -->
+  <header class="page-heading">
     <div>
-      <h1>Welcome back{{ userName() ? ' ' + userName() : '' }}</h1>
-      <p class="page-description">Here's what's happening with your inventory today.</p>
+      <h1>Welcome back{{ userName() ? ', ' + userName() : '' }}</h1>
+      <p class="page-description">{{ today | date:'EEEE, d MMMM yyyy' }} · Here's what's happening across your operations.</p>
     </div>
-    <div class="date-card">
-      <span class="date-icon"><i class="pi pi-calendar" aria-hidden="true"></i></span>
-      <span class="date-text">
-        <strong>{{ today | date:'EEEE, d MMM yyyy' }}</strong>
-        <small>Have a productive day!</small>
-      </span>
-    </div>
+
   </header>
 
-  <!-- ── KPI Cards ── -->
-  <section class="dashboard-metrics" aria-label="Business summary">
+  <!-- ── KPI cards ── -->
+  <section class="stat-grid" aria-label="Business summary">
 
-    <!-- Total Products -->
-    <a class="kpi-card" routerLink="/products">
-      <div class="kpi-icon-wrap kpi-icon-pink">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-          <polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>
-        </svg>
-      </div>
-      <div class="kpi-body">
-        <span class="kpi-label">Total Products</span>
+    <article class="stat-card">
+      <span class="stat-icon"><i class="pi pi-box" aria-hidden="true"></i></span>
+      <div class="stat-copy">
+        <a class="stat-label stat-link" routerLink="/products">Total products</a>
         @if (productsLoading()) {
           <span class="metric-loading"></span>
         } @else if (productsError()) {
-          <span class="kpi-error">{{ productsError() }}</span>
+          <span class="stat-error">{{ productsError() }}</span>
+          <button type="button" class="stat-retry" (click)="retryProducts()">Try again</button>
         } @else {
-          <strong class="kpi-value">{{ productsCount() ?? '—' }}</strong>
-          <span class="kpi-trend trend-up"><i class="pi pi-arrow-up"></i>+12% <em>from last month</em></span>
+          <strong class="stat-value">{{ productsCount() ?? '—' }}</strong>
         }
       </div>
-      <svg class="kpi-sparkline" viewBox="0 0 70 36" fill="none" preserveAspectRatio="none" aria-hidden="true">
-        <defs><linearGradient id="sg1" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#ff416c" stop-opacity=".3"/><stop offset="100%" stop-color="#ff416c" stop-opacity="0"/></linearGradient></defs>
-        <path d="M0,32 C10,30 15,28 22,24 C30,20 35,22 42,17 C50,12 58,10 70,6" stroke="#ff416c" stroke-width="2" fill="none" stroke-linecap="round"/>
-        <path d="M0,32 C10,30 15,28 22,24 C30,20 35,22 42,17 C50,12 58,10 70,6 L70,36 L0,36Z" fill="url(#sg1)"/>
-      </svg>
-    </a>
+    </article>
 
-    <!-- Total Orders -->
-    <a class="kpi-card" routerLink="/orders">
-      <div class="kpi-icon-wrap kpi-icon-pink">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
-          <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
-        </svg>
-      </div>
-      <div class="kpi-body">
-        <span class="kpi-label">Total Orders</span>
+    <article class="stat-card">
+      <span class="stat-icon tone-info"><i class="pi pi-shopping-cart" aria-hidden="true"></i></span>
+      <div class="stat-copy">
+        <a class="stat-label stat-link" routerLink="/orders">Total orders</a>
         @if (ordersLoading()) {
           <span class="metric-loading"></span>
         } @else if (ordersError()) {
-          <span class="kpi-error">{{ ordersError() }}</span>
+          <span class="stat-error">{{ ordersError() }}</span>
+          <button type="button" class="stat-retry" (click)="retryOrders()">Try again</button>
         } @else {
-          <strong class="kpi-value">{{ ordersCount() ?? '—' }}</strong>
-          <span class="kpi-trend trend-up"><i class="pi pi-arrow-up"></i>+8% <em>from last month</em></span>
+          <strong class="stat-value">{{ ordersCount() ?? '—' }}</strong>
         }
       </div>
-      <svg class="kpi-sparkline" viewBox="0 0 70 36" fill="none" preserveAspectRatio="none" aria-hidden="true">
-        <defs><linearGradient id="sg2" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#ff416c" stop-opacity=".3"/><stop offset="100%" stop-color="#ff416c" stop-opacity="0"/></linearGradient></defs>
-        <path d="M0,30 C12,28 18,24 26,22 C34,20 40,18 50,14 C58,11 64,8 70,5" stroke="#ff416c" stroke-width="2" fill="none" stroke-linecap="round"/>
-        <path d="M0,30 C12,28 18,24 26,22 C34,20 40,18 50,14 C58,11 64,8 70,5 L70,36 L0,36Z" fill="url(#sg2)"/>
-      </svg>
-    </a>
+    </article>
 
-    <!-- Total Warehouses -->
-    <a class="kpi-card" routerLink="/warehouses">
-      <div class="kpi-icon-wrap kpi-icon-pink">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-          <polyline points="9 22 9 12 15 12 15 22"/>
-        </svg>
+    <article class="stat-card">
+      <span class="stat-icon tone-success"><i class="pi pi-database" aria-hidden="true"></i></span>
+      <div class="stat-copy">
+        <a class="stat-label stat-link" routerLink="/inventory">Units in stock</a>
+        @if (stockRecordsLoading()) {
+          <span class="metric-loading"></span>
+        } @else if (stockRecordsError()) {
+          <span class="stat-error">{{ stockRecordsError() }}</span>
+          <button type="button" class="stat-retry" (click)="refresh()">Try again</button>
+        } @else {
+          <strong class="stat-value">{{ totalUnits() | number }}</strong>
+          <span class="stat-note">{{ stockRecords().length }} stock records</span>
+        }
       </div>
-      <div class="kpi-body">
-        <span class="kpi-label">Total Warehouses</span>
+    </article>
+
+    <article class="stat-card">
+      <span class="stat-icon tone-info"><i class="pi pi-building" aria-hidden="true"></i></span>
+      <div class="stat-copy">
+        <a class="stat-label stat-link" routerLink="/warehouses">Warehouses</a>
         @if (warehousesLoading()) {
           <span class="metric-loading"></span>
         } @else if (warehousesError()) {
-          <span class="kpi-error">{{ warehousesError() }}</span>
+          <span class="stat-error">{{ warehousesError() }}</span>
+          <button type="button" class="stat-retry" (click)="retryWarehouses()">Try again</button>
         } @else {
-          <strong class="kpi-value">{{ warehousesCount() ?? '—' }}</strong>
-          <span class="kpi-trend trend-up"><i class="pi pi-arrow-up"></i>+2 <em>new this month</em></span>
+          <strong class="stat-value">{{ warehousesCount() ?? '—' }}</strong>
         }
       </div>
-      <svg class="kpi-sparkline" viewBox="0 0 70 36" fill="none" preserveAspectRatio="none" aria-hidden="true">
-        <defs><linearGradient id="sg3" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#ff416c" stop-opacity=".3"/><stop offset="100%" stop-color="#ff416c" stop-opacity="0"/></linearGradient></defs>
-        <path d="M0,32 C8,30 14,30 22,28 C32,25 38,22 48,18 C56,15 62,12 70,8" stroke="#ff416c" stroke-width="2" fill="none" stroke-linecap="round"/>
-        <path d="M0,32 C8,30 14,30 22,28 C32,25 38,22 48,18 C56,15 62,12 70,8 L70,36 L0,36Z" fill="url(#sg3)"/>
-      </svg>
-    </a>
+    </article>
 
-    <!-- Total Suppliers -->
-    <a class="kpi-card" routerLink="/suppliers">
-      <div class="kpi-icon-wrap kpi-icon-pink">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-          <circle cx="9" cy="7" r="4"/>
-          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-        </svg>
-      </div>
-      <div class="kpi-body">
-        <span class="kpi-label">Total Suppliers</span>
+    <article class="stat-card">
+      <span class="stat-icon"><i class="pi pi-truck" aria-hidden="true"></i></span>
+      <div class="stat-copy">
+        <a class="stat-label stat-link" routerLink="/suppliers">Suppliers</a>
         @if (suppliersLoading()) {
           <span class="metric-loading"></span>
         } @else if (suppliersError()) {
-          <span class="kpi-error">{{ suppliersError() }}</span>
+          <span class="stat-error">{{ suppliersError() }}</span>
+          <button type="button" class="stat-retry" (click)="retrySuppliers()">Try again</button>
         } @else {
-          <strong class="kpi-value">{{ suppliersCount() ?? '—' }}</strong>
-          <span class="kpi-trend trend-up"><i class="pi pi-arrow-up"></i>+6% <em>from last month</em></span>
+          <strong class="stat-value">{{ suppliersCount() ?? '—' }}</strong>
         }
       </div>
-      <svg class="kpi-sparkline" viewBox="0 0 70 36" fill="none" preserveAspectRatio="none" aria-hidden="true">
-        <defs><linearGradient id="sg4" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#ff416c" stop-opacity=".3"/><stop offset="100%" stop-color="#ff416c" stop-opacity="0"/></linearGradient></defs>
-        <path d="M0,30 C10,32 16,26 24,22 C34,18 40,16 50,12 C58,9 64,7 70,4" stroke="#ff416c" stroke-width="2" fill="none" stroke-linecap="round"/>
-        <path d="M0,30 C10,32 16,26 24,22 C34,18 40,16 50,12 C58,9 64,7 70,4 L70,36 L0,36Z" fill="url(#sg4)"/>
-      </svg>
-    </a>
+    </article>
 
+    <article class="stat-card">
+      <span class="stat-icon tone-warning"><i class="pi pi-exclamation-triangle" aria-hidden="true"></i></span>
+      <div class="stat-copy">
+        <a class="stat-label stat-link" routerLink="/inventory">Low-stock items</a>
+        @if (lowStockLoading()) {
+          <span class="metric-loading"></span>
+        } @else if (lowStockError()) {
+          <span class="stat-error">{{ lowStockError() }}</span>
+          <button type="button" class="stat-retry" (click)="retryLowStock()">Try again</button>
+        } @else {
+          <strong class="stat-value">{{ lowStockCount() ?? '—' }}</strong>
+        }
+      </div>
+    </article>
   </section>
 
-  <!-- ── Main Grid: Chart LEFT | Stock+Orders RIGHT ── -->
-  <section class="dashboard-grid">
-
-    <!-- Left: Order & Inventory Chart -->
-    <article class="dash-panel chart-panel">
+  <!-- ── Overview and stock status ── -->
+  <section class="dash-row row-overview">
+    <article class="dash-panel">
       <header class="panel-heading">
         <div>
-          <h2>Order &amp; Inventory Overview</h2>
-          <p>Track your orders and stock movement across this year</p>
+          <h2>Inventory overview</h2>
+          <p>Orders and stock movements per month, last six months.</p>
         </div>
-        <span class="chart-range"><i class="pi pi-calendar" aria-hidden="true"></i> Last 6 Months ▾</span>
-      </header>
-      @if (transactionsLoading() || ordersLoading()) {
-        <p class="panel-message chart-message" role="status">Loading activity…</p>
-      } @else if (transactionsError() || ordersError()) {
-        <div class="panel-message error-state" role="alert">
-          <p>{{ transactionsError() || ordersError() }}</p>
-          <button type="button" class="button button-secondary" (click)="refresh()">Try again</button>
-        </div>
-      } @else {
         <div class="chart-legend">
           <span><i class="legend-dot orders-dot"></i>Orders</span>
-          <span><i class="legend-dot products-dot"></i>Products</span>
+          <span><i class="legend-dot movements-dot"></i>Stock movements</span>
         </div>
+      </header>
+      @if (ordersLoading() || transactionsLoading()) {
+        <p class="panel-message">Loading overview…</p>
+      } @else if (ordersError() || transactionsError()) {
+        <div class="panel-message error-state" role="alert">
+          <p>{{ ordersError() || transactionsError() }}</p>
+          <button type="button" class="button button-secondary button-small" (click)="refresh()">Try again</button>
+        </div>
+      } @else {
         <div class="activity-chart">
-          <svg viewBox="0 0 540 220" role="img" aria-label="Monthly order and inventory overview">
-            <defs>
-              <linearGradient id="orders-fill" x1="0" x2="0" y1="0" y2="1">
-                <stop offset="0%" stop-color="#ff416c" stop-opacity=".3"/>
-                <stop offset="100%" stop-color="#ff416c" stop-opacity="0"/>
-              </linearGradient>
-              <linearGradient id="movements-fill" x1="0" x2="0" y1="0" y2="1">
-                <stop offset="0%" stop-color="#9b76e8" stop-opacity=".22"/>
-                <stop offset="100%" stop-color="#9b76e8" stop-opacity="0"/>
-              </linearGradient>
-            </defs>
+          <svg viewBox="0 0 540 220" role="img" aria-label="Monthly orders and stock movements for the last six months">
             <g class="chart-gridlines">
-              <line x1="42" y1="25"  x2="510" y2="25"/>
-              <line x1="42" y1="60"  x2="510" y2="60"/>
-              <line x1="42" y1="95"  x2="510" y2="95"/>
-              <line x1="42" y1="130" x2="510" y2="130"/>
-              <line x1="42" y1="165" x2="510" y2="165"/>
+              @for (tick of chartTicks(); track tick.y) {
+                <line x1="42" [attr.y1]="tick.y" x2="502" [attr.y2]="tick.y"/>
+                <text class="chart-axis" x="34" [attr.y]="tick.y + 4" text-anchor="end">{{ tick.label }}</text>
+              }
             </g>
             <path class="chart-area movements-area" [attr.d]="chartArea('movements')"/>
-            <path class="chart-area orders-area"    [attr.d]="chartArea('orders')"/>
-            <path class="chart-line movements-chart-line" [attr.d]="chartPath('movements')"/>
-            <path class="chart-line orders-chart-line"    [attr.d]="chartPath('orders')"/>
+            <path class="chart-area orders-area" [attr.d]="chartArea('orders')"/>
+            <path class="chart-line movements-line" [attr.d]="chartPath('movements')"/>
+            <path class="chart-line orders-line" [attr.d]="chartPath('orders')"/>
             @for (bucket of chartBuckets(); track bucket.key; let index = $index) {
-              <circle class="chart-point movements-point"
-                [attr.cx]="42 + index * 93"
-                [attr.cy]="165 - (bucket.movements / chartMax()) * 140" r="4"/>
-              <circle class="chart-point orders-point"
-                [attr.cx]="42 + index * 93"
-                [attr.cy]="165 - (bucket.orders / chartMax()) * 140" r="4"/>
-              <text class="chart-month" [attr.x]="42 + index * 93" y="200" text-anchor="middle">{{ bucket.label }}</text>
+              <circle class="chart-point movements-point" [attr.cx]="chartX(index)" [attr.cy]="chartY(bucket.movements)" r="3.5"/>
+              <circle class="chart-point orders-point" [attr.cx]="chartX(index)" [attr.cy]="chartY(bucket.orders)" r="3.5"/>
+              <text class="chart-axis" [attr.x]="chartX(index)" y="204" text-anchor="middle">{{ bucket.label }}</text>
             }
           </svg>
         </div>
       }
     </article>
 
-    <!-- Right: Stock Status + Recent Orders in ONE panel -->
-    <article class="dash-panel right-panel">
-
-      <!-- Stock Status section -->
+    <article class="dash-panel">
       <header class="panel-heading">
         <div>
-          <h2>Stock Status</h2>
-          <p>Warehouse stock records by current quantity.</p>
+          <h2>Stock status</h2>
+          <p>Stock records by current quantity.</p>
         </div>
         <a routerLink="/inventory" class="view-all-link">View all</a>
       </header>
       @if (stockRecordsLoading()) {
-        <p class="panel-message" role="status">Loading stock status…</p>
+        <p class="panel-message">Loading stock status…</p>
       } @else if (stockRecordsError()) {
         <div class="panel-message error-state" role="alert">
           <p>{{ stockRecordsError() }}</p>
-          <button type="button" class="button button-secondary" (click)="refresh()">Try again</button>
+          <button type="button" class="button button-secondary button-small" (click)="refresh()">Try again</button>
         </div>
       } @else if (stockDistribution().total === 0) {
         <p class="panel-message">No inventory records available.</p>
       } @else {
         <div class="stock-summary">
-          <span class="stock-donut"
-            [style.background]="stockDistribution().gradient"
-            role="img"
-            [attr.aria-label]="stockDistribution().total + ' products by stock status'">
+          <div class="stock-donut" role="img" [style.background]="stockDistribution().gradient"
+            [attr.aria-label]="stockDistribution().total + ' stock records by status'">
             <span class="donut-inner">
               <strong>{{ stockDistribution().total }}</strong>
-              <small>Products</small>
+              <small>Records</small>
             </span>
-          </span>
+          </div>
           <div class="stock-legend">
             <div class="stock-legend-row">
               <span class="legend-swatch in-stock-swatch"></span>
-              <span class="legend-name">In Stock</span>
+              <span class="legend-name">In stock</span>
+              <span class="legend-count">{{ stockDistribution().inStock }}</span>
               <strong class="legend-pct">{{ stockDistribution().inPercent | number:'1.0-0' }}%</strong>
             </div>
             <div class="stock-legend-row">
               <span class="legend-swatch low-stock-swatch"></span>
-              <span class="legend-name">Low Stock</span>
+              <span class="legend-name">Low stock</span>
+              <span class="legend-count">{{ stockDistribution().lowStock }}</span>
               <strong class="legend-pct">{{ stockDistribution().lowPercent | number:'1.0-0' }}%</strong>
             </div>
             <div class="stock-legend-row">
               <span class="legend-swatch out-stock-swatch"></span>
-              <span class="legend-name">Out of Stock</span>
+              <span class="legend-name">Out of stock</span>
+              <span class="legend-count">{{ stockDistribution().outOfStock }}</span>
               <strong class="legend-pct">{{ stockDistribution().outPercent | number:'1.0-0' }}%</strong>
             </div>
           </div>
         </div>
-        <p class="stock-caption">Stock breakdown for inventory records in your workspace.</p>
       }
+    </article>
+  </section>
 
-      <!-- Divider -->
-      <div class="panel-divider"></div>
-
-      <!-- Recent Orders section (same card) -->
+  <!-- ── Locations, low stock, top movers ── -->
+  <section class="dash-row row-thirds">
+    <article class="dash-panel">
       <header class="panel-heading">
         <div>
-          <h2>Recent Orders</h2>
+          <h2>Stock by location</h2>
+          <p>Units held per warehouse.</p>
+        </div>
+        <a routerLink="/warehouses" class="view-all-link">Warehouses</a>
+      </header>
+      @if (stockRecordsLoading()) {
+        <p class="panel-message">Loading locations…</p>
+      } @else if (stockRecordsError()) {
+        <p class="panel-message error-text">{{ stockRecordsError() }}</p>
+      } @else if (stockByLocation().length === 0) {
+        <p class="panel-message">No stock is recorded in any warehouse yet.</p>
+      } @else {
+        <ul class="bar-list">
+          @for (location of stockByLocation(); track location.name) {
+            <li>
+              <div class="bar-list-head">
+                <span class="bar-list-name">{{ location.name }}</span>
+                <span class="bar-list-value">{{ location.units | number }} <small>({{ location.share | number:'1.0-0' }}%)</small></span>
+              </div>
+              <div class="bar-track"><span class="bar-fill" [style.width.%]="location.width"></span></div>
+            </li>
+          }
+        </ul>
+      }
+    </article>
+
+    <article class="dash-panel">
+      <header class="panel-heading">
+        <div>
+          <h2>Low-stock alerts</h2>
+          <p>Products at or below minimum stock.</p>
+        </div>
+        <a routerLink="/inventory" class="view-all-link">View all</a>
+      </header>
+      @if (lowStockLoading()) {
+        <p class="panel-message">Loading alerts…</p>
+      } @else if (lowStockError()) {
+        <div class="panel-message error-state" role="alert">
+          <p>{{ lowStockError() }}</p>
+          <button type="button" class="button button-secondary button-small" (click)="retryLowStock()">Try again</button>
+        </div>
+      } @else if (lowStockPreview().length === 0) {
+        <p class="panel-message">No low-stock products. Stock levels look healthy.</p>
+      } @else {
+        <ul class="item-list">
+          @for (product of lowStockPreview(); track product.productId) {
+            <li>
+              <span class="item-icon tone-warning"><i class="pi pi-exclamation-triangle" aria-hidden="true"></i></span>
+              <span class="item-main">
+                <strong>{{ product.productName }}</strong>
+                <small>{{ product.productSku }}</small>
+              </span>
+              <span class="item-meta">
+                <span class="stock-qty" [class.stock-low]="product.totalQuantity > 0" [class.stock-out]="product.totalQuantity === 0">{{ product.totalQuantity }}</span>
+                <small>min {{ product.minStock }}</small>
+              </span>
+            </li>
+          }
+        </ul>
+      }
+    </article>
+
+    <article class="dash-panel">
+      <header class="panel-heading">
+        <div>
+          <h2>Top moving products</h2>
+          <p>Most units moved in recent stock movements.</p>
+        </div>
+      </header>
+      @if (transactionsLoading()) {
+        <p class="panel-message">Loading products…</p>
+      } @else if (transactionsError()) {
+        <div class="panel-message error-state" role="alert">
+          <p>{{ transactionsError() }}</p>
+          <button type="button" class="button button-secondary button-small" (click)="retryTransactions()">Try again</button>
+        </div>
+      } @else if (topMovingProducts().length === 0) {
+        <p class="panel-message">No stock movements recorded yet.</p>
+      } @else {
+        <ol class="rank-list">
+          @for (product of topMovingProducts(); track product.sku; let rank = $index) {
+            <li>
+              <span class="rank-no">{{ rank + 1 }}</span>
+              <span class="item-main">
+                <strong>{{ product.name }}</strong>
+                <span class="bar-track"><span class="bar-fill" [style.width.%]="product.width"></span></span>
+              </span>
+              <span class="item-meta">
+                <strong>{{ product.units | number }}</strong>
+                <small>{{ product.movements }} moves</small>
+              </span>
+            </li>
+          }
+        </ol>
+      }
+    </article>
+  </section>
+
+  <!-- ── Orders, quick actions, activity ── -->
+  <section class="dash-row row-bottom">
+    <article class="dash-panel">
+      <header class="panel-heading">
+        <div>
+          <h2>Recent orders</h2>
           <p>Latest orders from your workspace.</p>
         </div>
         <a routerLink="/orders" class="view-all-link">View all</a>
       </header>
       @if (ordersLoading()) {
-        <p class="panel-message" role="status">Loading recent orders…</p>
+        <p class="panel-message">Loading recent orders…</p>
       } @else if (ordersError()) {
         <div class="panel-message error-state" role="alert">
           <p>{{ ordersError() }}</p>
-          <button type="button" class="button button-secondary" (click)="retryOrders()">Try again</button>
+          <button type="button" class="button button-secondary button-small" (click)="retryOrders()">Try again</button>
         </div>
       } @else if (recentOrders().length === 0) {
         <p class="panel-message">No orders found.</p>
       } @else {
-        <div class="orders-table-wrap">
-          <table class="orders-table">
+        <div class="table-scroll">
+          <table class="crud-table">
             <thead>
               <tr>
-                <th>ORDER #</th>
-                <th>CUSTOMER</th>
-                <th>DATE</th>
-                <th>STATUS</th>
-                <th class="col-right">AMOUNT</th>
+                <th>Order</th>
+                <th>Customer</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th class="col-right">Amount</th>
               </tr>
             </thead>
             <tbody>
-              @for (order of recentOrders(); track order.id ?? order.orderId) {
+              @for (order of recentOrdersPreview(); track order.id ?? order.orderId) {
                 <tr>
-                  <td class="order-num">{{ order.orderId || order.id || '—' }}</td>
+                  <td><span class="order-num order-id">{{ order.orderId || order.id || '—' }}</span></td>
                   <td>{{ order.customerName || order.customerId }}</td>
                   <td class="muted-cell">{{ (order.orderDate || order.createdAt) | date:'MMM d, yyyy' }}</td>
                   <td>
                     <span class="status-pill"
-                      [class.pill-completed]="(order.status || '').toLowerCase() === 'delivered' || (order.status || '').toLowerCase() === 'completed'"
-                      [class.pill-pending]="(order.status || '').toLowerCase() === 'pending'"
-                      [class.pill-processing]="(order.status || '').toLowerCase() === 'processing'">
+                      [class.status-pending]="(order.status || '').toLowerCase() === 'pending'"
+                      [class.status-processing]="(order.status || '').toLowerCase() === 'processing'"
+                      [class.status-inactive]="(order.status || '').toLowerCase() === 'cancelled'">
                       {{ order.status || '—' }}
                     </span>
                   </td>
-                  <td class="col-right muted-cell">{{ order.totalAmount === undefined ? '—' : '$' + (order.totalAmount | number:'1.2-2') }}</td>
+                  <td class="col-right muted-cell tabular-nums">{{ order.totalAmount === undefined ? '—' : '$' + (order.totalAmount | number:'1.2-2') }}</td>
                 </tr>
               }
             </tbody>
           </table>
         </div>
       }
-
     </article>
+
+    <div class="dash-stack">
+      <article class="dash-panel">
+        <header class="panel-heading">
+          <div>
+            <h2>Quick actions</h2>
+          </div>
+        </header>
+        <nav class="quick-actions" aria-label="Quick actions">
+          <a routerLink="/orders" class="quick-action"><i class="pi pi-plus" aria-hidden="true"></i>Create order<i class="pi pi-chevron-right chevron" aria-hidden="true"></i></a>
+          <a routerLink="/inventory" class="quick-action"><i class="pi pi-sliders-h" aria-hidden="true"></i>Adjust stock<i class="pi pi-chevron-right chevron" aria-hidden="true"></i></a>
+          <a routerLink="/products" class="quick-action"><i class="pi pi-box" aria-hidden="true"></i>Manage products<i class="pi pi-chevron-right chevron" aria-hidden="true"></i></a>
+          <a routerLink="/warehouses" class="quick-action"><i class="pi pi-building" aria-hidden="true"></i>Manage warehouses<i class="pi pi-chevron-right chevron" aria-hidden="true"></i></a>
+          <a routerLink="/suppliers" class="quick-action"><i class="pi pi-truck" aria-hidden="true"></i>Manage suppliers<i class="pi pi-chevron-right chevron" aria-hidden="true"></i></a>
+        </nav>
+      </article>
+
+      <article class="dash-panel">
+        <header class="panel-heading">
+          <div>
+            <h2>Recent activity</h2>
+            <p>Latest stock movements.</p>
+          </div>
+        </header>
+        @if (transactionsLoading()) {
+          <p class="panel-message">Loading activity…</p>
+        } @else if (transactionsError()) {
+          <p class="panel-message error-text">{{ transactionsError() }}</p>
+        } @else if (recentActivity().length === 0) {
+          <p class="panel-message">No recent activity.</p>
+        } @else {
+          <ul class="item-list">
+            @for (activity of recentActivity(); track activity.id) {
+              <li>
+                <span class="item-icon" [class.tone-danger]="activity.type === 'OUT'" [class.tone-success]="activity.type === 'IN'">
+                  <i class="pi" [class.pi-arrow-down]="activity.type === 'IN'" [class.pi-arrow-up]="activity.type === 'OUT'" [class.pi-sync]="activity.type !== 'IN' && activity.type !== 'OUT'" aria-hidden="true"></i>
+                </span>
+                <span class="item-main">
+                  <strong>{{ activity.productName }}</strong>
+                  <small>{{ activity.warehouseName }} · {{ activity.createdAt | date:'MMM d, h:mm a' }}</small>
+                </span>
+                <span class="item-meta">
+                  <strong class="tabular-nums">{{ activity.quantityChanged > 0 ? '+' : '' }}{{ activity.quantityChanged }}</strong>
+                  <small>{{ activity.type }}</small>
+                </span>
+              </li>
+            }
+          </ul>
+        }
+      </article>
+    </div>
   </section>
 
 </section>

@@ -1,12 +1,15 @@
-<div class="workspace-layout">
+<div class="workspace-layout" [class.sidebar-collapsed]="sidebarCollapsed()">
   @if (isNavigating()) {
     <div class="top-nav-loader" role="progressbar" aria-label="Loading page">
       <div class="top-nav-loader-bar"></div>
     </div>
   }
-  <app-sidebar [collapsed]="sidebarCollapsed()" />
+  <app-sidebar [collapsed]="sidebarCollapsed()" [mobileOpen]="mobileNavOpen()" />
+  @if (mobileNavOpen()) {
+    <button type="button" class="mobile-nav-backdrop" aria-label="Close navigation" (click)="closeMobileNav()"></button>
+  }
   <div class="workspace-main">
-    <app-header (sidebarToggle)="toggleSidebar()" />
+    <app-header [sidebarCollapsed]="sidebarCollapsed()" [mobileNavOpen]="mobileNavOpen()" (sidebarToggle)="toggleSidebar()" />
     <main class="workspace-content" id="main-content">
       <router-outlet />
       @if (routeLoading()) {
@@ -17,4 +20,3 @@
     </main>
   </div>
 </div>
-

@@ -2,6 +2,11 @@
   <!-- Page heading -->
   <div class="page-heading">
     <div>
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a routerLink="/dashboard">OrderFlow</a>
+        <i class="pi pi-chevron-right" aria-hidden="true"></i>
+        <span aria-current="page">Suppliers</span>
+      </nav>
       <h1>Suppliers</h1>
       <p class="page-description">Maintain vendor directories, contact details, and procurement partners.</p>
     </div>
@@ -29,7 +34,7 @@
       <table class="crud-table">
         <thead>
           <tr>
-            <th class="col-check"><input type="checkbox" aria-label="Select all" /></th>
+            <th class="col-check"><p-checkbox [binary]="true" ariaLabel="Select all" /></th>
             <th>Name</th>
             <th>Email</th>
             <th>Phone</th>
@@ -43,7 +48,7 @@
           } @else {
             @for (supplier of visibleSuppliers(); track supplier.id) {
               <tr>
-                <td class="col-check"><input type="checkbox" [attr.aria-label]="'Select ' + supplier.name" /></td>
+                <td class="col-check"><p-checkbox [binary]="true" [ariaLabel]="'Select ' + supplier.name" /></td>
                 <td class="supplier-name">{{ supplier.name }}</td>
                 <td>
                   @if (supplier.email) {
@@ -97,8 +102,8 @@
 
 <!-- Add / Edit supplier dialog -->
 @if (dialogOpen()) {
-  <div class="dialog-backdrop" (click)="closeDialog()">
-    <section class="dialog-card" role="dialog" aria-modal="true" aria-labelledby="supplier-dialog-title" (click)="$event.stopPropagation()">
+  <div class="dialog-backdrop" (onclick)="closeDialog()">
+    <p-dialog class="dialog-card"  aria-modal="true" aria-labelledby="supplier-dialog-title" (oclick)="$event.stopPropagation()">
       <div class="dialog-heading">
         <div>
           <h2 id="supplier-dialog-title">{{ editingSupplierId() ? 'Edit supplier' : 'Add supplier' }}</h2>
@@ -136,19 +141,19 @@
           </button>
         </div>
       </form>
-    </section>
+    </p-dialog>
   </div>
 }
 
 <!-- Delete confirmation dialog -->
 @if (supplierPendingDeletion(); as supplier) {
-  <div class="dialog-backdrop" (click)="cancelDelete()">
+  <div class="dialog-backdrop" (onclick)="cancelDelete()">
     <section
       class="dialog-card confirmation-card"
       role="alertdialog"
       aria-modal="true"
       aria-labelledby="delete-supplier-title"
-      (click)="$event.stopPropagation()"
+      (oclick)="$event.stopPropagation()"
     >
       <div class="dialog-heading">
         <h2 id="delete-supplier-title">Delete supplier?</h2>

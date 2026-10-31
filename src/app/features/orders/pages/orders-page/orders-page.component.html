@@ -2,6 +2,11 @@
   <!-- Page heading -->
   <div class="page-heading">
     <div>
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a routerLink="/dashboard">OrderFlow</a>
+        <i class="pi pi-chevron-right" aria-hidden="true"></i>
+        <span aria-current="page">Orders</span>
+      </nav>
       <h1>Orders</h1>
       <p class="page-description">Track customer orders, sales volume, and fulfillment workflows.</p>
     </div>
@@ -33,18 +38,48 @@
   </div>
 
   <!-- Toolbar -->
-  <div class="crud-toolbar">
+  <div class="crud-toolbar inventory-filters">
     <label class="crud-search">
       <i class="pi pi-search" aria-hidden="true"></i>
       <input type="search" [value]="orderSearch()" (input)="updateOrderSearch($event)" placeholder="Search orders..." aria-label="Search orders" />
     </label>
-    <input class="crud-select" type="date" [value]="fromDateFilter()" (input)="setFromDateFilter($event)" title="From date" />
-    <input class="crud-select" type="date" [value]="toDateFilter()" (input)="setToDateFilter($event)" title="To date" />
+    <div class="inv-filter-field">
+      <label class="inv-filter-label" for="orders-from-date">From date</label>
+      <p-datepicker
+        inputId="orders-from-date"
+        class="order-date-picker"
+        [showIcon]="true"
+        [showButtonBar]="true"
+        dateFormat="yy-mm-dd"
+        dataType="string"
+        placeholder="YYYY-MM-DD"
+        [ngModel]="fromDateFilter()"
+        [ngModelOptions]="{ standalone: true }"
+        (ngModelChange)="updateFromDateFilter($event)"
+         appendTo="body"
+      />
+    </div>
+    <div class="inv-filter-field">
+      <label class="inv-filter-label" for="orders-to-date">To date</label>
+      <p-datepicker
+        inputId="orders-to-date"
+        class="order-date-picker"
+        [showIcon]="true"
+        [showButtonBar]="true"
+        dateFormat="yy-mm-dd"
+        dataType="string"
+        placeholder="YYYY-MM-DD"
+        [ngModel]="toDateFilter()"
+        [ngModelOptions]="{ standalone: true }"
+        (ngModelChange)="updateToDateFilter($event)"
+          appendTo="body"
+      />
+    </div>
     <button type="button" class="crud-filter-btn" (click)="applyFilters()">
       <i class="pi pi-filter" aria-hidden="true"></i>
       Filter
     </button>
-   
+
     @if (fromDateFilter() || toDateFilter() || orderSearch()) {
       <button type="button" class="crud-filter-btn" (click)="clearFilters()">
         <i class="pi pi-times" aria-hidden="true"></i>
@@ -60,7 +95,16 @@
       <table class="crud-table">
         <thead>
           <tr>
-            <th class="col-check"><input type="checkbox" aria-label="Select all" /></th>
+            <th class="col-check">
+              <p-checkbox
+                inputId="select-all-orders"
+                ariaLabel="Select all orders on this page"
+                [binary]="true"
+                [ngModel]="areVisibleOrdersSelected()"
+                [ngModelOptions]="{ standalone: true }"
+                (ngModelChange)="toggleVisibleOrderSelection($event)"
+              />
+            </th>
             <th>Order #</th>
             <th><button type="button" class="sort-button" (click)="sortBy('customer')">Customer <i class="pi pi-sort-alt" aria-hidden="true"></i></button></th>
             <th>Warehouse</th>
@@ -77,7 +121,17 @@
           } @else {
             @for (order of visibleOrders(); track order.id ?? order.orderId ?? $index) {
               <tr>
-                <td class="col-check"><input type="checkbox" [attr.aria-label]="'Select order ' + displayOrderId(order)" /></td>
+                <td class="col-check">
+                  <p-checkbox
+                    [inputId]="'select-order-' + (orderSelectionKey(order) ?? $index)"
+                    [ariaLabel]="'Select order ' + displayOrderId(order)"
+                    [disabled]="!orderSelectionKey(order)"
+                    [binary]="true"
+                    [ngModel]="isOrderSelected(order)"
+                    [ngModelOptions]="{ standalone: true }"
+                    (ngModelChange)="toggleOrderSelection(order, $event)"
+                  />
+                </td>
                 <td><span class="sku">{{ displayOrderId(order) }}</span></td>
                 <td>{{ displayCustomer(order) }}</td>
                 <td>{{ displayWarehouse(order) }}</td>
@@ -139,8 +193,8 @@
 
 <!-- Create / Edit Order dialog -->
 @if (orderDialogOpen()) {
-  <div class="dialog-backdrop" (click)="closeOrderDialog()">
-    <section class="dialog-card" role="dialog" aria-modal="true" aria-labelledby="order-dialog-title" (click)="$event.stopPropagation()">
+  <div class="dialog-backdrop" (onclick)="closeOrderDialog()">
+    <p-dialog class="dialog-card" aria-modal="true" aria-labelledby="order-dialog-title" (onclick)="$event.stopPropagation()">
       <div class="dialog-heading">
         <div>
           <h2 id="order-dialog-title">{{ editingOrderId() ? 'Edit order' : 'Create order' }}</h2>
@@ -153,7 +207,7 @@
           <label>Customer ID (UUID)
             <input type="text" formControlName="customerId" />
           </label>
-          <label>Warehouse
+          <label for="warehouse">Warehouse
             <p-select
               class="form-select"
               formControlName="warehouseId"
@@ -182,7 +236,7 @@
         <div formArrayName="items" class="order-items">
           @for (itemForm of orderForm.controls.items.controls; track $index; let index = $index) {
             <div class="item-row" [formGroup]="itemForm">
-              <label>Product
+              <label for="product">Product
                 <p-select
                   class="form-select"
                   formControlName="productId"
@@ -215,14 +269,14 @@
           </button>
         </div>
       </form>
-    </section>
+    </p-dialog>
   </div>
 }
 
 <!-- Status update dialog -->
 @if (statusDialogOpen()) {
-  <div class="dialog-backdrop" (click)="closeStatusDialog()">
-    <section class="dialog-card status-dialog" role="dialog" aria-modal="true" aria-labelledby="status-dialog-title" (click)="$event.stopPropagation()">
+  <div class="dialog-backdrop" (onclick)="closeStatusDialog()">
+    <p-dialog class="dialog-card status-dialog" aria-modal="true" aria-labelledby="status-dialog-title" (onclick)="$event.stopPropagation()">
       <div class="dialog-heading">
         <div>
           <h2 id="status-dialog-title">Update order status</h2>
@@ -242,20 +296,20 @@
           <button type="submit" class="button button-primary" [disabled]="saving()">{{ saving() ? 'Saving…' : 'Update status' }}</button>
         </div>
       </form>
-    </section>
+    </p-dialog>
   </div>
 }
 
 <!-- Delete confirmation dialog -->
 @if (orderPendingDeletion(); as order) {
-  <div class="dialog-backdrop" (click)="cancelDeleteOrder()">
+  <div class="dialog-backdrop" (onclick)="cancelDeleteOrder()">
     <section
       class="dialog-card confirmation-card"
       role="alertdialog"
       aria-modal="true"
       aria-labelledby="delete-order-title"
       aria-describedby="delete-order-message"
-      (click)="$event.stopPropagation()"
+      (onclick)="$event.stopPropagation()"
     >
       <div class="dialog-heading">
         <h2 id="delete-order-title">Delete order?</h2>

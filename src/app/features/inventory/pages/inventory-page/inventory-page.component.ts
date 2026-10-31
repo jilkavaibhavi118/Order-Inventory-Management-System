@@ -1,10 +1,11 @@
+import { CheckboxModule } from 'primeng/checkbox';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { PaginatorModule } from 'primeng/paginator';
 import { Select } from 'primeng/select';
 import { isPlatformBrowser, CommonModule } from '@angular/common';
 import { Component, computed, inject, OnDestroy, PLATFORM_ID, signal } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import type { PaginatorState } from 'primeng/types/paginator';
 import { finalize, Subscription } from 'rxjs';
 import {
@@ -18,11 +19,41 @@ import {
 } from '../../../../models/inventory.models';
 import { InventoryService } from '../../../../core/services/inventory.service';
 import { environment } from '../../../../../environments/environment';
+import { TabsModule } from 'primeng/tabs';
+
+function getNonEmptyMessage(value: unknown): string | null {
+  return typeof value === 'string' && value.trim() ? value : null;
+}
+
+function getMessageFromObject(value: unknown): string | null {
+  if (typeof value !== 'object' || value === null || !('message' in value)) {
+    return null;
+  }
+
+  return getNonEmptyMessage(value.message);
+}
+
+function getMessageFromText(responseText: string): string | null {
+  try {
+    const parsed: unknown = JSON.parse(responseText);
+    return typeof parsed === 'string'
+      ? getNonEmptyMessage(parsed)
+      : getMessageFromObject(parsed);
+  } catch {
+    return responseText.startsWith('<') ? null : responseText || null;
+  }
+}
+
+function getMessageFromBody(body: unknown): string | null {
+  return typeof body === 'string'
+    ? getMessageFromText(body.trim())
+    : getMessageFromObject(body);
+}
 
 @Component({
   selector: 'app-inventory-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, PaginatorModule, Select],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, PaginatorModule, Select, TabsModule, RouterLink, CheckboxModule],
   templateUrl: './inventory-page.component.html',
   styleUrl: './inventory-page.component.scss'
 })
@@ -612,30 +643,7 @@ export class InventoryPageComponent implements OnDestroy {
       return null;
     }
 
-    const body: unknown = error.error;
-    if (typeof body === 'string') {
-      const responseText = body.trim();
-      try {
-        const parsed: unknown = JSON.parse(responseText);
-        if (typeof parsed === 'string' && parsed.trim()) {
-          return parsed;
-        }
-        if (typeof parsed === 'object' && parsed !== null && 'message' in parsed) {
-          const message = parsed.message;
-          return typeof message === 'string' && message.trim() ? message : null;
-        }
-        return null;
-      } catch {
-        return responseText.startsWith('<') ? null : responseText || null;
-      }
-    }
-
-    if (typeof body !== 'object' || body === null || !('message' in body)) {
-      return null;
-    }
-
-    const message = body.message;
-    return typeof message === 'string' && message.trim() ? message : null;
+    return getMessageFromBody(error.error);
   }
 
 

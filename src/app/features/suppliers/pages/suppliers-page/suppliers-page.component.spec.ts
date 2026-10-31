@@ -1,3 +1,4 @@
+import { provideRouter } from '@angular/router';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MessageService } from 'primeng/api';
 import { of } from 'rxjs';
@@ -42,6 +43,7 @@ describe('SuppliersPageComponent', () => {
     await TestBed.configureTestingModule({
       imports: [SuppliersPageComponent],
       providers: [
+        provideRouter([]),
         { provide: InventoryService, useValue: inventoryService },
         { provide: MessageService, useValue: messageService }
       ]

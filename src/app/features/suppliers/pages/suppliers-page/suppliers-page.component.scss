@@ -1,20 +1,3 @@
 :host {
   display: block;
 }
-
-.suppliers-page {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-}
-
-.confirmation-card {
-  width: min(100%, 420px);
-
-  p {
-    margin: 0 0 1rem;
-    color: var(--color-body);
-    font-size: 0.875rem;
-    line-height: 1.5;
-  }
-}

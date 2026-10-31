@@ -2,6 +2,11 @@
   <!-- Page heading -->
   <div class="page-heading">
     <div>
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a routerLink="/dashboard">OrderFlow</a>
+        <i class="pi pi-chevron-right" aria-hidden="true"></i>
+        <span aria-current="page">Products</span>
+      </nav>
       <h1>Products</h1>
       <p class="page-description">Manage your products, stock levels and categories.</p>
     </div>
@@ -83,7 +88,7 @@
       placeholder="All Status"
       appendTo="body"
     />
-  
+
   </div>
 
   <!-- Table card -->
@@ -93,7 +98,7 @@
       <table class="crud-table">
         <thead>
           <tr>
-            <th class="col-check"><input type="checkbox" aria-label="Select all" /></th>
+            <th class="col-check"><p-checkbox [binary]="true" ariaLabel="Select all" /></th>
             <th>Product</th>
             <th>SKU</th>
             <th>Category</th>
@@ -118,7 +123,7 @@
             @for (product of visibleProducts(); track product.id) {
               <tr>
                 <td class="col-check">
-                  <input type="checkbox" [attr.aria-label]="'Select ' + product.name" />
+                  <p-checkbox [binary]="true" [ariaLabel]="'Select ' + product.name" />
                 </td>
                 <td class="product-col">
                   <div class="product-cell">
@@ -248,13 +253,12 @@
 
 <!-- Stock details dialog -->
 @if (stockProduct(); as product) {
-  <div class="dialog-backdrop" (click)="closeProductStock()">
-    <section
+  <div class="dialog-backdrop" (onclick)="closeProductStock()">
+    <p-dialog
       class="dialog-card stock-dialog"
-      role="dialog"
       aria-modal="true"
       aria-labelledby="product-stock-title"
-      (click)="$event.stopPropagation()"
+      (onclick)="$event.stopPropagation()"
     >
       <div class="dialog-heading">
         <div>
@@ -280,19 +284,18 @@
       } @else {
         <pre class="stock-payload">{{ formatPayload(stockPayload()) }}</pre>
       }
-    </section>
+    </p-dialog>
   </div>
 }
 
 <!-- Add / Edit product dialog -->
 @if (dialogOpen()) {
-  <div class="dialog-backdrop" (click)="closeDialog()">
-    <section
+  <div class="dialog-backdrop" (onclick)="closeDialog()">
+    <p-dialog
       class="dialog-card product-dialog"
-      role="dialog"
       aria-modal="true"
       aria-labelledby="product-dialog-title"
-      (click)="$event.stopPropagation()"
+      (onclick)="$event.stopPropagation()"
     >
       <div class="dialog-heading">
         <div>
@@ -381,8 +384,7 @@
             </section>
             <section class="form-section stock-information">
               <h3>Stock Information</h3>
-              <label
-                >Supplier <span class="required-mark">*</span>
+              <label for="suplier">Supplier <span class="required-mark">*</span>
                 <p-select
                   class="form-select"
                   formControlName="supplierId"
@@ -426,20 +428,19 @@
           </p>
         }
       </form>
-    </section>
+    </p-dialog>
   </div>
 }
 
 <!-- Delete confirmation dialog -->
 @if (productPendingDeletion(); as product) {
-  <div class="dialog-backdrop" (click)="cancelDeleteConfirmation()">
-    <section
+  <div class="dialog-backdrop" (onclick)="cancelDeleteConfirmation()">
+    <p-dialog
       class="dialog-card confirmation-card"
-      role="alertdialog"
       aria-modal="true"
       aria-labelledby="delete-confirmation-title"
       aria-describedby="delete-confirmation-message"
-      (click)="$event.stopPropagation()"
+      (onclick)="$event.stopPropagation()"
     >
       <div class="dialog-heading">
         <h2 id="delete-confirmation-title">Delete product?</h2>
@@ -465,6 +466,6 @@
           {{ saving() ? 'Deleting…' : 'Delete product' }}
         </button>
       </div>
-    </section>
+    </p-dialog>
   </div>
 }

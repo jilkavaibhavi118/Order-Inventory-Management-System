@@ -9,13 +9,15 @@ import { AuthService } from '../../core/services/auth.service';
   standalone: true,
   imports: [RouterLink, RouterLinkActive],
   host: {
-    '[class.collapsed]': 'collapsed()'
+    '[class.collapsed]': 'collapsed()',
+    '[class.mobile-open]': 'mobileOpen()'
   },
   templateUrl: './app-sidebar.component.html',
   styleUrl: './app-sidebar.component.scss'
 })
 export class AppSidebarComponent {
   readonly collapsed = input(false);
+  readonly mobileOpen = input(false);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly messageService = inject(MessageService);
