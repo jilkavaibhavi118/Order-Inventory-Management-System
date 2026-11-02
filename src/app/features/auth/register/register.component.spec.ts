@@ -25,10 +25,10 @@ describe('RegisterComponent', () => {
           success: true,
           message: 'Mock registration successful',
           data: null,
-          errors: []
-        })
+          errors: [],
+        }),
       ),
-      isAuthenticating: signal<boolean>(false)
+      isAuthenticating: signal<boolean>(false),
     };
 
     await TestBed.configureTestingModule({
@@ -36,8 +36,8 @@ describe('RegisterComponent', () => {
       providers: [
         provideRouter([]),
         { provide: MessageService, useValue: mockMessageService },
-        { provide: AuthService, useValue: mockAuthService }
-      ]
+        { provide: AuthService, useValue: mockAuthService },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(RegisterComponent);
@@ -127,7 +127,7 @@ describe('RegisterComponent', () => {
       fullName: 'Jane Smith',
       email: 'jane@enterprise.com',
       password: 'SecurePass123!',
-      confirmPassword: 'SecurePass123!'
+      confirmPassword: 'SecurePass123!',
     });
 
     fixture.detectChanges();
@@ -135,10 +135,12 @@ describe('RegisterComponent', () => {
     expect(component.isLoading()).toBe(false);
     expect(component.submissionStatus()).toBe('success');
     expect(component.statusMessage()).toBe('Mock registration successful');
-    expect(mockMessageService.add).toHaveBeenCalledWith(expect.objectContaining({
-      severity: 'success',
-      summary: 'Registration successful'
-    }));
+    expect(mockMessageService.add).toHaveBeenCalledWith(
+      expect.objectContaining({
+        severity: 'success',
+        summary: 'Registration successful',
+      }),
+    );
   });
 
   it('does not invent a message when registration returns no API response message', () => {

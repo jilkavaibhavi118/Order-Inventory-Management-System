@@ -20,24 +20,30 @@ describe('SuppliersPageComponent', () => {
   beforeEach(async () => {
     inventoryService = {
       getSuppliers: vi.fn().mockReturnValue(of([])),
-      createSupplier: vi.fn().mockReturnValue(of({
-        success: true,
-        message: 'Supplier created.',
-        data: null,
-        errors: []
-      })),
-      updateSupplier: vi.fn().mockReturnValue(of({
-        success: true,
-        message: 'Supplier updated.',
-        data: null,
-        errors: []
-      })),
-      deleteSupplier: vi.fn().mockReturnValue(of({
-        success: true,
-        message: 'Supplier deleted.',
-        data: null,
-        errors: []
-      }))
+      createSupplier: vi.fn().mockReturnValue(
+        of({
+          success: true,
+          message: 'Supplier created.',
+          data: null,
+          errors: [],
+        }),
+      ),
+      updateSupplier: vi.fn().mockReturnValue(
+        of({
+          success: true,
+          message: 'Supplier updated.',
+          data: null,
+          errors: [],
+        }),
+      ),
+      deleteSupplier: vi.fn().mockReturnValue(
+        of({
+          success: true,
+          message: 'Supplier deleted.',
+          data: null,
+          errors: [],
+        }),
+      ),
     };
 
     await TestBed.configureTestingModule({
@@ -45,8 +51,8 @@ describe('SuppliersPageComponent', () => {
       providers: [
         provideRouter([]),
         { provide: InventoryService, useValue: inventoryService },
-        { provide: MessageService, useValue: messageService }
-      ]
+        { provide: MessageService, useValue: messageService },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(SuppliersPageComponent);
@@ -65,7 +71,7 @@ describe('SuppliersPageComponent', () => {
       name: 'Example Supplier',
       email: 'supplier@example.com',
       phone: '+1 555 0100',
-      address: '1 Main Street'
+      address: '1 Main Street',
     });
 
     component.saveSupplier();
@@ -74,12 +80,14 @@ describe('SuppliersPageComponent', () => {
       name: 'Example Supplier',
       email: 'supplier@example.com',
       phone: '+1 555 0100',
-      address: '1 Main Street'
+      address: '1 Main Street',
     });
-    expect(messageService.add).toHaveBeenCalledWith(expect.objectContaining({
-      severity: 'success',
-      detail: 'Supplier created.'
-    }));
+    expect(messageService.add).toHaveBeenCalledWith(
+      expect.objectContaining({
+        severity: 'success',
+        detail: 'Supplier created.',
+      }),
+    );
   });
 
   it('updates a supplier and confirms deletion before calling the API', () => {
@@ -88,7 +96,7 @@ describe('SuppliersPageComponent', () => {
       name: 'Example Supplier',
       email: 'supplier@example.com',
       phone: '+1 555 0100',
-      address: '1 Main Street'
+      address: '1 Main Street',
     };
 
     component.openEditSupplier(supplier);
@@ -99,7 +107,7 @@ describe('SuppliersPageComponent', () => {
       name: 'Updated Supplier',
       email: 'supplier@example.com',
       phone: '+1 555 0100',
-      address: '1 Main Street'
+      address: '1 Main Street',
     });
 
     component.requestDelete(supplier);
@@ -113,10 +121,12 @@ describe('SuppliersPageComponent', () => {
   });
 
   it('shows the selected page of suppliers', () => {
-    component.suppliers.set(Array.from({ length: 12 }, (_, index) => ({
-      id: `supplier-${index + 1}`,
-      name: `Supplier ${index + 1}`
-    })));
+    component.suppliers.set(
+      Array.from({ length: 12 }, (_, index) => ({
+        id: `supplier-${index + 1}`,
+        name: `Supplier ${index + 1}`,
+      })),
+    );
 
     component.onPageChange({ first: 10, rows: 10 });
 

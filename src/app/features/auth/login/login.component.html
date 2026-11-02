@@ -11,7 +11,13 @@
         <p class="auth-subtitle">Sign in to your OrderFlow account to continue.</p>
       </div>
 
-      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate class="auth-form" id="login-form">
+      <form
+        [formGroup]="loginForm"
+        (ngSubmit)="onSubmit()"
+        novalidate
+        class="auth-form"
+        id="login-form"
+      >
         <div class="form-group" [class.has-error]="isFieldInvalid(emailCtrl)">
           <label for="login-email" class="form-label">Email</label>
           <div class="input-container">
@@ -60,7 +66,8 @@
               class="password-toggle-btn"
               (click)="togglePasswordVisibility()"
               [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
-              [attr.aria-pressed]="showPassword()">
+              [attr.aria-pressed]="showPassword()"
+            >
               {{ showPassword() ? 'Hide' : 'Show' }}
             </button>
           </div>
@@ -74,16 +81,32 @@
 
         <div class="form-utilities-row">
           <label class="checkbox-container">
-            <input id="login-remember-me" type="checkbox" formControlName="rememberMe" class="checkbox-input" />
+            <input
+              id="login-remember-me"
+              type="checkbox"
+              formControlName="rememberMe"
+              class="checkbox-input"
+            />
             <span class="checkbox-custom" aria-hidden="true">
               <i class="pi pi-check check-icon"></i>
             </span>
             <span class="checkbox-label-text">Remember me</span>
           </label>
-          <a href="#forgot-password" class="forgot-password-link" (click)="openForgotPassword($event)">Forgot password?</a>
+          <a
+            href="#forgot-password"
+            class="forgot-password-link"
+            (click)="openForgotPassword($event)"
+            >Forgot password?</a
+          >
         </div>
 
-        <button id="login-submit-btn" type="submit" class="btn-primary" [disabled]="isLoading()" [attr.aria-busy]="isLoading()">
+        <button
+          id="login-submit-btn"
+          type="submit"
+          class="btn-primary"
+          [disabled]="isLoading()"
+          [attr.aria-busy]="isLoading()"
+        >
           @if (isLoading()) {
             <span class="spinner" aria-hidden="true"></span>
             <span>Signing in...</span>
@@ -95,7 +118,9 @@
 
       <p class="auth-card-footer">
         New to OrderFlow?
-        <a routerLink="/register" class="switch-auth-link" id="link-to-register">Create an account</a>
+        <a routerLink="/register" class="switch-auth-link" id="link-to-register"
+          >Create an account</a
+        >
       </p>
     </div>
 
@@ -104,9 +129,9 @@
         class="modal-backdrop"
         (click)="closeForgotPassword()"
         (keydown.escape)="closeForgotPassword()"
-
         aria-modal="true"
-        aria-labelledby="forgot-modal-title">
+        aria-labelledby="forgot-modal-title"
+      >
         <div class="modal-dialog" (onclick)="$event.stopPropagation()">
           <div class="modal-header">
             <div class="modal-icon-badge" aria-hidden="true">
@@ -117,17 +142,21 @@
               type="button"
               class="modal-close-btn"
               (click)="closeForgotPassword()"
-              aria-label="Close dialog">
+              aria-label="Close dialog"
+            >
               <i class="pi pi-times" aria-hidden="true"></i>
             </button>
           </div>
 
           <div class="modal-body">
             <p class="modal-explanation">
-              To reset your OrderFlow enterprise password, please enter your registered corporate email address. Your organization's identity manager will dispatch a secure single-use recovery link.
+              To reset your OrderFlow enterprise password, please enter your registered corporate
+              email address. Your organization's identity manager will dispatch a secure single-use
+              recovery link.
             </p>
             <div class="info-callout">
-              <strong>Self-Service Security:</strong> Administrative accounts must undergo two-factor authentication recovery if access has been revoked.
+              <strong>Self-Service Security:</strong> Administrative accounts must undergo
+              two-factor authentication recovery if access has been revoked.
             </div>
           </div>
 

@@ -2,7 +2,6 @@ import type { FormControl } from '@angular/forms';
 
 export type UserRole = 'admin' | 'customer';
 
-
 export interface LoginCredentials {
   email: string;
   password: string;
@@ -85,5 +84,3 @@ export interface PasswordStrength {
   percent: number; // 0 to 100
   rules: PasswordRule[];
 }
-
-

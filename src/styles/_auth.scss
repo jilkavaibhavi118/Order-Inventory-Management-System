@@ -80,7 +80,9 @@
   border: 1px solid #edf1f6;
   border-radius: 1.25rem;
   background: var(--color-surface);
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px rgba(15, 23, 42, 0.05);
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.04),
+    0 8px 24px rgba(15, 23, 42, 0.05);
 }
 
 .auth-logo {
@@ -169,7 +171,9 @@
   color: var(--color-heading);
   font: inherit;
   font-size: var(--font-size-lg);
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
 
   &.with-prefix {
     padding-left: 2.75rem;
@@ -256,7 +260,9 @@
   background: #fff;
   color: transparent;
   font-size: 0.6rem;
-  transition: background var(--transition-fast), border-color var(--transition-fast);
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast);
 }
 
 .checkbox-input:checked + .checkbox-custom {
@@ -292,7 +298,9 @@
   border-radius: var(--radius-lg);
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-bold);
-  transition: background var(--transition-fast), border-color var(--transition-fast);
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast);
 
   &:disabled {
     opacity: 0.65;

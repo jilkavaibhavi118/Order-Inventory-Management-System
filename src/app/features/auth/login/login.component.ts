@@ -11,7 +11,7 @@ import { ThemeService } from '../../../core/services/theme.service';
   standalone: true,
   imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './login.component.html',
-  styleUrl: './login.component.scss'
+  styleUrl: './login.component.scss',
 })
 export class LoginComponent {
   private readonly authService = inject(AuthService);
@@ -37,16 +37,16 @@ export class LoginComponent {
       validators: [
         Validators.required,
         Validators.email,
-        Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)
-      ]
+        Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/),
+      ],
     }),
     password: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required]
+      validators: [Validators.required],
     }),
     rememberMe: new FormControl(false, {
-      nonNullable: true
-    })
+      nonNullable: true,
+    }),
   });
 
   // Track submission attempt for immediate validation display
@@ -61,7 +61,7 @@ export class LoginComponent {
   }
 
   togglePasswordVisibility(): void {
-    this.showPassword.update(visible => !visible);
+    this.showPassword.update((visible) => !visible);
   }
 
   isFieldInvalid(control: FormControl): boolean {
@@ -94,7 +94,7 @@ export class LoginComponent {
     const credentials = this.loginForm.getRawValue();
 
     this.authService.login(credentials).subscribe({
-      next: response => {
+      next: (response) => {
         this.isLoading.set(false);
 
         this.statusMessage.set(response.message);
@@ -103,15 +103,15 @@ export class LoginComponent {
           severity: 'success',
           summary: 'Login successful',
           detail: response.message,
-          life: 3000
+          life: 3000,
         });
         void this.router.navigateByUrl('/dashboard').then(
-          navigated => {
+          (navigated) => {
             if (!navigated) {
               this.handleNavigationFailure();
             }
           },
-          () => this.handleNavigationFailure()
+          () => this.handleNavigationFailure(),
         );
       },
       error: (err) => {
@@ -123,21 +123,22 @@ export class LoginComponent {
           this.messageService.add({
             severity: 'error',
             detail: message,
-            life: 5000
+            life: 5000,
           });
         }
-      }
+      },
     });
   }
 
   private handleNavigationFailure(): void {
-    const message = 'You signed in successfully, but the dashboard could not be opened. Please try again.'; 
+    const message =
+      'You signed in successfully, but the dashboard could not be opened. Please try again.';
     this.statusMessage.set(message);
     this.messageService.add({
       severity: 'error',
       summary: 'Navigation failed',
       detail: message,
-      life: 5000
+      life: 5000,
     });
   }
 

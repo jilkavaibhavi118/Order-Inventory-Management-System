@@ -16,7 +16,7 @@ import { Warehouse, WarehouseRequest } from '../../../../models/inventory.models
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, PaginatorModule, RouterLink, CheckboxModule],
   templateUrl: './warehouses-page.component.html',
-  styleUrl: './warehouses-page.component.scss'
+  styleUrl: './warehouses-page.component.scss',
 })
 export class WarehousesPageComponent {
   private readonly inventoryService = inject(InventoryService);
@@ -30,9 +30,10 @@ export class WarehousesPageComponent {
   readonly filteredWarehouses = computed(() => {
     const search = this.warehouseSearch().trim().toLowerCase();
     const status = this.warehouseStatusFilter();
-    return this.warehouses().filter(w => {
+    return this.warehouses().filter((w) => {
       const matchesStatus = !status || (status === 'active' ? w.isActive : !w.isActive);
-      const matchesSearch = !search || [w.name, w.location].some(v => v.toLowerCase().includes(search));
+      const matchesSearch =
+        !search || [w.name, w.location].some((v) => v.toLowerCase().includes(search));
       return matchesStatus && matchesSearch;
     });
   });
@@ -49,13 +50,13 @@ export class WarehousesPageComponent {
   readonly warehouseForm = new FormGroup({
     name: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(100)]
+      validators: [Validators.required, Validators.maxLength(100)],
     }),
     location: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(250)]
+      validators: [Validators.required, Validators.maxLength(250)],
     }),
-    isActive: new FormControl(true, { nonNullable: true })
+    isActive: new FormControl(true, { nonNullable: true }),
   });
 
   constructor() {
@@ -80,7 +81,8 @@ export class WarehousesPageComponent {
     if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
     const pages: number[] = [1];
     if (current > 3) pages.push(-1);
-    for (let i = Math.max(2, current - 1); i <= Math.min(total - 1, current + 1); i++) pages.push(i);
+    for (let i = Math.max(2, current - 1); i <= Math.min(total - 1, current + 1); i++)
+      pages.push(i);
     if (current < total - 2) pages.push(-1);
     pages.push(total);
     return pages;
@@ -100,14 +102,17 @@ export class WarehousesPageComponent {
 
   loadWarehouses(): void {
     this.loading.set(true);
-    this.inventoryService.getWarehouses()
+    this.inventoryService
+      .getWarehouses()
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
-        next: warehouses => {
+        next: (warehouses) => {
           this.warehouses.set(warehouses);
-          this.page.set(Math.min(this.page(), Math.max(1, Math.ceil(warehouses.length / this.pageSize()))));
+          this.page.set(
+            Math.min(this.page(), Math.max(1, Math.ceil(warehouses.length / this.pageSize()))),
+          );
         },
-        error: error => this.showApiError(error)
+        error: (error) => this.showApiError(error),
       });
   }
 
@@ -122,7 +127,7 @@ export class WarehousesPageComponent {
     this.warehouseForm.setValue({
       name: warehouse.name,
       location: warehouse.location,
-      isActive: warehouse.isActive
+      isActive: warehouse.isActive,
     });
     this.dialogOpen.set(true);
   }
@@ -146,16 +151,18 @@ export class WarehousesPageComponent {
 
     this.saving.set(true);
     request$.pipe(finalize(() => this.saving.set(false))).subscribe({
-      next: response => {
+      next: (response) => {
         this.closeDialog();
         this.messageService.add({
           severity: 'success',
-          detail: response?.message || (id ? 'Warehouse updated successfully.' : 'Warehouse created successfully.'),
-          life: 4000
+          detail:
+            response?.message ||
+            (id ? 'Warehouse updated successfully.' : 'Warehouse created successfully.'),
+          life: 4000,
         });
         this.loadWarehouses();
       },
-      error: error => this.showApiError(error)
+      error: (error) => this.showApiError(error),
     });
   }
 
@@ -175,20 +182,21 @@ export class WarehousesPageComponent {
 
     this.warehousePendingDeletion.set(null);
     this.saving.set(true);
-    this.inventoryService.deleteWarehouse(warehouse.id)
+    this.inventoryService
+      .deleteWarehouse(warehouse.id)
       .pipe(finalize(() => this.saving.set(false)))
       .subscribe({
-        next: response => {
+        next: (response) => {
           if (response?.message?.trim()) {
             this.messageService.add({
               severity: 'success',
               detail: response.message,
-              life: 4000
+              life: 4000,
             });
           }
           this.loadWarehouses();
         },
-        error: error => this.showApiError(error)
+        error: (error) => this.showApiError(error),
       });
   }
 
@@ -198,7 +206,7 @@ export class WarehousesPageComponent {
       this.messageService.add({
         severity: 'error',
         detail,
-        life: 5000
+        life: 5000,
       });
     }
   }

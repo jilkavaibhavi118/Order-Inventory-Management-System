@@ -21,7 +21,9 @@ export class OrderService {
     const params = new HttpParams().set('page', page).set('pageSize', pageSize);
 
     return this.http
-      .get<OrderPage | OrderListResponse | OrderSummary[]>(`${environment.apiUrl}/api/Order`, { params })
+      .get<OrderPage | OrderListResponse | OrderSummary[]>(`${environment.apiUrl}/api/Order`, {
+        params,
+      })
       .pipe(map((response) => this.normalizeOrderPage(response, page, pageSize)));
   }
 
@@ -38,23 +40,25 @@ export class OrderService {
   private normalizeOrderPage(
     response: OrderPage | OrderListResponse | OrderSummary[],
     requestedPage: number,
-    requestedPageSize: number
+    requestedPageSize: number,
   ): OrderPage {
     if (Array.isArray(response)) {
       return {
         orders: response.map((order) => this.normalizeOrder(order)),
         page: requestedPage,
         pageSize: requestedPageSize,
-        totalCount: response.length
+        totalCount: response.length,
       };
     }
 
-    const orders = (response.orders ?? response.items ?? []).map((order) => this.normalizeOrder(order));
+    const orders = (response.orders ?? response.items ?? []).map((order) =>
+      this.normalizeOrder(order),
+    );
     return {
       orders,
       page: response.page ?? requestedPage,
       pageSize: response.pageSize ?? requestedPageSize,
-      totalCount: response.totalCount ?? orders.length
+      totalCount: response.totalCount ?? orders.length,
     };
   }
 

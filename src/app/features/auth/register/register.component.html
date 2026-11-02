@@ -11,32 +11,40 @@
         <p class="auth-subtitle">Get started with OrderFlow in just a few steps.</p>
       </div>
 
-  <!-- Status / Feedback Banner -->
-  @if (submissionStatus() !== 'idle' && statusMessage()) {
-    <div
-      class="feedback-banner"
-      [class.feedback-success]="submissionStatus() === 'success'"
-      [class.feedback-error]="submissionStatus() === 'error'"
-      role="status"
-      aria-live="polite">
-      <div class="feedback-icon-wrapper" aria-hidden="true">
-        @if (submissionStatus() === 'success') {
-          <i class="pi pi-check-circle"></i>
-        } @else {
-          <i class="pi pi-times-circle"></i>
-        }
-      </div>
-      <div class="feedback-text">
-        <p class="feedback-title">
-          {{ submissionStatus() === 'success' ? 'Registration Successful' : 'Registration Notice' }}
-        </p>
-        <p class="feedback-message">{{ statusMessage() }}</p>
-      </div>
-    </div>
-  }
+      <!-- Status / Feedback Banner -->
+      @if (submissionStatus() !== 'idle' && statusMessage()) {
+        <div
+          class="feedback-banner"
+          [class.feedback-success]="submissionStatus() === 'success'"
+          [class.feedback-error]="submissionStatus() === 'error'"
+          role="status"
+          aria-live="polite"
+        >
+          <div class="feedback-icon-wrapper" aria-hidden="true">
+            @if (submissionStatus() === 'success') {
+              <i class="pi pi-check-circle"></i>
+            } @else {
+              <i class="pi pi-times-circle"></i>
+            }
+          </div>
+          <div class="feedback-text">
+            <p class="feedback-title">
+              {{
+                submissionStatus() === 'success' ? 'Registration Successful' : 'Registration Notice'
+              }}
+            </p>
+            <p class="feedback-message">{{ statusMessage() }}</p>
+          </div>
+        </div>
+      }
 
-
-      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" novalidate class="auth-form" id="register-form">
+      <form
+        [formGroup]="registerForm"
+        (ngSubmit)="onSubmit()"
+        novalidate
+        class="auth-form"
+        id="register-form"
+      >
         <div class="form-group" [class.has-error]="isFieldInvalid(fullNameCtrl)">
           <label for="register-name" class="form-label">Full name</label>
           <div class="input-container">
@@ -105,14 +113,18 @@
               placeholder="Enter your password"
               autocomplete="new-password"
               [attr.aria-invalid]="isFieldInvalid(passwordCtrl)"
-              [attr.aria-describedby]="'password-strength-guidance ' + (isFieldInvalid(passwordCtrl) ? 'register-password-error' : '')"
+              [attr.aria-describedby]="
+                'password-strength-guidance ' +
+                (isFieldInvalid(passwordCtrl) ? 'register-password-error' : '')
+              "
             />
             <button
               type="button"
               class="password-toggle-btn"
               (click)="togglePasswordVisibility()"
               [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
-              [attr.aria-pressed]="showPassword()">
+              [attr.aria-pressed]="showPassword()"
+            >
               {{ showPassword() ? 'Hide' : 'Show' }}
             </button>
           </div>
@@ -127,7 +139,11 @@
             </div>
           }
 
-          <div id="password-strength-guidance" class="strength-guidance-container" aria-live="polite">
+          <div
+            id="password-strength-guidance"
+            class="strength-guidance-container"
+            aria-live="polite"
+          >
             <div class="strength-header">
               <span class="strength-title">Password strength</span>
               <span
@@ -135,7 +151,8 @@
                 [class.strength-weak]="passwordStrength().level === 'weak'"
                 [class.strength-fair]="passwordStrength().level === 'fair'"
                 [class.strength-good]="passwordStrength().level === 'good'"
-                [class.strength-strong]="passwordStrength().level === 'strong'">
+                [class.strength-strong]="passwordStrength().level === 'strong'"
+              >
                 {{ passwordStrength().label }}
               </span>
             </div>
@@ -145,33 +162,34 @@
               [attr.aria-valuenow]="passwordStrength().percent"
               aria-valuemin="0"
               aria-valuemax="100"
-              [attr.aria-valuetext]="passwordStrength().label">
+              [attr.aria-valuetext]="passwordStrength().label"
+            >
               <div
                 class="strength-bar"
                 [class.bar-weak]="passwordStrength().level === 'weak'"
                 [class.bar-fair]="passwordStrength().level === 'fair'"
                 [class.bar-good]="passwordStrength().level === 'good'"
                 [class.bar-strong]="passwordStrength().level === 'strong'"
-                [style.width.%]="passwordStrength().percent">
-              </div>
+                [style.width.%]="passwordStrength().percent"
+              ></div>
             </div>
-          <ul class="strength-rules-list" aria-label="Password requirements">
-            @for (rule of passwordStrength().rules; track rule.id) {
-              <li class="rule-item" [class.rule-met]="rule.met">
-                <span class="rule-icon-box" aria-hidden="true">
-                  @if (rule.met) {
-                    <i class="pi pi-check rule-icon met"></i>
-                  } @else {
-                    <i class="pi pi-circle rule-icon unmet"></i>
-                  }
-                </span>
-                <span class="rule-text">{{ rule.label }}</span>
-                <span class="sr-only">
-                  {{ rule.met ? '(Requirement met)' : '(Requirement not met)' }}
-                </span>
-              </li>
-            }
-          </ul>
+            <ul class="strength-rules-list" aria-label="Password requirements">
+              @for (rule of passwordStrength().rules; track rule.id) {
+                <li class="rule-item" [class.rule-met]="rule.met">
+                  <span class="rule-icon-box" aria-hidden="true">
+                    @if (rule.met) {
+                      <i class="pi pi-check rule-icon met"></i>
+                    } @else {
+                      <i class="pi pi-circle rule-icon unmet"></i>
+                    }
+                  </span>
+                  <span class="rule-text">{{ rule.label }}</span>
+                  <span class="sr-only">
+                    {{ rule.met ? '(Requirement met)' : '(Requirement not met)' }}
+                  </span>
+                </li>
+              }
+            </ul>
           </div>
         </div>
 
@@ -187,14 +205,19 @@
               placeholder="Confirm your password"
               autocomplete="new-password"
               [attr.aria-invalid]="isFieldInvalid(confirmPasswordCtrl)"
-              [attr.aria-describedby]="isFieldInvalid(confirmPasswordCtrl) ? 'confirm-password-error' : null"
+              [attr.aria-describedby]="
+                isFieldInvalid(confirmPasswordCtrl) ? 'confirm-password-error' : null
+              "
             />
             <button
               type="button"
               class="password-toggle-btn"
               (click)="toggleConfirmPasswordVisibility()"
-              [attr.aria-label]="showConfirmPassword() ? 'Hide confirm password' : 'Show confirm password'"
-              [attr.aria-pressed]="showConfirmPassword()">
+              [attr.aria-label]="
+                showConfirmPassword() ? 'Hide confirm password' : 'Show confirm password'
+              "
+              [attr.aria-pressed]="showConfirmPassword()"
+            >
               {{ showConfirmPassword() ? 'Hide' : 'Show' }}
             </button>
           </div>
@@ -210,7 +233,13 @@
           }
         </div>
 
-        <button id="register-submit-btn" type="submit" class="btn-primary" [disabled]="isLoading()" [attr.aria-busy]="isLoading()">
+        <button
+          id="register-submit-btn"
+          type="submit"
+          class="btn-primary"
+          [disabled]="isLoading()"
+          [attr.aria-busy]="isLoading()"
+        >
           @if (isLoading()) {
             <span class="spinner" aria-hidden="true"></span>
             <span>Creating account...</span>

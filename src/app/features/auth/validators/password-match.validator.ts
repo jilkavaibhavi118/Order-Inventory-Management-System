@@ -7,7 +7,7 @@ import { PasswordRule, PasswordStrength } from '../../../models/auth.models';
  */
 export function passwordMatchValidator(
   passwordControlName: string = 'password',
-  confirmPasswordControlName: string = 'confirmPassword'
+  confirmPasswordControlName: string = 'confirmPassword',
 ): ValidatorFn {
   return (group: AbstractControl): ValidationErrors | null => {
     const passwordCtrl = group.get(passwordControlName);
@@ -27,7 +27,7 @@ export function passwordMatchValidator(
       const currentErrors = confirmPasswordCtrl.errors || {};
       confirmPasswordCtrl.setErrors({
         ...currentErrors,
-        passwordMismatch: true
+        passwordMismatch: true,
       });
       return { passwordMismatch: true };
     } else {
@@ -61,8 +61,8 @@ export function evaluatePasswordStrength(password: string): PasswordStrength {
         { id: 'uppercase', label: 'At least one uppercase letter (A-Z)', met: false },
         { id: 'lowercase', label: 'At least one lowercase letter (a-z)', met: false },
         { id: 'number', label: 'At least one number (0-9)', met: false },
-        { id: 'special', label: 'At least one special character (!@#$%^&*)', met: false }
-      ]
+        { id: 'special', label: 'At least one special character (!@#$%^&*)', met: false },
+      ],
     };
   }
 
@@ -71,10 +71,14 @@ export function evaluatePasswordStrength(password: string): PasswordStrength {
     { id: 'uppercase', label: 'At least one uppercase letter (A-Z)', met: /[A-Z]/.test(password) },
     { id: 'lowercase', label: 'At least one lowercase letter (a-z)', met: /[a-z]/.test(password) },
     { id: 'number', label: 'At least one number (0-9)', met: /[0-9]/.test(password) },
-    { id: 'special', label: 'At least one special character (!@#$%^&*)', met: /[^A-Za-z0-9]/.test(password) }
+    {
+      id: 'special',
+      label: 'At least one special character (!@#$%^&*)',
+      met: /[^A-Za-z0-9]/.test(password),
+    },
   ];
 
-  const metCount = rules.filter(r => r.met).length;
+  const metCount = rules.filter((r) => r.met).length;
 
   let level: PasswordStrength['level'] = 'weak';
   let label = 'Weak';
@@ -103,6 +107,6 @@ export function evaluatePasswordStrength(password: string): PasswordStrength {
     level,
     label,
     percent,
-    rules
+    rules,
   };
 }

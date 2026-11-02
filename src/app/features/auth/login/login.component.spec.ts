@@ -31,14 +31,14 @@ describe('LoginComponent', () => {
             name: 'Operator',
             email: 'operator@orderflow.io',
             role: 'Admin',
-            token: 'access-token'
+            token: 'access-token',
           },
-          errors: []
-        })
+          errors: [],
+        }),
       ),
       register: vi.fn(),
       setCurrentUser: vi.fn(),
-      isAuthenticating: signal<boolean>(false)
+      isAuthenticating: signal<boolean>(false),
     };
 
     await TestBed.configureTestingModule({
@@ -46,8 +46,8 @@ describe('LoginComponent', () => {
       providers: [
         provideRouter([]),
         { provide: MessageService, useValue: mockMessageService },
-        { provide: AuthService, useValue: mockAuthService }
-      ]
+        { provide: AuthService, useValue: mockAuthService },
+      ],
     }).compileComponents();
 
     router = TestBed.inject(Router);
@@ -114,7 +114,7 @@ describe('LoginComponent', () => {
     expect(mockAuthService.login).toHaveBeenCalledWith({
       email: 'operator@orderflow.io',
       password: 'SecurePass123!',
-      rememberMe: true
+      rememberMe: true,
     });
 
     fixture.detectChanges();
@@ -122,27 +122,31 @@ describe('LoginComponent', () => {
     expect(component.isLoading()).toBe(false);
     expect(component.submissionStatus()).toBe('success');
     expect(component.statusMessage()).toBe('Mock login successful');
-    expect(mockMessageService.add).toHaveBeenCalledWith(expect.objectContaining({
-      severity: 'success',
-      summary: 'Login successful'
-    }));
+    expect(mockMessageService.add).toHaveBeenCalledWith(
+      expect.objectContaining({
+        severity: 'success',
+        summary: 'Login successful',
+      }),
+    );
     expect(navigateSpy).toHaveBeenCalledWith('/dashboard');
   });
 
   it('should report a failed dashboard navigation after successful authentication', async () => {
     vi.spyOn(router, 'navigateByUrl').mockResolvedValue(false);
-    mockAuthService.login.mockReturnValue(of({
-      success: true,
-      message: 'Mock login successful',
-      data: {
-        userId: 'user-id',
-        name: 'Operator',
-        email: 'operator@orderflow.io',
-        role: 'Admin',
-        token: 'access-token'
-      },
-      errors: []
-    }));
+    mockAuthService.login.mockReturnValue(
+      of({
+        success: true,
+        message: 'Mock login successful',
+        data: {
+          userId: 'user-id',
+          name: 'Operator',
+          email: 'operator@orderflow.io',
+          role: 'Admin',
+          token: 'access-token',
+        },
+        errors: [],
+      }),
+    );
     component.emailCtrl.setValue('operator@orderflow.io');
     component.passwordCtrl.setValue('SecurePass123!');
 
@@ -151,15 +155,19 @@ describe('LoginComponent', () => {
 
     expect(component.submissionStatus()).toBe('error');
     expect(component.statusMessage()).toContain('dashboard could not be opened');
-    expect(mockMessageService.add).toHaveBeenCalledWith(expect.objectContaining({
-      severity: 'error',
-      summary: 'Navigation failed'
-    }));
+    expect(mockMessageService.add).toHaveBeenCalledWith(
+      expect.objectContaining({
+        severity: 'error',
+        summary: 'Navigation failed',
+      }),
+    );
   });
 
   it('does not navigate when authentication fails', () => {
     const navigateSpy = vi.spyOn(router, 'navigateByUrl');
-    mockAuthService.login.mockReturnValue(throwError(() => new AuthenticationError('Invalid credentials')));
+    mockAuthService.login.mockReturnValue(
+      throwError(() => new AuthenticationError('Invalid credentials')),
+    );
     component.emailCtrl.setValue('operator@orderflow.io');
     component.passwordCtrl.setValue('WrongPassword123!');
 
@@ -198,11 +206,14 @@ describe('LoginComponent', () => {
   it('does not display an HTML proxy error page as an API message', () => {
     mockMessageService.add.mockClear();
     mockAuthService.login.mockReturnValue(
-      throwError(() => new HttpErrorResponse({
-        status: 502,
-        statusText: 'Bad Gateway',
-        error: '<!doctype html><html><body>Proxy error</body></html>'
-      }))
+      throwError(
+        () =>
+          new HttpErrorResponse({
+            status: 502,
+            statusText: 'Bad Gateway',
+            error: '<!doctype html><html><body>Proxy error</body></html>',
+          }),
+      ),
     );
 
     component.emailCtrl.setValue('operator@orderflow.io');
@@ -217,11 +228,14 @@ describe('LoginComponent', () => {
     mockMessageService.add.mockClear();
     const apiMessage = 'Invalid email or password.';
     mockAuthService.login.mockReturnValue(
-      throwError(() => new HttpErrorResponse({
-        status: 400,
-        statusText: 'Bad Request',
-        error: JSON.stringify(apiMessage)
-      }))
+      throwError(
+        () =>
+          new HttpErrorResponse({
+            status: 400,
+            statusText: 'Bad Request',
+            error: JSON.stringify(apiMessage),
+          }),
+      ),
     );
 
     component.emailCtrl.setValue('operator@orderflow.io');
@@ -229,10 +243,12 @@ describe('LoginComponent', () => {
     component.onSubmit();
 
     expect(component.statusMessage()).toBe(apiMessage);
-    expect(mockMessageService.add).toHaveBeenCalledWith(expect.objectContaining({
-      severity: 'error',
-      detail: apiMessage
-    }));
+    expect(mockMessageService.add).toHaveBeenCalledWith(
+      expect.objectContaining({
+        severity: 'error',
+        detail: apiMessage,
+      }),
+    );
   });
 
   it('should open and close forgot password modal', () => {

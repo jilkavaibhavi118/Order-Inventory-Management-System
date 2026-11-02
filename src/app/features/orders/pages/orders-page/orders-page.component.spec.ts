@@ -30,7 +30,7 @@ describe('OrdersPageComponent', () => {
       createOrder: vi.fn().mockReturnValue(of({})),
       updateOrder: vi.fn().mockReturnValue(of({})),
       updateStatus: vi.fn().mockReturnValue(of({})),
-      deleteOrder: vi.fn().mockReturnValue(of({}))
+      deleteOrder: vi.fn().mockReturnValue(of({})),
     };
 
     await TestBed.configureTestingModule({
@@ -42,12 +42,16 @@ describe('OrdersPageComponent', () => {
         {
           provide: InventoryService,
           useValue: {
-            getProducts: vi.fn().mockReturnValue(of([{ id: 'product-id', name: 'Product', sku: 'SKU-1' }])),
-            getWarehouses: vi.fn().mockReturnValue(of([{ id: 'warehouse-id', name: 'Main', isActive: true }]))
-          }
+            getProducts: vi
+              .fn()
+              .mockReturnValue(of([{ id: 'product-id', name: 'Product', sku: 'SKU-1' }])),
+            getWarehouses: vi
+              .fn()
+              .mockReturnValue(of([{ id: 'warehouse-id', name: 'Main', isActive: true }])),
+          },
         },
-        { provide: MessageService, useValue: messageService }
-      ]
+        { provide: MessageService, useValue: messageService },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(OrdersPageComponent);
@@ -61,7 +65,7 @@ describe('OrdersPageComponent', () => {
       pageSize: 10,
       status: undefined,
       fromDate: undefined,
-      toDate: undefined
+      toDate: undefined,
     });
     expect(fixture.nativeElement.querySelector('h1').textContent).toBe('Orders');
   });
@@ -71,7 +75,7 @@ describe('OrdersPageComponent', () => {
     component.orderForm.setValue({
       customerId: '00000000-0000-0000-0000-000000000000',
       warehouseId: 'warehouse-id',
-      items: [{ productId: 'product-id', quantity: 2 }]
+      items: [{ productId: 'product-id', quantity: 2 }],
     });
 
     component.saveOrder();
@@ -79,12 +83,14 @@ describe('OrdersPageComponent', () => {
     expect(mockOrdersService.createOrder).toHaveBeenCalledWith({
       customerId,
       warehouseId: 'warehouse-id',
-      items: [{ productId: 'product-id', quantity: 2 }]
+      items: [{ productId: 'product-id', quantity: 2 }],
     });
-    expect(messageService.add).toHaveBeenCalledWith(expect.objectContaining({
-      severity: 'success',
-      summary: 'Order created'
-    }));
+    expect(messageService.add).toHaveBeenCalledWith(
+      expect.objectContaining({
+        severity: 'success',
+        summary: 'Order created',
+      }),
+    );
   });
 
   it('prefills and disables the customer ID from the current account', () => {
@@ -93,7 +99,7 @@ describe('OrdersPageComponent', () => {
 
     expect(component.orderForm.controls.customerId.value).toBe(customerId);
     const customerIdInput = fixture.nativeElement.querySelector(
-      'input[formControlName="customerId"]'
+      'input[formControlName="customerId"]',
     ) as HTMLInputElement;
     expect(customerIdInput.disabled).toBe(true);
   });
@@ -106,14 +112,14 @@ describe('OrdersPageComponent', () => {
       pageSize: 20,
       status: undefined,
       fromDate: undefined,
-      toDate: undefined
+      toDate: undefined,
     });
   });
 
   it('selects and deselects visible orders with the table checkboxes', () => {
     const orders = [
       { id: 'order-1', customerId, warehouseId: 'warehouse-id' },
-      { id: 'order-2', customerId, warehouseId: 'warehouse-id' }
+      { id: 'order-2', customerId, warehouseId: 'warehouse-id' },
     ];
     component.orders.set(orders);
 
@@ -144,7 +150,7 @@ describe('OrdersPageComponent', () => {
     const order = {
       id: 'order-id',
       customerId: customerId,
-      warehouseId: 'warehouse-id'
+      warehouseId: 'warehouse-id',
     };
 
     component.deleteOrder(order);

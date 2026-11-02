@@ -11,7 +11,7 @@ describe('OrdersService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting()]
+      providers: [provideHttpClient(), provideHttpClientTesting()],
     });
     service = TestBed.inject(OrdersService);
     httpTestingController = TestBed.inject(HttpTestingController);
@@ -22,16 +22,18 @@ describe('OrdersService', () => {
   });
 
   it('loads orders using pagination and optional filter parameters', () => {
-    service.getOrders({
-      page: 2,
-      pageSize: 25,
-      status: 'Processing',
-      fromDate: '2026-04-01T00:00:00.000Z',
-      toDate: '2026-04-30T23:59:59.999Z'
-    }).subscribe();
+    service
+      .getOrders({
+        page: 2,
+        pageSize: 25,
+        status: 'Processing',
+        fromDate: '2026-04-01T00:00:00.000Z',
+        toDate: '2026-04-30T23:59:59.999Z',
+      })
+      .subscribe();
 
     const request = httpTestingController.expectOne(
-      `${endpoint}?page=2&pageSize=25&status=Processing&fromDate=2026-04-01T00:00:00.000Z&toDate=2026-04-30T23:59:59.999Z`
+      `${endpoint}?page=2&pageSize=25&status=Processing&fromDate=2026-04-01T00:00:00.000Z&toDate=2026-04-30T23:59:59.999Z`,
     );
     expect(request.request.method).toBe('GET');
     request.flush({ page: 2, pageSize: 25, totalCount: 0, orders: [] });
@@ -41,7 +43,7 @@ describe('OrdersService', () => {
     const requestBody = {
       customerId: 'customer-id',
       warehouseId: 'warehouse-id',
-      items: [{ productId: 'product-id', quantity: 2 }]
+      items: [{ productId: 'product-id', quantity: 2 }],
     };
 
     service.createOrder(requestBody).subscribe();

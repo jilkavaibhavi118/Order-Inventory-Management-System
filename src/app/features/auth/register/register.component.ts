@@ -6,14 +6,17 @@ import { PasswordStrength, RegisterFormModel } from '../../../models/auth.models
 import { AuthService } from '../../../core/services/auth.service';
 import { ThemeService } from '../../../core/services/theme.service';
 import { HttpErrorResponse } from '@angular/common/http';
-import { evaluatePasswordStrength, passwordMatchValidator } from '../validators/password-match.validator';
+import {
+  evaluatePasswordStrength,
+  passwordMatchValidator,
+} from '../validators/password-match.validator';
 
 @Component({
   selector: 'app-register',
   standalone: true,
   imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './register.component.html',
-  styleUrl: './register.component.scss'
+  styleUrl: './register.component.scss',
 })
 export class RegisterComponent {
   private readonly authService = inject(AuthService);
@@ -35,7 +38,7 @@ export class RegisterComponent {
 
   // Password strength computation signal
   readonly passwordStrength = computed<PasswordStrength>(() =>
-    evaluatePasswordStrength(this.currentPassword())
+    evaluatePasswordStrength(this.currentPassword()),
   );
 
   toggleTheme(): void {
@@ -46,37 +49,37 @@ export class RegisterComponent {
     {
       fullName: new FormControl('', {
         nonNullable: true,
-        validators: [Validators.required, Validators.minLength(2)]
+        validators: [Validators.required, Validators.minLength(2)],
       }),
       email: new FormControl('', {
         nonNullable: true,
         validators: [
           Validators.required,
           Validators.email,
-          Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)
-        ]
+          Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/),
+        ],
       }),
       password: new FormControl('', {
         nonNullable: true,
         validators: [
           Validators.required,
           Validators.minLength(8),
-          Validators.pattern(/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9])/)
-        ]
+          Validators.pattern(/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9])/),
+        ],
       }),
       confirmPassword: new FormControl('', {
         nonNullable: true,
-        validators: [Validators.required]
-      })
+        validators: [Validators.required],
+      }),
     },
     {
-      validators: [passwordMatchValidator('password', 'confirmPassword')]
-    }
+      validators: [passwordMatchValidator('password', 'confirmPassword')],
+    },
   );
 
   constructor() {
     // Keep currentPassword signal synced with form control for reactive strength analysis
-    this.registerForm.controls.password.valueChanges.subscribe(value => {
+    this.registerForm.controls.password.valueChanges.subscribe((value) => {
       this.currentPassword.set(value || '');
     });
   }
@@ -98,11 +101,11 @@ export class RegisterComponent {
   }
 
   togglePasswordVisibility(): void {
-    this.showPassword.update(v => !v);
+    this.showPassword.update((v) => !v);
   }
 
   toggleConfirmPasswordVisibility(): void {
-    this.showConfirmPassword.update(v => !v);
+    this.showConfirmPassword.update((v) => !v);
   }
 
   isFieldInvalid(control: FormControl): boolean {
@@ -134,7 +137,7 @@ export class RegisterComponent {
     const formValues = this.registerForm.getRawValue();
 
     this.authService.register(formValues).subscribe({
-      next: response => {
+      next: (response) => {
         this.isLoading.set(false);
         this.submissionStatus.set('success');
         this.statusMessage.set(response.message);
@@ -142,7 +145,7 @@ export class RegisterComponent {
           severity: 'success',
           summary: 'Registration successful',
           detail: response.message,
-          life: 4000
+          life: 4000,
         });
       },
       error: (err) => {
@@ -154,10 +157,10 @@ export class RegisterComponent {
           this.messageService.add({
             severity: 'error',
             detail: message,
-            life: 5000
+            life: 5000,
           });
         }
-      }
+      },
     });
   }
 

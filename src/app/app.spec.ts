@@ -7,7 +7,7 @@ describe('App', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [App],
-      providers: [provideRouter([]), MessageService]
+      providers: [provideRouter([]), MessageService],
     }).compileComponents();
   });
 

@@ -96,8 +96,11 @@
   font-weight: var(--font-weight-semibold);
   line-height: 1;
   white-space: nowrap;
-  transition: background var(--transition-fast), border-color var(--transition-fast),
-    color var(--transition-fast), box-shadow var(--transition-fast);
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast),
+    box-shadow var(--transition-fast);
 
   &:disabled {
     opacity: 0.5;
@@ -156,7 +159,9 @@
   border-radius: var(--radius-md);
   border: 1px solid transparent;
   color: var(--color-muted);
-  transition: background var(--transition-fast), color var(--transition-fast);
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast);
 
   &:hover:not(:disabled) {
     background: var(--color-surface-hover);
@@ -212,7 +217,9 @@
     color: var(--color-heading);
     font: inherit;
     font-size: var(--font-size-base);
-    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+    transition:
+      border-color var(--transition-fast),
+      box-shadow var(--transition-fast);
 
     &::placeholder {
       color: var(--color-subtle);
@@ -279,9 +286,9 @@
 }
 
 .active-checkbox {
-  flex-direction: row !important;
+  flex-direction: row;
   align-items: center;
-  gap: var(--space-2) !important;
+  gap: var(--space-2);
   cursor: pointer;
 
   input[type='checkbox'] {
@@ -306,11 +313,11 @@ input[type='checkbox'] {
 .image-upload-field {
   position: relative;
   flex-wrap: nowrap;
-  display: flex !important;
+  display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--space-2) !important;
+  gap: var(--space-2);
   padding: var(--space-6) var(--space-4);
   border: 1px dashed var(--color-border-hover);
   border-radius: var(--radius-lg);
@@ -319,7 +326,9 @@ input[type='checkbox'] {
   text-align: center;
   line-height: 1.5;
   cursor: pointer;
-  transition: border-color var(--transition-fast), background var(--transition-fast);
+  transition:
+    border-color var(--transition-fast),
+    background var(--transition-fast);
 
   &:hover {
     border-color: var(--color-primary);
@@ -336,7 +345,7 @@ input[type='checkbox'] {
   }
 
   i {
-    color: var(--color-primary) !important;
+    color: var(--color-primary);
   }
 
   input[type='file'] {
@@ -387,7 +396,9 @@ input[type='checkbox'] {
   font-weight: var(--font-weight-medium);
   color: var(--color-muted);
   white-space: nowrap;
-  transition: background var(--transition-fast), color var(--transition-fast);
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast);
 
   &:hover {
     color: var(--color-heading);
@@ -441,7 +452,9 @@ input[type='checkbox'] {
     color: var(--color-heading);
     font: inherit;
     font-size: var(--font-size-base);
-    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+    transition:
+      border-color var(--transition-fast),
+      box-shadow var(--transition-fast);
 
     &::placeholder {
       color: var(--color-subtle);
@@ -590,7 +603,7 @@ input[type='checkbox'] {
 
 .table-message,
 .panel-message {
-  padding: var(--space-8) var(--space-4) !important;
+  padding: var(--space-8) var(--space-4);
   text-align: center;
   color: var(--color-muted);
   font-size: var(--font-size-base);
@@ -738,7 +751,9 @@ input[type='checkbox'] {
   border-radius: var(--radius-md);
   color: var(--color-muted);
   font-size: 0.85rem;
-  transition: background var(--transition-fast), color var(--transition-fast);
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast);
 
   &:hover:not(:disabled) {
     background: var(--color-surface-hover);
@@ -797,7 +812,9 @@ input[type='checkbox'] {
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
   font-variant-numeric: tabular-nums;
-  transition: background var(--transition-fast), border-color var(--transition-fast);
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast);
 
   &:hover:not(:disabled):not(.active) {
     border-color: var(--color-border-hover);
@@ -1027,7 +1044,7 @@ dialog.dialog-backdrop {
   font-size: var(--font-size-xs);
   line-height: var(--line-height-relaxed);
   white-space: pre-wrap;
-  word-break: break-word;
+  word-break: break-all;
 }
 
 .stock-error,
@@ -1064,7 +1081,9 @@ dialog.dialog-backdrop {
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
   color: inherit;
-  transition: border-color var(--transition-fast), transform var(--transition-fast);
+  transition:
+    border-color var(--transition-fast),
+    transform var(--transition-fast);
 
   &:is(a):hover {
     border-color: var(--color-primary-ring);
@@ -1142,7 +1161,12 @@ dialog.dialog-backdrop {
   width: 4rem;
   height: 1.5rem;
   border-radius: var(--radius-sm);
-  background: linear-gradient(90deg, var(--color-surface-elevated) 25%, var(--color-surface-hover) 50%, var(--color-surface-elevated) 75%);
+  background: linear-gradient(
+    90deg,
+    var(--color-surface-elevated) 25%,
+    var(--color-surface-hover) 50%,
+    var(--color-surface-elevated) 75%
+  );
   background-size: 200% 100%;
   animation: shimmer 1.4s linear infinite;
 }

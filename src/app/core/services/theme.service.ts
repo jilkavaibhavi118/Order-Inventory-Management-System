@@ -4,7 +4,7 @@ import { DOCUMENT, inject, Injectable, PLATFORM_ID, signal } from '@angular/core
 export type ColorTheme = 'light' | 'dark';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ThemeService {
   private readonly document = inject(DOCUMENT);

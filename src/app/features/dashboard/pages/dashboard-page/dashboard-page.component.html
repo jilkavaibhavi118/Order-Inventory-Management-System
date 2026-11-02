@@ -1,17 +1,16 @@
 <section class="dashboard-page">
-
   <!-- ── Page header ── -->
   <header class="page-heading">
     <div>
       <h1>Welcome back{{ userName() ? ', ' + userName() : '' }}</h1>
-      <p class="page-description">{{ today | date:'EEEE, d MMMM yyyy' }} · Here's what's happening across your operations.</p>
+      <p class="page-description">
+        {{ today | date: 'EEEE, d MMMM yyyy' }} · Here's what's happening across your operations.
+      </p>
     </div>
-
   </header>
 
   <!-- ── KPI cards ── -->
   <section class="stat-grid" aria-label="Business summary">
-
     <article class="stat-card">
       <span class="stat-icon"><i class="pi pi-box" aria-hidden="true"></i></span>
       <div class="stat-copy">
@@ -28,7 +27,9 @@
     </article>
 
     <article class="stat-card">
-      <span class="stat-icon tone-info"><i class="pi pi-shopping-cart" aria-hidden="true"></i></span>
+      <span class="stat-icon tone-info"
+        ><i class="pi pi-shopping-cart" aria-hidden="true"></i
+      ></span>
       <div class="stat-copy">
         <a class="stat-label stat-link" routerLink="/orders">Total orders</a>
         @if (ordersLoading()) {
@@ -89,7 +90,9 @@
     </article>
 
     <article class="stat-card">
-      <span class="stat-icon tone-warning"><i class="pi pi-exclamation-triangle" aria-hidden="true"></i></span>
+      <span class="stat-icon tone-warning"
+        ><i class="pi pi-exclamation-triangle" aria-hidden="true"></i
+      ></span>
       <div class="stat-copy">
         <a class="stat-label stat-link" routerLink="/inventory">Low-stock items</a>
         @if (lowStockLoading()) {
@@ -122,25 +125,45 @@
       } @else if (ordersError() || transactionsError()) {
         <div class="panel-message error-state" role="alert">
           <p>{{ ordersError() || transactionsError() }}</p>
-          <button type="button" class="button button-secondary button-small" (click)="refresh()">Try again</button>
+          <button type="button" class="button button-secondary button-small" (click)="refresh()">
+            Try again
+          </button>
         </div>
       } @else {
         <div class="activity-chart">
-          <svg viewBox="0 0 540 220" role="img" aria-label="Monthly orders and stock movements for the last six months">
+          <svg
+            viewBox="0 0 540 220"
+            role="img"
+            aria-label="Monthly orders and stock movements for the last six months"
+          >
             <g class="chart-gridlines">
               @for (tick of chartTicks(); track tick.y) {
-                <line x1="42" [attr.y1]="tick.y" x2="502" [attr.y2]="tick.y"/>
-                <text class="chart-axis" x="34" [attr.y]="tick.y + 4" text-anchor="end">{{ tick.label }}</text>
+                <line x1="42" [attr.y1]="tick.y" x2="502" [attr.y2]="tick.y" />
+                <text class="chart-axis" x="34" [attr.y]="tick.y + 4" text-anchor="end">
+                  {{ tick.label }}
+                </text>
               }
             </g>
-            <path class="chart-area movements-area" [attr.d]="chartArea('movements')"/>
-            <path class="chart-area orders-area" [attr.d]="chartArea('orders')"/>
-            <path class="chart-line movements-line" [attr.d]="chartPath('movements')"/>
-            <path class="chart-line orders-line" [attr.d]="chartPath('orders')"/>
+            <path class="chart-area movements-area" [attr.d]="chartArea('movements')" />
+            <path class="chart-area orders-area" [attr.d]="chartArea('orders')" />
+            <path class="chart-line movements-line" [attr.d]="chartPath('movements')" />
+            <path class="chart-line orders-line" [attr.d]="chartPath('orders')" />
             @for (bucket of chartBuckets(); track bucket.key; let index = $index) {
-              <circle class="chart-point movements-point" [attr.cx]="chartX(index)" [attr.cy]="chartY(bucket.movements)" r="3.5"/>
-              <circle class="chart-point orders-point" [attr.cx]="chartX(index)" [attr.cy]="chartY(bucket.orders)" r="3.5"/>
-              <text class="chart-axis" [attr.x]="chartX(index)" y="204" text-anchor="middle">{{ bucket.label }}</text>
+              <circle
+                class="chart-point movements-point"
+                [attr.cx]="chartX(index)"
+                [attr.cy]="chartY(bucket.movements)"
+                r="3.5"
+              />
+              <circle
+                class="chart-point orders-point"
+                [attr.cx]="chartX(index)"
+                [attr.cy]="chartY(bucket.orders)"
+                r="3.5"
+              />
+              <text class="chart-axis" [attr.x]="chartX(index)" y="204" text-anchor="middle">
+                {{ bucket.label }}
+              </text>
             }
           </svg>
         </div>
@@ -160,14 +183,20 @@
       } @else if (stockRecordsError()) {
         <div class="panel-message error-state" role="alert">
           <p>{{ stockRecordsError() }}</p>
-          <button type="button" class="button button-secondary button-small" (click)="refresh()">Try again</button>
+          <button type="button" class="button button-secondary button-small" (click)="refresh()">
+            Try again
+          </button>
         </div>
       } @else if (stockDistribution().total === 0) {
         <p class="panel-message">No inventory records available.</p>
       } @else {
         <div class="stock-summary">
-          <div class="stock-donut" role="img" [style.background]="stockDistribution().gradient"
-            [attr.aria-label]="stockDistribution().total + ' stock records by status'">
+          <div
+            class="stock-donut"
+            role="img"
+            [style.background]="stockDistribution().gradient"
+            [attr.aria-label]="stockDistribution().total + ' stock records by status'"
+          >
             <span class="donut-inner">
               <strong>{{ stockDistribution().total }}</strong>
               <small>Records</small>
@@ -178,19 +207,25 @@
               <span class="legend-swatch in-stock-swatch"></span>
               <span class="legend-name">In stock</span>
               <span class="legend-count">{{ stockDistribution().inStock }}</span>
-              <strong class="legend-pct">{{ stockDistribution().inPercent | number:'1.0-0' }}%</strong>
+              <strong class="legend-pct"
+                >{{ stockDistribution().inPercent | number: '1.0-0' }}%</strong
+              >
             </div>
             <div class="stock-legend-row">
               <span class="legend-swatch low-stock-swatch"></span>
               <span class="legend-name">Low stock</span>
               <span class="legend-count">{{ stockDistribution().lowStock }}</span>
-              <strong class="legend-pct">{{ stockDistribution().lowPercent | number:'1.0-0' }}%</strong>
+              <strong class="legend-pct"
+                >{{ stockDistribution().lowPercent | number: '1.0-0' }}%</strong
+              >
             </div>
             <div class="stock-legend-row">
               <span class="legend-swatch out-stock-swatch"></span>
               <span class="legend-name">Out of stock</span>
               <span class="legend-count">{{ stockDistribution().outOfStock }}</span>
-              <strong class="legend-pct">{{ stockDistribution().outPercent | number:'1.0-0' }}%</strong>
+              <strong class="legend-pct"
+                >{{ stockDistribution().outPercent | number: '1.0-0' }}%</strong
+              >
             </div>
           </div>
         </div>
@@ -220,9 +255,14 @@
             <li>
               <div class="bar-list-head">
                 <span class="bar-list-name">{{ location.name }}</span>
-                <span class="bar-list-value">{{ location.units | number }} <small>({{ location.share | number:'1.0-0' }}%)</small></span>
+                <span class="bar-list-value"
+                  >{{ location.units | number }}
+                  <small>({{ location.share | number: '1.0-0' }}%)</small></span
+                >
               </div>
-              <div class="bar-track"><span class="bar-fill" [style.width.%]="location.width"></span></div>
+              <div class="bar-track">
+                <span class="bar-fill" [style.width.%]="location.width"></span>
+              </div>
             </li>
           }
         </ul>
@@ -242,7 +282,13 @@
       } @else if (lowStockError()) {
         <div class="panel-message error-state" role="alert">
           <p>{{ lowStockError() }}</p>
-          <button type="button" class="button button-secondary button-small" (click)="retryLowStock()">Try again</button>
+          <button
+            type="button"
+            class="button button-secondary button-small"
+            (click)="retryLowStock()"
+          >
+            Try again
+          </button>
         </div>
       } @else if (lowStockPreview().length === 0) {
         <p class="panel-message">No low-stock products. Stock levels look healthy.</p>
@@ -250,13 +296,20 @@
         <ul class="item-list">
           @for (product of lowStockPreview(); track product.productId) {
             <li>
-              <span class="item-icon tone-warning"><i class="pi pi-exclamation-triangle" aria-hidden="true"></i></span>
+              <span class="item-icon tone-warning"
+                ><i class="pi pi-exclamation-triangle" aria-hidden="true"></i
+              ></span>
               <span class="item-main">
                 <strong>{{ product.productName }}</strong>
                 <small>{{ product.productSku }}</small>
               </span>
               <span class="item-meta">
-                <span class="stock-qty" [class.stock-low]="product.totalQuantity > 0" [class.stock-out]="product.totalQuantity === 0">{{ product.totalQuantity }}</span>
+                <span
+                  class="stock-qty"
+                  [class.stock-low]="product.totalQuantity > 0"
+                  [class.stock-out]="product.totalQuantity === 0"
+                  >{{ product.totalQuantity }}</span
+                >
                 <small>min {{ product.minStock }}</small>
               </span>
             </li>
@@ -277,7 +330,13 @@
       } @else if (transactionsError()) {
         <div class="panel-message error-state" role="alert">
           <p>{{ transactionsError() }}</p>
-          <button type="button" class="button button-secondary button-small" (click)="retryTransactions()">Try again</button>
+          <button
+            type="button"
+            class="button button-secondary button-small"
+            (click)="retryTransactions()"
+          >
+            Try again
+          </button>
         </div>
       } @else if (topMovingProducts().length === 0) {
         <p class="panel-message">No stock movements recorded yet.</p>
@@ -288,7 +347,9 @@
               <span class="rank-no">{{ rank + 1 }}</span>
               <span class="item-main">
                 <strong>{{ product.name }}</strong>
-                <span class="bar-track"><span class="bar-fill" [style.width.%]="product.width"></span></span>
+                <span class="bar-track"
+                  ><span class="bar-fill" [style.width.%]="product.width"></span
+                ></span>
               </span>
               <span class="item-meta">
                 <strong>{{ product.units | number }}</strong>
@@ -316,7 +377,13 @@
       } @else if (ordersError()) {
         <div class="panel-message error-state" role="alert">
           <p>{{ ordersError() }}</p>
-          <button type="button" class="button button-secondary button-small" (click)="retryOrders()">Try again</button>
+          <button
+            type="button"
+            class="button button-secondary button-small"
+            (click)="retryOrders()"
+          >
+            Try again
+          </button>
         </div>
       } @else if (recentOrders().length === 0) {
         <p class="panel-message">No orders found.</p>
@@ -335,18 +402,32 @@
             <tbody>
               @for (order of recentOrdersPreview(); track order.id ?? order.orderId) {
                 <tr>
-                  <td><span class="order-num order-id">{{ order.orderId || order.id || '—' }}</span></td>
-                  <td>{{ order.customerName || order.customerId }}</td>
-                  <td class="muted-cell">{{ (order.orderDate || order.createdAt) | date:'MMM d, yyyy' }}</td>
                   <td>
-                    <span class="status-pill"
+                    <span class="order-num order-id">{{ order.orderId || order.id || '—' }}</span>
+                  </td>
+                  <td>{{ order.customerName || order.customerId }}</td>
+                  <td class="muted-cell">
+                    {{ order.orderDate || order.createdAt | date: 'MMM d, yyyy' }}
+                  </td>
+                  <td>
+                    <span
+                      class="status-pill"
                       [class.status-pending]="(order.status || '').toLowerCase() === 'pending'"
-                      [class.status-processing]="(order.status || '').toLowerCase() === 'processing'"
-                      [class.status-inactive]="(order.status || '').toLowerCase() === 'cancelled'">
+                      [class.status-processing]="
+                        (order.status || '').toLowerCase() === 'processing'
+                      "
+                      [class.status-inactive]="(order.status || '').toLowerCase() === 'cancelled'"
+                    >
                       {{ order.status || '—' }}
                     </span>
                   </td>
-                  <td class="col-right muted-cell tabular-nums">{{ order.totalAmount === undefined ? '—' : '$' + (order.totalAmount | number:'1.2-2') }}</td>
+                  <td class="col-right muted-cell tabular-nums">
+                    {{
+                      order.totalAmount === undefined
+                        ? '—'
+                        : '$' + (order.totalAmount | number: '1.2-2')
+                    }}
+                  </td>
                 </tr>
               }
             </tbody>
@@ -363,11 +444,36 @@
           </div>
         </header>
         <nav class="quick-actions" aria-label="Quick actions">
-          <a routerLink="/orders" class="quick-action"><i class="pi pi-plus" aria-hidden="true"></i>Create order<i class="pi pi-chevron-right chevron" aria-hidden="true"></i></a>
-          <a routerLink="/inventory" class="quick-action"><i class="pi pi-sliders-h" aria-hidden="true"></i>Adjust stock<i class="pi pi-chevron-right chevron" aria-hidden="true"></i></a>
-          <a routerLink="/products" class="quick-action"><i class="pi pi-box" aria-hidden="true"></i>Manage products<i class="pi pi-chevron-right chevron" aria-hidden="true"></i></a>
-          <a routerLink="/warehouses" class="quick-action"><i class="pi pi-building" aria-hidden="true"></i>Manage warehouses<i class="pi pi-chevron-right chevron" aria-hidden="true"></i></a>
-          <a routerLink="/suppliers" class="quick-action"><i class="pi pi-truck" aria-hidden="true"></i>Manage suppliers<i class="pi pi-chevron-right chevron" aria-hidden="true"></i></a>
+          <a routerLink="/orders" class="quick-action"
+            ><i class="pi pi-plus" aria-hidden="true"></i>Create order<i
+              class="pi pi-chevron-right chevron"
+              aria-hidden="true"
+            ></i
+          ></a>
+          <a routerLink="/inventory" class="quick-action"
+            ><i class="pi pi-sliders-h" aria-hidden="true"></i>Adjust stock<i
+              class="pi pi-chevron-right chevron"
+              aria-hidden="true"
+            ></i
+          ></a>
+          <a routerLink="/products" class="quick-action"
+            ><i class="pi pi-box" aria-hidden="true"></i>Manage products<i
+              class="pi pi-chevron-right chevron"
+              aria-hidden="true"
+            ></i
+          ></a>
+          <a routerLink="/warehouses" class="quick-action"
+            ><i class="pi pi-building" aria-hidden="true"></i>Manage warehouses<i
+              class="pi pi-chevron-right chevron"
+              aria-hidden="true"
+            ></i
+          ></a>
+          <a routerLink="/suppliers" class="quick-action"
+            ><i class="pi pi-truck" aria-hidden="true"></i>Manage suppliers<i
+              class="pi pi-chevron-right chevron"
+              aria-hidden="true"
+            ></i
+          ></a>
         </nav>
       </article>
 
@@ -388,15 +494,31 @@
           <ul class="item-list">
             @for (activity of recentActivity(); track activity.id) {
               <li>
-                <span class="item-icon" [class.tone-danger]="activity.type === 'OUT'" [class.tone-success]="activity.type === 'IN'">
-                  <i class="pi" [class.pi-arrow-down]="activity.type === 'IN'" [class.pi-arrow-up]="activity.type === 'OUT'" [class.pi-sync]="activity.type !== 'IN' && activity.type !== 'OUT'" aria-hidden="true"></i>
+                <span
+                  class="item-icon"
+                  [class.tone-danger]="activity.type === 'OUT'"
+                  [class.tone-success]="activity.type === 'IN'"
+                >
+                  <i
+                    class="pi"
+                    [class.pi-arrow-down]="activity.type === 'IN'"
+                    [class.pi-arrow-up]="activity.type === 'OUT'"
+                    [class.pi-sync]="activity.type !== 'IN' && activity.type !== 'OUT'"
+                    aria-hidden="true"
+                  ></i>
                 </span>
                 <span class="item-main">
                   <strong>{{ activity.productName }}</strong>
-                  <small>{{ activity.warehouseName }} · {{ activity.createdAt | date:'MMM d, h:mm a' }}</small>
+                  <small
+                    >{{ activity.warehouseName }} ·
+                    {{ activity.createdAt | date: 'MMM d, h:mm a' }}</small
+                  >
                 </span>
                 <span class="item-meta">
-                  <strong class="tabular-nums">{{ activity.quantityChanged > 0 ? '+' : '' }}{{ activity.quantityChanged }}</strong>
+                  <strong class="tabular-nums"
+                    >{{ activity.quantityChanged > 0 ? '+' : ''
+                    }}{{ activity.quantityChanged }}</strong
+                  >
                   <small>{{ activity.type }}</small>
                 </span>
               </li>
@@ -406,5 +528,4 @@
       </article>
     </div>
   </section>
-
 </section>

@@ -6,10 +6,19 @@
   }
   <app-sidebar [collapsed]="sidebarCollapsed()" [mobileOpen]="mobileNavOpen()" />
   @if (mobileNavOpen()) {
-    <button type="button" class="mobile-nav-backdrop" aria-label="Close navigation" (click)="closeMobileNav()"></button>
+    <button
+      type="button"
+      class="mobile-nav-backdrop"
+      aria-label="Close navigation"
+      (click)="closeMobileNav()"
+    ></button>
   }
   <div class="workspace-main">
-    <app-header [sidebarCollapsed]="sidebarCollapsed()" [mobileNavOpen]="mobileNavOpen()" (sidebarToggle)="toggleSidebar()" />
+    <app-header
+      [sidebarCollapsed]="sidebarCollapsed()"
+      [mobileNavOpen]="mobileNavOpen()"
+      (sidebarToggle)="toggleSidebar()"
+    />
     <main class="workspace-content" id="main-content">
       <router-outlet />
       @if (routeLoading()) {

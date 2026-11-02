@@ -13,7 +13,9 @@
   background: var(--color-input-bg);
   color: var(--color-heading);
   box-shadow: none;
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
 
   &:not(.p-disabled):hover {
     border-color: var(--color-border-hover);
@@ -68,11 +70,11 @@
 .p-select-overlay,
 .p-datepicker-panel,
 .p-multiselect-overlay {
-  border: 1px solid var(--color-border-hover) !important;
-  border-radius: var(--radius-lg) !important;
-  background: var(--color-surface-elevated) !important;
-  box-shadow: var(--shadow-lg) !important;
-  color: var(--color-body) !important;
+  border: 1px solid var(--color-border-hover);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-elevated);
+  box-shadow: var(--shadow-lg);
+  color: var(--color-body);
 }
 
 .p-select-list-container {

@@ -8,7 +8,9 @@
         <span aria-current="page">Orders</span>
       </nav>
       <h1>Orders</h1>
-      <p class="page-description">Track customer orders, sales volume, and fulfillment workflows.</p>
+      <p class="page-description">
+        Track customer orders, sales volume, and fulfillment workflows.
+      </p>
     </div>
     <div class="heading-actions">
       <button type="button" class="button button-primary crud-add-btn" (click)="openCreateOrder()">
@@ -20,19 +22,44 @@
 
   <!-- Status filter tabs -->
   <div class="status-filter-tabs">
-    <button type="button" class="tab-btn" [class.active]="statusFilter() === ''" (click)="setStatusFilterTab('')">
+    <button
+      type="button"
+      class="tab-btn"
+      [class.active]="statusFilter() === ''"
+      (click)="setStatusFilterTab('')"
+    >
       All ({{ orders().length }})
     </button>
-    <button type="button" class="tab-btn" [class.active]="statusFilter() === 'pending'" (click)="setStatusFilterTab('pending')">
+    <button
+      type="button"
+      class="tab-btn"
+      [class.active]="statusFilter() === 'pending'"
+      (click)="setStatusFilterTab('pending')"
+    >
       Pending
     </button>
-    <button type="button" class="tab-btn" [class.active]="statusFilter() === 'processing'" (click)="setStatusFilterTab('processing')">
+    <button
+      type="button"
+      class="tab-btn"
+      [class.active]="statusFilter() === 'processing'"
+      (click)="setStatusFilterTab('processing')"
+    >
       Processing
     </button>
-    <button type="button" class="tab-btn" [class.active]="statusFilter() === 'delivered'" (click)="setStatusFilterTab('delivered')">
+    <button
+      type="button"
+      class="tab-btn"
+      [class.active]="statusFilter() === 'delivered'"
+      (click)="setStatusFilterTab('delivered')"
+    >
       Delivered
     </button>
-    <button type="button" class="tab-btn" [class.active]="statusFilter() === 'cancelled'" (click)="setStatusFilterTab('cancelled')">
+    <button
+      type="button"
+      class="tab-btn"
+      [class.active]="statusFilter() === 'cancelled'"
+      (click)="setStatusFilterTab('cancelled')"
+    >
       Cancelled
     </button>
   </div>
@@ -41,7 +68,13 @@
   <div class="crud-toolbar inventory-filters">
     <label class="crud-search">
       <i class="pi pi-search" aria-hidden="true"></i>
-      <input type="search" [value]="orderSearch()" (input)="updateOrderSearch($event)" placeholder="Search orders..." aria-label="Search orders" />
+      <input
+        type="search"
+        [value]="orderSearch()"
+        (input)="updateOrderSearch($event)"
+        placeholder="Search orders..."
+        aria-label="Search orders"
+      />
     </label>
     <div class="inv-filter-field">
       <label class="inv-filter-label" for="orders-from-date">From date</label>
@@ -56,7 +89,7 @@
         [ngModel]="fromDateFilter()"
         [ngModelOptions]="{ standalone: true }"
         (ngModelChange)="updateFromDateFilter($event)"
-         appendTo="body"
+        appendTo="body"
       />
     </div>
     <div class="inv-filter-field">
@@ -72,7 +105,7 @@
         [ngModel]="toDateFilter()"
         [ngModelOptions]="{ standalone: true }"
         (ngModelChange)="updateToDateFilter($event)"
-          appendTo="body"
+        appendTo="body"
       />
     </div>
     <button type="button" class="crud-filter-btn" (click)="applyFilters()">
@@ -106,18 +139,38 @@
               />
             </th>
             <th>Order #</th>
-            <th><button type="button" class="sort-button" (click)="sortBy('customer')">Customer <i class="pi pi-sort-alt" aria-hidden="true"></i></button></th>
+            <th>
+              <button type="button" class="sort-button" (click)="sortBy('customer')">
+                Customer <i class="pi pi-sort-alt" aria-hidden="true"></i>
+              </button>
+            </th>
             <th>Warehouse</th>
             <th>Items</th>
-            <th><button type="button" class="sort-button" (click)="sortBy('orderDate')">Date <i class="pi pi-sort-alt" aria-hidden="true"></i></button></th>
-            <th><button type="button" class="sort-button" (click)="sortBy('total')">Amount <i class="pi pi-sort-alt" aria-hidden="true"></i></button></th>
+            <th>
+              <button type="button" class="sort-button" (click)="sortBy('orderDate')">
+                Date <i class="pi pi-sort-alt" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="sort-button" (click)="sortBy('total')">
+                Amount <i class="pi pi-sort-alt" aria-hidden="true"></i>
+              </button>
+            </th>
             <th>Status</th>
             <th class="col-actions">Actions</th>
           </tr>
         </thead>
         <tbody>
           @if (filteredOrders().length === 0) {
-            <tr><td colspan="9" class="table-message">{{ orders().length === 0 ? 'No orders found. Create an order to get started.' : 'No orders match your search.' }}</td></tr>
+            <tr>
+              <td colspan="9" class="table-message">
+                {{
+                  orders().length === 0
+                    ? 'No orders found. Create an order to get started.'
+                    : 'No orders match your search.'
+                }}
+              </td>
+            </tr>
           } @else {
             @for (order of visibleOrders(); track order.id ?? order.orderId ?? $index) {
               <tr>
@@ -132,14 +185,17 @@
                     (ngModelChange)="toggleOrderSelection(order, $event)"
                   />
                 </td>
-                <td><span class="sku">{{ displayOrderId(order) }}</span></td>
+                <td>
+                  <span class="sku">{{ displayOrderId(order) }}</span>
+                </td>
                 <td>{{ displayCustomer(order) }}</td>
                 <td>{{ displayWarehouse(order) }}</td>
                 <td>{{ displayItems(order) }}</td>
                 <td>{{ displayOrderDate(order) }}</td>
-                <td>{{ order.total === undefined ? '—' : (order.total | number:'1.2-2') }}</td>
+                <td>{{ order.total === undefined ? '—' : (order.total | number: '1.2-2') }}</td>
                 <td>
-                  <span class="status-pill"
+                  <span
+                    class="status-pill"
                     [class.status-pending]="(order.status || '').toLowerCase() === 'pending'"
                     [class.status-processing]="(order.status || '').toLowerCase() === 'processing'"
                     [class.status-inactive]="(order.status || '').toLowerCase() === 'cancelled'"
@@ -149,13 +205,34 @@
                 </td>
                 <td class="col-actions">
                   <div class="action-btns">
-                    <button type="button" class="action-btn action-edit" [disabled]="saving() || loading()" [attr.aria-label]="'Edit ' + displayOrderId(order)" title="Edit" (click)="openEditOrder(order)">
+                    <button
+                      type="button"
+                      class="action-btn action-edit"
+                      [disabled]="saving() || loading()"
+                      [attr.aria-label]="'Edit ' + displayOrderId(order)"
+                      title="Edit"
+                      (click)="openEditOrder(order)"
+                    >
                       <i class="pi pi-pencil" aria-hidden="true"></i>
                     </button>
-                    <button type="button" class="action-btn action-view" [disabled]="saving() || loading()" [attr.aria-label]="'Change status for ' + displayOrderId(order)" title="Update status" (click)="openStatusDialog(order)">
+                    <button
+                      type="button"
+                      class="action-btn action-view"
+                      [disabled]="saving() || loading()"
+                      [attr.aria-label]="'Change status for ' + displayOrderId(order)"
+                      title="Update status"
+                      (click)="openStatusDialog(order)"
+                    >
                       <i class="pi pi-tag" aria-hidden="true"></i>
                     </button>
-                    <button type="button" class="action-btn action-delete" [disabled]="saving() || loading()" [attr.aria-label]="'Delete ' + displayOrderId(order)" title="Delete" (click)="deleteOrder(order)">
+                    <button
+                      type="button"
+                      class="action-btn action-delete"
+                      [disabled]="saving() || loading()"
+                      [attr.aria-label]="'Delete ' + displayOrderId(order)"
+                      title="Delete"
+                      (click)="deleteOrder(order)"
+                    >
                       <i class="pi pi-trash" aria-hidden="true"></i>
                     </button>
                   </div>
@@ -171,19 +248,42 @@
   <!-- Pagination outside card -->
   @if (filteredOrders().length > 0) {
     <div class="crud-pagination">
-      <span class="pagination-info">Showing {{ (page() - 1) * pageSize() + 1 }} to {{ minVal(page() * pageSize(), filteredOrders().length) }} of {{ filteredOrders().length }} orders</span>
+      <span class="pagination-info"
+        >Showing {{ (page() - 1) * pageSize() + 1 }} to
+        {{ minVal(page() * pageSize(), filteredOrders().length) }} of
+        {{ filteredOrders().length }} orders</span
+      >
       <div class="pagination-pages">
-        <button type="button" class="page-btn page-nav" [disabled]="page() === 1" (click)="setPage(page() - 1)" aria-label="Previous page">
+        <button
+          type="button"
+          class="page-btn page-nav"
+          [disabled]="page() === 1"
+          (click)="setPage(page() - 1)"
+          aria-label="Previous page"
+        >
           <i class="pi pi-chevron-left" aria-hidden="true"></i>
         </button>
         @for (p of getPageNumbers(); track p) {
           @if (p === -1) {
             <span class="page-ellipsis">…</span>
           } @else {
-            <button type="button" class="page-btn" [class.active]="p === page()" (click)="setPage(p)">{{ p }}</button>
+            <button
+              type="button"
+              class="page-btn"
+              [class.active]="p === page()"
+              (click)="setPage(p)"
+            >
+              {{ p }}
+            </button>
           }
         }
-        <button type="button" class="page-btn page-nav" [disabled]="page() === totalPages()" (click)="setPage(page() + 1)" aria-label="Next page">
+        <button
+          type="button"
+          class="page-btn page-nav"
+          [disabled]="page() === totalPages()"
+          (click)="setPage(page() + 1)"
+          aria-label="Next page"
+        >
           <i class="pi pi-chevron-right" aria-hidden="true"></i>
         </button>
       </div>
@@ -194,20 +294,34 @@
 <!-- Create / Edit Order dialog -->
 @if (orderDialogOpen()) {
   <div class="dialog-backdrop" (onclick)="closeOrderDialog()">
-    <p-dialog class="dialog-card" aria-modal="true" aria-labelledby="order-dialog-title" (onclick)="$event.stopPropagation()">
+    <p-dialog
+      class="dialog-card"
+      aria-modal="true"
+      aria-labelledby="order-dialog-title"
+      (onclick)="$event.stopPropagation()"
+    >
       <div class="dialog-heading">
         <div>
           <h2 id="order-dialog-title">{{ editingOrderId() ? 'Edit order' : 'Create order' }}</h2>
           <p>Customer ID is taken from your account.</p>
         </div>
-        <button type="button" class="icon-button" aria-label="Close dialog" (click)="closeOrderDialog()"><i class="pi pi-times" aria-hidden="true"></i></button>
+        <button
+          type="button"
+          class="icon-button"
+          aria-label="Close dialog"
+          (click)="closeOrderDialog()"
+        >
+          <i class="pi pi-times" aria-hidden="true"></i>
+        </button>
       </div>
       <form [formGroup]="orderForm" (ngSubmit)="saveOrder()">
         <div class="form-grid">
-          <label>Customer ID (UUID)
+          <label
+            >Customer ID (UUID)
             <input type="text" formControlName="customerId" />
           </label>
-          <label for="warehouse">Warehouse
+          <label for="warehouse"
+            >Warehouse
             <p-select
               class="form-select"
               formControlName="warehouseId"
@@ -223,7 +337,9 @@
           <p class="form-hint error-text">Enter a valid customer UUID.</p>
         }
         @if (warehouses().length === 0) {
-          <p class="form-hint">No active warehouses are available. Add a warehouse before creating an order.</p>
+          <p class="form-hint">
+            No active warehouses are available. Add a warehouse before creating an order.
+          </p>
         }
 
         <div class="items-heading">
@@ -236,7 +352,8 @@
         <div formArrayName="items" class="order-items">
           @for (itemForm of orderForm.controls.items.controls; track $index; let index = $index) {
             <div class="item-row" [formGroup]="itemForm">
-              <label for="product">Product
+              <label for="product"
+                >Product
                 <p-select
                   class="form-select"
                   formControlName="productId"
@@ -247,25 +364,42 @@
                   appendTo="body"
                 />
               </label>
-              <label>Quantity
+              <label
+                >Quantity
                 <input type="number" min="1" max="2147483647" step="1" formControlName="quantity" />
               </label>
-              <button type="button" class="icon-button delete-action remove-item" [disabled]="orderForm.controls.items.length <= 1" [attr.aria-label]="'Remove item ' + (index + 1)" (click)="removeOrderItem(index)">
+              <button
+                type="button"
+                class="icon-button delete-action remove-item"
+                [disabled]="orderForm.controls.items.length <= 1"
+                [attr.aria-label]="'Remove item ' + (index + 1)"
+                (click)="removeOrderItem(index)"
+              >
                 <i class="pi pi-trash" aria-hidden="true"></i>
               </button>
             </div>
           }
         </div>
         @if (products().length === 0) {
-          <p class="form-hint">No products are available. Add an active product before creating an order.</p>
+          <p class="form-hint">
+            No products are available. Add an active product before creating an order.
+          </p>
         }
         @if (orderForm.controls.items.invalid && orderForm.controls.items.touched) {
-          <p class="form-hint error-text">Choose a product for each item and enter a quantity of at least one.</p>
+          <p class="form-hint error-text">
+            Choose a product for each item and enter a quantity of at least one.
+          </p>
         }
         <div class="dialog-actions">
-          <button type="button" class="button button-secondary" (click)="closeOrderDialog()">Cancel</button>
-          <button type="submit" class="button button-primary" [disabled]="saving() || products().length === 0 || warehouses().length === 0">
-            {{ saving() ? 'Saving…' : (editingOrderId() ? 'Save changes' : 'Create order') }}
+          <button type="button" class="button button-secondary" (click)="closeOrderDialog()">
+            Cancel
+          </button>
+          <button
+            type="submit"
+            class="button button-primary"
+            [disabled]="saving() || products().length === 0 || warehouses().length === 0"
+          >
+            {{ saving() ? 'Saving…' : editingOrderId() ? 'Save changes' : 'Create order' }}
           </button>
         </div>
       </form>
@@ -276,24 +410,41 @@
 <!-- Status update dialog -->
 @if (statusDialogOpen()) {
   <div class="dialog-backdrop" (onclick)="closeStatusDialog()">
-    <p-dialog class="dialog-card status-dialog" aria-modal="true" aria-labelledby="status-dialog-title" (onclick)="$event.stopPropagation()">
+    <p-dialog
+      class="dialog-card status-dialog"
+      aria-modal="true"
+      aria-labelledby="status-dialog-title"
+      (onclick)="$event.stopPropagation()"
+    >
       <div class="dialog-heading">
         <div>
           <h2 id="status-dialog-title">Update order status</h2>
           <p>Enter a status supported by your API (up to 20 characters).</p>
         </div>
-        <button type="button" class="icon-button" aria-label="Close dialog" (click)="closeStatusDialog()"><i class="pi pi-times" aria-hidden="true"></i></button>
+        <button
+          type="button"
+          class="icon-button"
+          aria-label="Close dialog"
+          (click)="closeStatusDialog()"
+        >
+          <i class="pi pi-times" aria-hidden="true"></i>
+        </button>
       </div>
       <form [formGroup]="statusForm" (ngSubmit)="saveStatus()">
-        <label class="status-label">Status
+        <label class="status-label"
+          >Status
           <input type="text" formControlName="status" maxlength="20" autocomplete="off" />
         </label>
         @if (statusForm.controls.status.invalid && statusForm.controls.status.touched) {
           <p class="form-hint error-text">Enter a status of no more than 20 characters.</p>
         }
         <div class="dialog-actions">
-          <button type="button" class="button button-secondary" (click)="closeStatusDialog()">Cancel</button>
-          <button type="submit" class="button button-primary" [disabled]="saving()">{{ saving() ? 'Saving…' : 'Update status' }}</button>
+          <button type="button" class="button button-secondary" (click)="closeStatusDialog()">
+            Cancel
+          </button>
+          <button type="submit" class="button button-primary" [disabled]="saving()">
+            {{ saving() ? 'Saving…' : 'Update status' }}
+          </button>
         </div>
       </form>
     </p-dialog>
@@ -318,8 +469,20 @@
         Are you sure you want to delete {{ displayOrderId(order) }}? This action cannot be undone.
       </p>
       <div class="dialog-actions">
-        <button type="button" class="button button-secondary" [disabled]="saving()" (click)="cancelDeleteOrder()">Cancel</button>
-        <button type="button" class="button button-danger" [disabled]="saving()" (click)="confirmDeleteOrder()">
+        <button
+          type="button"
+          class="button button-secondary"
+          [disabled]="saving()"
+          (click)="cancelDeleteOrder()"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="button button-danger"
+          [disabled]="saving()"
+          (click)="confirmDeleteOrder()"
+        >
           {{ saving() ? 'Deleting…' : 'Delete order' }}
         </button>
       </div>

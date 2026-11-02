@@ -26,11 +26,13 @@ describe('ProductsPageComponent', () => {
   beforeEach(async () => {
     mockInventoryService = {
       getProducts: vi.fn().mockReturnValue(of([])),
-      getProductInventory: vi.fn().mockReturnValue(of([{ warehouseId: 'warehouse-id', quantity: 4 }])),
+      getProductInventory: vi
+        .fn()
+        .mockReturnValue(of([{ warehouseId: 'warehouse-id', quantity: 4 }])),
       getSuppliers: vi.fn().mockReturnValue(of([{ id: 'supplier-id', name: 'Supplier' }])),
       createProduct: vi.fn().mockReturnValue(of({ message: 'Product created successfully.' })),
       updateProduct: vi.fn().mockReturnValue(of({})),
-      deleteProduct: vi.fn().mockReturnValue(of({}))
+      deleteProduct: vi.fn().mockReturnValue(of({})),
     };
 
     await TestBed.configureTestingModule({
@@ -40,8 +42,8 @@ describe('ProductsPageComponent', () => {
         provideHttpClient(),
         provideHttpClientTesting(),
         { provide: InventoryService, useValue: mockInventoryService },
-        { provide: MessageService, useValue: messageService }
-      ]
+        { provide: MessageService, useValue: messageService },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ProductsPageComponent);
@@ -70,7 +72,7 @@ describe('ProductsPageComponent', () => {
       sellPrice: 10,
       minStock: 2,
       description: '',
-      isActive: true
+      isActive: true,
     });
 
     component.saveProduct();
@@ -81,10 +83,12 @@ describe('ProductsPageComponent', () => {
     expect(submittedData.get('Name')).toBe('Sample item');
     expect(submittedData.get('Description')).toBe('');
     expect(submittedData.get('IsActive')).toBe('true');
-    expect(messageService.add).toHaveBeenCalledWith(expect.objectContaining({
-      severity: 'success',
-      detail: 'Product created successfully.'
-    }));
+    expect(messageService.add).toHaveBeenCalledWith(
+      expect.objectContaining({
+        severity: 'success',
+        detail: 'Product created successfully.',
+      }),
+    );
   });
 
   it('loads product thumbnails as authenticated image blobs', () => {
@@ -98,12 +102,12 @@ describe('ProductsPageComponent', () => {
       sellPrice: 10,
       minStock: 2,
       isActive: true,
-      imageUrl: '/images/product.png'
+      imageUrl: '/images/product.png',
     };
     const originalCreateObjectUrl = Object.getOwnPropertyDescriptor(URL, 'createObjectURL');
     Object.defineProperty(URL, 'createObjectURL', {
       configurable: true,
-      value: vi.fn().mockReturnValue('blob:product-image')
+      value: vi.fn().mockReturnValue('blob:product-image'),
     });
 
     try {
@@ -115,8 +119,9 @@ describe('ProductsPageComponent', () => {
 
       expect(component.getProductImageUrl(product)).toBe('blob:product-image');
       fixture.detectChanges();
-      expect(fixture.nativeElement.querySelector('.product-image')?.getAttribute('src'))
-        .toBe('blob:product-image');
+      expect(fixture.nativeElement.querySelector('.product-image')?.getAttribute('src')).toBe(
+        'blob:product-image',
+      );
       expect(component.productImageErrors()[product.id]).toBeUndefined();
     } finally {
       if (originalCreateObjectUrl) {
@@ -137,7 +142,7 @@ describe('ProductsPageComponent', () => {
       costPrice: 5,
       sellPrice: 10,
       minStock: 2,
-      isActive: true
+      isActive: true,
     };
 
     component.deleteProduct(product);
@@ -157,17 +162,19 @@ describe('ProductsPageComponent', () => {
   });
 
   it('shows the selected page of products', () => {
-    component.products.set(Array.from({ length: 12 }, (_, index) => ({
-      id: `product-${index + 1}`,
-      sku: `SKU-${index + 1}`,
-      name: `Product ${index + 1}`,
-      category: 'General',
-      supplierId: 'supplier-id',
-      costPrice: 1,
-      sellPrice: 2,
-      minStock: 1,
-      isActive: true
-    })));
+    component.products.set(
+      Array.from({ length: 12 }, (_, index) => ({
+        id: `product-${index + 1}`,
+        sku: `SKU-${index + 1}`,
+        name: `Product ${index + 1}`,
+        category: 'General',
+        supplierId: 'supplier-id',
+        costPrice: 1,
+        sellPrice: 2,
+        minStock: 1,
+        isActive: true,
+      })),
+    );
 
     component.onPageChange({ first: 10, rows: 10 });
 
@@ -186,7 +193,7 @@ describe('ProductsPageComponent', () => {
         costPrice: 1,
         sellPrice: 2,
         minStock: 1,
-        isActive: true
+        isActive: true,
       },
       {
         id: 'product-2',
@@ -197,16 +204,16 @@ describe('ProductsPageComponent', () => {
         costPrice: 3,
         sellPrice: 4,
         minStock: 1,
-        isActive: true
-      }
+        isActive: true,
+      },
     ]);
 
     component.updateSearch({ target: { value: 'rose' } } as unknown as Event);
-    expect(component.filteredProducts().map(product => product.id)).toEqual(['product-1']);
+    expect(component.filteredProducts().map((product) => product.id)).toEqual(['product-1']);
 
     component.updateSearch({ target: { value: '' } } as unknown as Event);
     component.updateCategory({ target: { value: 'Office' } } as unknown as Event);
-    expect(component.filteredProducts().map(product => product.id)).toEqual(['product-2']);
+    expect(component.filteredProducts().map((product) => product.id)).toEqual(['product-2']);
   });
 
   it('loads stock details using the selected product ID', () => {
@@ -219,7 +226,7 @@ describe('ProductsPageComponent', () => {
       costPrice: 5,
       sellPrice: 10,
       minStock: 2,
-      isActive: true
+      isActive: true,
     };
 
     component.viewStock(product);

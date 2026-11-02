@@ -23,7 +23,15 @@ import { environment } from '../../../../../environments/environment';
 @Component({
   selector: 'app-products-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, PaginatorModule, Select, RouterLink, CheckboxModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    PaginatorModule,
+    Select,
+    RouterLink,
+    CheckboxModule,
+  ],
   templateUrl: './products-page.component.html',
   styleUrl: './products-page.component.scss',
 })
@@ -166,7 +174,7 @@ export class ProductsPageComponent implements OnDestroy {
   });
 
   constructor() {
-    this.route.queryParamMap.pipe(takeUntilDestroyed()).subscribe(params => {
+    this.route.queryParamMap.pipe(takeUntilDestroyed()).subscribe((params) => {
       const search = params.get('search');
       if (search !== null) {
         this.searchTerm.set(search);
@@ -191,38 +199,34 @@ export class ProductsPageComponent implements OnDestroy {
     );
   }
 
- getProductImageUrl(product: Product): string | null {
-  const imageUrl = product.imageUrl;
+  getProductImageUrl(product: Product): string | null {
+    const imageUrl = product.imageUrl;
 
-  if (!imageUrl) {
-    return null;
+    if (!imageUrl) {
+      return null;
+    }
+
+    return this.productImageUrl(imageUrl);
   }
 
-  return this.productImageUrl(imageUrl);
-}
+  productImageUrl(imageUrl: string): string {
+    if (!imageUrl) {
+      return '';
+    }
 
+    // Already a complete URL
+    if (/^(https?:|data:|blob:)/i.test(imageUrl)) {
+      return imageUrl;
+    }
 
-productImageUrl(imageUrl: string): string {
-  if (!imageUrl) {
-    return '';
+    // Remove trailing /api from the API URL
+    const baseUrl = environment.apiUrl.replace(/\/api\/?$/i, '').replace(/\/+$/, '');
+
+    // Convert relative path into an absolute URL
+    const path = imageUrl.replace(/^\/+/, '');
+
+    return `${baseUrl}/${path}`;
   }
-
-  // Already a complete URL
-  if (/^(https?:|data:|blob:)/i.test(imageUrl)) {
-    return imageUrl;
-  }
-
-  // Remove trailing /api from the API URL
-  const baseUrl = environment.apiUrl
-    .replace(/\/api\/?$/i, '')
-    .replace(/\/+$/, '');
-
-  // Convert relative path into an absolute URL
-  const path = imageUrl.replace(/^\/+/, '');
-
-  return `${baseUrl}/${path}`;
-}
-
 
   onProductImageError(event: Event): void {
     const image = event.target as HTMLImageElement;

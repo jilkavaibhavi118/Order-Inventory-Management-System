@@ -8,10 +8,16 @@
         <span aria-current="page">Warehouses</span>
       </nav>
       <h1>Warehouses</h1>
-      <p class="page-description">Manage physical storage facilities, capacity, and operational hubs.</p>
+      <p class="page-description">
+        Manage physical storage facilities, capacity, and operational hubs.
+      </p>
     </div>
     <div class="heading-actions">
-      <button type="button" class="button button-primary crud-add-btn" (click)="openCreateWarehouse()">
+      <button
+        type="button"
+        class="button button-primary crud-add-btn"
+        (click)="openCreateWarehouse()"
+      >
         <i class="pi pi-plus" aria-hidden="true"></i>
         Add warehouse
       </button>
@@ -20,14 +26,29 @@
 
   <!-- Status filter tabs -->
   <div class="status-filter-tabs">
-    <button type="button" class="tab-btn" [class.active]="warehouseStatusFilter() === ''" (click)="warehouseStatusFilter.set(''); page.set(1)">
+    <button
+      type="button"
+      class="tab-btn"
+      [class.active]="warehouseStatusFilter() === ''"
+      (click)="warehouseStatusFilter.set(''); page.set(1)"
+    >
       All ({{ warehouses().length }})
     </button>
-    <button type="button" class="tab-btn" [class.active]="warehouseStatusFilter() === 'active'" (click)="warehouseStatusFilter.set('active'); page.set(1)">
-      Active ({{ warehouses().filter(w => w.isActive).length }})
+    <button
+      type="button"
+      class="tab-btn"
+      [class.active]="warehouseStatusFilter() === 'active'"
+      (click)="warehouseStatusFilter.set('active'); page.set(1)"
+    >
+      Active ({{ warehouses().filter((w) => w.isActive).length }})
     </button>
-    <button type="button" class="tab-btn" [class.active]="warehouseStatusFilter() === 'inactive'" (click)="warehouseStatusFilter.set('inactive'); page.set(1)">
-      Inactive ({{ warehouses().filter(w => !w.isActive).length }})
+    <button
+      type="button"
+      class="tab-btn"
+      [class.active]="warehouseStatusFilter() === 'inactive'"
+      (click)="warehouseStatusFilter.set('inactive'); page.set(1)"
+    >
+      Inactive ({{ warehouses().filter((w) => !w.isActive).length }})
     </button>
   </div>
 
@@ -35,7 +56,13 @@
   <div class="crud-toolbar">
     <label class="crud-search">
       <i class="pi pi-search" aria-hidden="true"></i>
-      <input type="search" [value]="warehouseSearch()" (input)="updateWarehouseSearch($event)" placeholder="Search warehouses..." aria-label="Search warehouses" />
+      <input
+        type="search"
+        [value]="warehouseSearch()"
+        (input)="updateWarehouseSearch($event)"
+        placeholder="Search warehouses..."
+        aria-label="Search warehouses"
+      />
     </label>
   </div>
 
@@ -55,13 +82,23 @@
         </thead>
         <tbody>
           @if (filteredWarehouses().length === 0) {
-            <tr><td colspan="5" class="table-message">{{ warehouses().length === 0 ? 'No warehouses found. Add your first warehouse to get started.' : 'No warehouses match your search.' }}</td></tr>
+            <tr>
+              <td colspan="5" class="table-message">
+                {{
+                  warehouses().length === 0
+                    ? 'No warehouses found. Add your first warehouse to get started.'
+                    : 'No warehouses match your search.'
+                }}
+              </td>
+            </tr>
           } @else {
             @for (warehouse of visibleWarehouses(); track warehouse.id) {
               <tr>
-                <td class="col-check"><p-checkbox [binary]="true" [ariaLabel]="'Select ' + warehouse.name" /></td>
+                <td class="col-check">
+                  <p-checkbox [binary]="true" [ariaLabel]="'Select ' + warehouse.name" />
+                </td>
                 <td class="warehouse-name">{{ warehouse.name }}</td>
-                <td style="color: var(--color-muted);">{{ warehouse.location }}</td>
+                <td style="color: var(--color-muted)">{{ warehouse.location }}</td>
                 <td>
                   <span class="status-pill" [class.status-inactive]="!warehouse.isActive">
                     {{ warehouse.isActive ? 'Active' : 'Inactive' }}
@@ -69,10 +106,24 @@
                 </td>
                 <td class="col-actions">
                   <div class="action-btns">
-                    <button type="button" class="action-btn action-edit" [disabled]="saving()" [attr.aria-label]="'Edit ' + warehouse.name" title="Edit" (click)="openEditWarehouse(warehouse)">
+                    <button
+                      type="button"
+                      class="action-btn action-edit"
+                      [disabled]="saving()"
+                      [attr.aria-label]="'Edit ' + warehouse.name"
+                      title="Edit"
+                      (click)="openEditWarehouse(warehouse)"
+                    >
                       <i class="pi pi-pencil" aria-hidden="true"></i>
                     </button>
-                    <button type="button" class="action-btn action-delete" [disabled]="saving()" [attr.aria-label]="'Delete ' + warehouse.name" title="Delete" (click)="requestDelete(warehouse)">
+                    <button
+                      type="button"
+                      class="action-btn action-delete"
+                      [disabled]="saving()"
+                      [attr.aria-label]="'Delete ' + warehouse.name"
+                      title="Delete"
+                      (click)="requestDelete(warehouse)"
+                    >
                       <i class="pi pi-trash" aria-hidden="true"></i>
                     </button>
                   </div>
@@ -88,19 +139,42 @@
   <!-- Pagination outside card -->
   @if (filteredWarehouses().length > 0) {
     <div class="crud-pagination">
-      <span class="pagination-info">Showing {{ (page() - 1) * pageSize() + 1 }} to {{ minVal(page() * pageSize(), filteredWarehouses().length) }} of {{ filteredWarehouses().length }} warehouses</span>
+      <span class="pagination-info"
+        >Showing {{ (page() - 1) * pageSize() + 1 }} to
+        {{ minVal(page() * pageSize(), filteredWarehouses().length) }} of
+        {{ filteredWarehouses().length }} warehouses</span
+      >
       <div class="pagination-pages">
-        <button type="button" class="page-btn page-nav" [disabled]="page() === 1" (click)="setPage(page() - 1)" aria-label="Previous page">
+        <button
+          type="button"
+          class="page-btn page-nav"
+          [disabled]="page() === 1"
+          (click)="setPage(page() - 1)"
+          aria-label="Previous page"
+        >
           <i class="pi pi-chevron-left" aria-hidden="true"></i>
         </button>
         @for (p of getPageNumbers(); track p) {
           @if (p === -1) {
             <span class="page-ellipsis">…</span>
           } @else {
-            <button type="button" class="page-btn" [class.active]="p === page()" (click)="setPage(p)">{{ p }}</button>
+            <button
+              type="button"
+              class="page-btn"
+              [class.active]="p === page()"
+              (click)="setPage(p)"
+            >
+              {{ p }}
+            </button>
           }
         }
-        <button type="button" class="page-btn page-nav" [disabled]="page() === totalPages()" (click)="setPage(page() + 1)" aria-label="Next page">
+        <button
+          type="button"
+          class="page-btn page-nav"
+          [disabled]="page() === totalPages()"
+          (click)="setPage(page() + 1)"
+          aria-label="Next page"
+        >
           <i class="pi pi-chevron-right" aria-hidden="true"></i>
         </button>
       </div>
@@ -111,11 +185,24 @@
 <!-- Add / Edit warehouse dialog -->
 @if (dialogOpen()) {
   <div class="dialog-backdrop" (onclick)="closeDialog()">
-    <p-dialog class="dialog-card" aria-modal="true" aria-labelledby="warehouse-dialog-title" (onclick)="$event.stopPropagation()">
+    <p-dialog
+      class="dialog-card"
+      aria-modal="true"
+      aria-labelledby="warehouse-dialog-title"
+      (onclick)="$event.stopPropagation()"
+    >
       <div class="dialog-heading">
         <div>
-          <h2 id="warehouse-dialog-title">{{ editingWarehouseId() ? 'Edit warehouse' : 'Add warehouse' }}</h2>
-          <p class="dialog-description">{{ editingWarehouseId() ? 'Update warehouse information.' : 'Add a new storage facility to your system.' }}</p>
+          <h2 id="warehouse-dialog-title">
+            {{ editingWarehouseId() ? 'Edit warehouse' : 'Add warehouse' }}
+          </h2>
+          <p class="dialog-description">
+            {{
+              editingWarehouseId()
+                ? 'Update warehouse information.'
+                : 'Add a new storage facility to your system.'
+            }}
+          </p>
         </div>
         <button type="button" class="icon-button" aria-label="Close dialog" (click)="closeDialog()">
           <i class="pi pi-times" aria-hidden="true"></i>
@@ -125,11 +212,21 @@
         <div class="form-grid">
           <label>
             Name
-            <input type="text" formControlName="name" autocomplete="organization" placeholder="Warehouse name" />
+            <input
+              type="text"
+              formControlName="name"
+              autocomplete="organization"
+              placeholder="Warehouse name"
+            />
           </label>
           <label>
             Location
-            <input type="text" formControlName="location" autocomplete="address-line1" placeholder="City, State or full address" />
+            <input
+              type="text"
+              formControlName="location"
+              autocomplete="address-line1"
+              placeholder="City, State or full address"
+            />
           </label>
           <label class="active-checkbox full-width">
             <input type="checkbox" formControlName="isActive" />
@@ -140,9 +237,11 @@
           <p class="form-hint">Enter a warehouse name and location.</p>
         }
         <div class="dialog-actions">
-          <button type="button" class="button button-secondary" (click)="closeDialog()">Cancel</button>
+          <button type="button" class="button button-secondary" (click)="closeDialog()">
+            Cancel
+          </button>
           <button type="submit" class="button button-primary" [disabled]="saving()">
-            {{ saving() ? 'Saving…' : (editingWarehouseId() ? 'Save changes' : 'Create warehouse') }}
+            {{ saving() ? 'Saving…' : editingWarehouseId() ? 'Save changes' : 'Create warehouse' }}
           </button>
         </div>
       </form>
@@ -165,8 +264,20 @@
       </div>
       <p>Are you sure you want to delete {{ warehouse.name }}? This action cannot be undone.</p>
       <div class="dialog-actions">
-        <button type="button" class="button button-secondary" [disabled]="saving()" (click)="cancelDelete()">Cancel</button>
-        <button type="button" class="button button-danger" [disabled]="saving()" (click)="confirmDelete()">
+        <button
+          type="button"
+          class="button button-secondary"
+          [disabled]="saving()"
+          (click)="cancelDelete()"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="button button-danger"
+          [disabled]="saving()"
+          (click)="confirmDelete()"
+        >
           {{ saving() ? 'Deleting…' : 'Delete warehouse' }}
         </button>
       </div>

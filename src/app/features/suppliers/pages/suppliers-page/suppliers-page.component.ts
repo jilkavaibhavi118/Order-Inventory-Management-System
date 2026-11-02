@@ -16,7 +16,7 @@ import { Supplier, SupplierRequest } from '../../../../models/inventory.models';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, PaginatorModule, RouterLink, CheckboxModule],
   templateUrl: './suppliers-page.component.html',
-  styleUrl: './suppliers-page.component.scss'
+  styleUrl: './suppliers-page.component.scss',
 })
 export class SuppliersPageComponent {
   private readonly inventoryService = inject(InventoryService);
@@ -29,8 +29,10 @@ export class SuppliersPageComponent {
   readonly filteredSuppliers = computed(() => {
     const search = this.supplierSearch().trim().toLowerCase();
     if (!search) return this.suppliers();
-    return this.suppliers().filter(s =>
-      [s.name, s.email ?? '', s.phone ?? '', s.address ?? ''].some(v => v.toLowerCase().includes(search))
+    return this.suppliers().filter((s) =>
+      [s.name, s.email ?? '', s.phone ?? '', s.address ?? ''].some((v) =>
+        v.toLowerCase().includes(search),
+      ),
     );
   });
   readonly visibleSuppliers = computed(() => {
@@ -46,20 +48,20 @@ export class SuppliersPageComponent {
   readonly supplierForm = new FormGroup({
     name: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(100)]
+      validators: [Validators.required, Validators.maxLength(100)],
     }),
     email: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.email, Validators.maxLength(254)]
+      validators: [Validators.required, Validators.email, Validators.maxLength(254)],
     }),
     phone: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(30)]
+      validators: [Validators.required, Validators.maxLength(30)],
     }),
     address: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(250)]
-    })
+      validators: [Validators.required, Validators.maxLength(250)],
+    }),
   });
 
   constructor() {
@@ -84,7 +86,8 @@ export class SuppliersPageComponent {
     if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
     const pages: number[] = [1];
     if (current > 3) pages.push(-1);
-    for (let i = Math.max(2, current - 1); i <= Math.min(total - 1, current + 1); i++) pages.push(i);
+    for (let i = Math.max(2, current - 1); i <= Math.min(total - 1, current + 1); i++)
+      pages.push(i);
     if (current < total - 2) pages.push(-1);
     pages.push(total);
     return pages;
@@ -104,14 +107,17 @@ export class SuppliersPageComponent {
 
   loadSuppliers(): void {
     this.loading.set(true);
-    this.inventoryService.getSuppliers()
+    this.inventoryService
+      .getSuppliers()
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
-        next: suppliers => {
+        next: (suppliers) => {
           this.suppliers.set(suppliers);
-          this.page.set(Math.min(this.page(), Math.max(1, Math.ceil(suppliers.length / this.pageSize()))));
+          this.page.set(
+            Math.min(this.page(), Math.max(1, Math.ceil(suppliers.length / this.pageSize()))),
+          );
         },
-        error: error => this.showApiError(error)
+        error: (error) => this.showApiError(error),
       });
   }
 
@@ -127,7 +133,7 @@ export class SuppliersPageComponent {
       name: supplier.name,
       email: supplier.email ?? '',
       phone: supplier.phone ?? '',
-      address: supplier.address ?? ''
+      address: supplier.address ?? '',
     });
     this.dialogOpen.set(true);
   }
@@ -151,17 +157,17 @@ export class SuppliersPageComponent {
 
     this.saving.set(true);
     request$.pipe(finalize(() => this.saving.set(false))).subscribe({
-      next: response => {
+      next: (response) => {
         this.closeDialog();
-          this.messageService.add({
-            severity: 'success',
-            detail: response?.message || 'Supplier saved successfully.',
-            life: 4000
-          });
+        this.messageService.add({
+          severity: 'success',
+          detail: response?.message || 'Supplier saved successfully.',
+          life: 4000,
+        });
 
         this.loadSuppliers();
       },
-      error: error => this.showApiError(error)
+      error: (error) => this.showApiError(error),
     });
   }
 
@@ -188,7 +194,7 @@ export class SuppliersPageComponent {
       month: 'short',
       day: '2-digit',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
     }).format(date);
   }
 
@@ -200,20 +206,21 @@ export class SuppliersPageComponent {
 
     this.supplierPendingDeletion.set(null);
     this.saving.set(true);
-    this.inventoryService.deleteSupplier(supplier.id)
+    this.inventoryService
+      .deleteSupplier(supplier.id)
       .pipe(finalize(() => this.saving.set(false)))
       .subscribe({
-        next: response => {
+        next: (response) => {
           if (response?.message?.trim()) {
             this.messageService.add({
               severity: 'success',
               detail: response.message,
-              life: 4000
+              life: 4000,
             });
           }
           this.loadSuppliers();
         },
-        error: error => this.showApiError(error)
+        error: (error) => this.showApiError(error),
       });
   }
 
@@ -223,7 +230,7 @@ export class SuppliersPageComponent {
       this.messageService.add({
         severity: 'error',
         detail,
-        life: 5000
+        life: 5000,
       });
     }
   }

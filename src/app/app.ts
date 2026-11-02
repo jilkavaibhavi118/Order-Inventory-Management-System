@@ -6,7 +6,7 @@ import { ToastModule } from 'primeng/toast';
   selector: 'app-root',
   imports: [RouterOutlet, ToastModule],
   templateUrl: './app.html',
-  styleUrl: './app.scss'
+  styleUrl: './app.scss',
 })
 export class App {
   protected readonly title = signal('Order-And-Inventory-Management-System');

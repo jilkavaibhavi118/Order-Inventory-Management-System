@@ -5,10 +5,21 @@
       type="button"
       class="topbar-icon-btn menu-toggle"
       (click)="sidebarToggle.emit()"
-      [attr.aria-label]="mobileNavOpen() ? 'Close navigation' : (sidebarCollapsed() ? 'Expand sidebar' : 'Collapse sidebar')"
+      [attr.aria-label]="
+        mobileNavOpen()
+          ? 'Close navigation'
+          : sidebarCollapsed()
+            ? 'Expand sidebar'
+            : 'Collapse sidebar'
+      "
       [attr.aria-expanded]="mobileNavOpen() || !sidebarCollapsed()"
     >
-      <i class="pi" [class.pi-bars]="!mobileNavOpen()" [class.pi-times]="mobileNavOpen()" aria-hidden="true"></i>
+      <i
+        class="pi"
+        [class.pi-bars]="!mobileNavOpen()"
+        [class.pi-times]="mobileNavOpen()"
+        aria-hidden="true"
+      ></i>
     </button>
   </div>
 
@@ -34,11 +45,22 @@
     </label>
 
     @if (openMenu() === 'search') {
-      <div class="dropdown search-results" id="global-search-results" role="menu" aria-label="Search results">
+      <div
+        class="dropdown search-results"
+        id="global-search-results"
+        role="menu"
+        aria-label="Search results"
+      >
         @if (pageResults().length > 0) {
           <span class="dropdown-label">Pages</span>
           @for (page of pageResults(); track page.path; let i = $index) {
-            <button type="button" role="menuitem" class="dropdown-item" [class.active]="activeResult() === i" (click)="goToPage(page)">
+            <button
+              type="button"
+              role="menuitem"
+              class="dropdown-item"
+              [class.active]="activeResult() === i"
+              (click)="goToPage(page)"
+            >
               <i class="pi" [class]="page.icon" aria-hidden="true"></i>
               <span>{{ page.label }}</span>
             </button>
@@ -47,7 +69,13 @@
         @if (productResults().length > 0) {
           <span class="dropdown-label">Products</span>
           @for (product of productResults(); track product.id; let i = $index) {
-            <button type="button" role="menuitem" class="dropdown-item" [class.active]="activeResult() === pageResults().length + i" (click)="goToProduct(product)">
+            <button
+              type="button"
+              role="menuitem"
+              class="dropdown-item"
+              [class.active]="activeResult() === pageResults().length + i"
+              (click)="goToProduct(product)"
+            >
               <i class="pi pi-box" aria-hidden="true"></i>
               <span class="dropdown-item-text">
                 <span>{{ product.name }}</span>
@@ -72,7 +100,12 @@
       [attr.aria-label]="theme() === 'light' ? 'Switch to dark theme' : 'Switch to light theme'"
       [attr.title]="theme() === 'light' ? 'Switch to dark theme' : 'Switch to light theme'"
     >
-      <i class="pi" [class.pi-moon]="theme() === 'light'" [class.pi-sun]="theme() === 'dark'" aria-hidden="true"></i>
+      <i
+        class="pi"
+        [class.pi-moon]="theme() === 'light'"
+        [class.pi-sun]="theme() === 'dark'"
+        aria-hidden="true"
+      ></i>
     </button>
 
     <div class="menu-anchor">
@@ -104,7 +137,12 @@
             </span>
           </div>
           <button type="button" class="dropdown-item" role="menuitem" (click)="toggleTheme()">
-            <i class="pi" [class.pi-moon]="theme() === 'light'" [class.pi-sun]="theme() === 'dark'" aria-hidden="true"></i>
+            <i
+              class="pi"
+              [class.pi-moon]="theme() === 'light'"
+              [class.pi-sun]="theme() === 'dark'"
+              aria-hidden="true"
+            ></i>
             <span>{{ theme() === 'light' ? 'Dark theme' : 'Light theme' }}</span>
           </button>
           <button type="button" class="dropdown-item danger" role="menuitem" (click)="logout()">

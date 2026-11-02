@@ -60,9 +60,18 @@
 }
 
 @keyframes nav-bar {
-  0% { left: 0; right: 100%; }
-  50% { left: 20%; right: 20%; }
-  100% { left: 100%; right: 0; }
+  0% {
+    left: 0;
+    right: 100%;
+  }
+  50% {
+    left: 20%;
+    right: 20%;
+  }
+  100% {
+    left: 100%;
+    right: 0;
+  }
 }
 
 /* Route loading overlay */
@@ -86,7 +95,9 @@
 }
 
 @keyframes route-spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .mobile-nav-backdrop {

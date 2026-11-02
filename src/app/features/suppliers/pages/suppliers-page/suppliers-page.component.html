@@ -8,10 +8,16 @@
         <span aria-current="page">Suppliers</span>
       </nav>
       <h1>Suppliers</h1>
-      <p class="page-description">Maintain vendor directories, contact details, and procurement partners.</p>
+      <p class="page-description">
+        Maintain vendor directories, contact details, and procurement partners.
+      </p>
     </div>
     <div class="heading-actions">
-      <button type="button" class="button button-primary crud-add-btn" (click)="openCreateSupplier()">
+      <button
+        type="button"
+        class="button button-primary crud-add-btn"
+        (click)="openCreateSupplier()"
+      >
         <i class="pi pi-plus" aria-hidden="true"></i>
         Add supplier
       </button>
@@ -22,9 +28,14 @@
   <div class="crud-toolbar">
     <label class="crud-search">
       <i class="pi pi-search" aria-hidden="true"></i>
-      <input type="search" [value]="supplierSearch()" (input)="updateSupplierSearch($event)" placeholder="Search suppliers..." aria-label="Search suppliers" />
+      <input
+        type="search"
+        [value]="supplierSearch()"
+        (input)="updateSupplierSearch($event)"
+        placeholder="Search suppliers..."
+        aria-label="Search suppliers"
+      />
     </label>
-
   </div>
 
   <!-- Table card -->
@@ -44,27 +55,55 @@
         </thead>
         <tbody>
           @if (filteredSuppliers().length === 0) {
-            <tr><td colspan="6" class="table-message">{{ suppliers().length === 0 ? 'No suppliers found. Add your first supplier to get started.' : 'No suppliers match your search.' }}</td></tr>
+            <tr>
+              <td colspan="6" class="table-message">
+                {{
+                  suppliers().length === 0
+                    ? 'No suppliers found. Add your first supplier to get started.'
+                    : 'No suppliers match your search.'
+                }}
+              </td>
+            </tr>
           } @else {
             @for (supplier of visibleSuppliers(); track supplier.id) {
               <tr>
-                <td class="col-check"><p-checkbox [binary]="true" [ariaLabel]="'Select ' + supplier.name" /></td>
+                <td class="col-check">
+                  <p-checkbox [binary]="true" [ariaLabel]="'Select ' + supplier.name" />
+                </td>
                 <td class="supplier-name">{{ supplier.name }}</td>
                 <td>
                   @if (supplier.email) {
-                    <a [href]="'mailto:' + supplier.email" style="color: var(--color-primary); text-decoration: none;">{{ supplier.email }}</a>
+                    <a
+                      [href]="'mailto:' + supplier.email"
+                      style="color: var(--color-primary); text-decoration: none"
+                      >{{ supplier.email }}</a
+                    >
                   } @else {
-                    <span style="color: var(--color-subtle);">—</span>
+                    <span style="color: var(--color-subtle)">—</span>
                   }
                 </td>
                 <td>{{ supplier.phone || '—' }}</td>
-                <td style="color: var(--color-muted);">{{ supplier.address || '—' }}</td>
+                <td style="color: var(--color-muted)">{{ supplier.address || '—' }}</td>
                 <td class="col-actions">
                   <div class="action-btns">
-                    <button type="button" class="action-btn action-edit" [disabled]="saving()" [attr.aria-label]="'Edit ' + supplier.name" title="Edit" (click)="openEditSupplier(supplier)">
+                    <button
+                      type="button"
+                      class="action-btn action-edit"
+                      [disabled]="saving()"
+                      [attr.aria-label]="'Edit ' + supplier.name"
+                      title="Edit"
+                      (click)="openEditSupplier(supplier)"
+                    >
                       <i class="pi pi-pencil" aria-hidden="true"></i>
                     </button>
-                    <button type="button" class="action-btn action-delete" [disabled]="saving()" [attr.aria-label]="'Delete ' + supplier.name" title="Delete" (click)="requestDelete(supplier)">
+                    <button
+                      type="button"
+                      class="action-btn action-delete"
+                      [disabled]="saving()"
+                      [attr.aria-label]="'Delete ' + supplier.name"
+                      title="Delete"
+                      (click)="requestDelete(supplier)"
+                    >
                       <i class="pi pi-trash" aria-hidden="true"></i>
                     </button>
                   </div>
@@ -80,19 +119,42 @@
   <!-- Pagination outside card -->
   @if (filteredSuppliers().length > 0) {
     <div class="crud-pagination">
-      <span class="pagination-info">Showing {{ (page() - 1) * pageSize() + 1 }} to {{ minVal(page() * pageSize(), filteredSuppliers().length) }} of {{ filteredSuppliers().length }} suppliers</span>
+      <span class="pagination-info"
+        >Showing {{ (page() - 1) * pageSize() + 1 }} to
+        {{ minVal(page() * pageSize(), filteredSuppliers().length) }} of
+        {{ filteredSuppliers().length }} suppliers</span
+      >
       <div class="pagination-pages">
-        <button type="button" class="page-btn page-nav" [disabled]="page() === 1" (click)="setPage(page() - 1)" aria-label="Previous page">
+        <button
+          type="button"
+          class="page-btn page-nav"
+          [disabled]="page() === 1"
+          (click)="setPage(page() - 1)"
+          aria-label="Previous page"
+        >
           <i class="pi pi-chevron-left" aria-hidden="true"></i>
         </button>
         @for (p of getPageNumbers(); track p) {
           @if (p === -1) {
             <span class="page-ellipsis">…</span>
           } @else {
-            <button type="button" class="page-btn" [class.active]="p === page()" (click)="setPage(p)">{{ p }}</button>
+            <button
+              type="button"
+              class="page-btn"
+              [class.active]="p === page()"
+              (click)="setPage(p)"
+            >
+              {{ p }}
+            </button>
           }
         }
-        <button type="button" class="page-btn page-nav" [disabled]="page() === totalPages()" (click)="setPage(page() + 1)" aria-label="Next page">
+        <button
+          type="button"
+          class="page-btn page-nav"
+          [disabled]="page() === totalPages()"
+          (click)="setPage(page() + 1)"
+          aria-label="Next page"
+        >
           <i class="pi pi-chevron-right" aria-hidden="true"></i>
         </button>
       </div>
@@ -103,10 +165,17 @@
 <!-- Add / Edit supplier dialog -->
 @if (dialogOpen()) {
   <div class="dialog-backdrop" (onclick)="closeDialog()">
-    <p-dialog class="dialog-card"  aria-modal="true" aria-labelledby="supplier-dialog-title" (oclick)="$event.stopPropagation()">
+    <p-dialog
+      class="dialog-card"
+      aria-modal="true"
+      aria-labelledby="supplier-dialog-title"
+      (oclick)="$event.stopPropagation()"
+    >
       <div class="dialog-heading">
         <div>
-          <h2 id="supplier-dialog-title">{{ editingSupplierId() ? 'Edit supplier' : 'Add supplier' }}</h2>
+          <h2 id="supplier-dialog-title">
+            {{ editingSupplierId() ? 'Edit supplier' : 'Add supplier' }}
+          </h2>
         </div>
         <button type="button" class="icon-button" aria-label="Close dialog" (click)="closeDialog()">
           <i class="pi pi-times" aria-hidden="true"></i>
@@ -116,28 +185,50 @@
         <div class="form-grid">
           <label>
             Name
-            <input type="text" formControlName="name" autocomplete="organization" placeholder="Supplier name" />
+            <input
+              type="text"
+              formControlName="name"
+              autocomplete="organization"
+              placeholder="Supplier name"
+            />
           </label>
           <label>
             Email
-            <input type="email" formControlName="email" autocomplete="email" placeholder="supplier@example.com" />
+            <input
+              type="email"
+              formControlName="email"
+              autocomplete="email"
+              placeholder="supplier@example.com"
+            />
           </label>
           <label>
             Phone
-            <input type="tel" formControlName="phone" autocomplete="tel" placeholder="+1 (555) 000-0000" />
+            <input
+              type="tel"
+              formControlName="phone"
+              autocomplete="tel"
+              placeholder="+1 (555) 000-0000"
+            />
           </label>
           <label>
             Address
-            <textarea formControlName="address" rows="3" autocomplete="street-address" placeholder="Enter full address"></textarea>
+            <textarea
+              formControlName="address"
+              rows="3"
+              autocomplete="street-address"
+              placeholder="Enter full address"
+            ></textarea>
           </label>
         </div>
         @if (supplierForm.invalid && supplierForm.touched) {
           <p class="form-hint">Enter a name, valid email, phone number, and address.</p>
         }
         <div class="dialog-actions">
-          <button type="button" class="button button-secondary" (click)="closeDialog()">Cancel</button>
+          <button type="button" class="button button-secondary" (click)="closeDialog()">
+            Cancel
+          </button>
           <button type="submit" class="button button-primary" [disabled]="saving()">
-            {{ saving() ? 'Saving…' : (editingSupplierId() ? 'Save changes' : 'Create supplier') }}
+            {{ saving() ? 'Saving…' : editingSupplierId() ? 'Save changes' : 'Create supplier' }}
           </button>
         </div>
       </form>
@@ -160,8 +251,20 @@
       </div>
       <p>Are you sure you want to delete {{ supplier.name }}? This action cannot be undone.</p>
       <div class="dialog-actions">
-        <button type="button" class="button button-secondary" [disabled]="saving()" (click)="cancelDelete()">Cancel</button>
-        <button type="button" class="button button-danger" [disabled]="saving()" (click)="confirmDelete()">
+        <button
+          type="button"
+          class="button button-secondary"
+          [disabled]="saving()"
+          (click)="cancelDelete()"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="button button-danger"
+          [disabled]="saving()"
+          (click)="confirmDelete()"
+        >
           {{ saving() ? 'Deleting…' : 'Delete supplier' }}
         </button>
       </div>

@@ -2,10 +2,16 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, catchError, shareReplay, tap, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { Order, OrderPage, OrderQuery, OrderRequest, OrderStatusRequest } from '../../models/order.models';
+import {
+  Order,
+  OrderPage,
+  OrderQuery,
+  OrderRequest,
+  OrderStatusRequest,
+} from '../../models/order.models';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class OrdersService {
   private readonly http = inject(HttpClient);
@@ -13,9 +19,7 @@ export class OrdersService {
   private readonly readCache = new Map<string, Observable<unknown>>();
 
   getOrders(query: OrderQuery): Observable<OrderPage> {
-    let params = new HttpParams()
-      .set('page', query.page)
-      .set('pageSize', query.pageSize);
+    let params = new HttpParams().set('page', query.page).set('pageSize', query.pageSize);
 
     if (query.status) {
       params = params.set('status', query.status);
@@ -39,15 +43,21 @@ export class OrdersService {
   }
 
   updateOrder(id: string, request: OrderRequest): Observable<void> {
-    return this.invalidateAfter(this.http.put<void>(`${this.endpoint}/${encodeURIComponent(id)}`, request));
+    return this.invalidateAfter(
+      this.http.put<void>(`${this.endpoint}/${encodeURIComponent(id)}`, request),
+    );
   }
 
   deleteOrder(id: string): Observable<void> {
-    return this.invalidateAfter(this.http.delete<void>(`${this.endpoint}/${encodeURIComponent(id)}`));
+    return this.invalidateAfter(
+      this.http.delete<void>(`${this.endpoint}/${encodeURIComponent(id)}`),
+    );
   }
 
   updateStatus(id: string, request: OrderStatusRequest): Observable<void> {
-    return this.invalidateAfter(this.http.patch<void>(`${this.endpoint}/${encodeURIComponent(id)}/status`, request));
+    return this.invalidateAfter(
+      this.http.patch<void>(`${this.endpoint}/${encodeURIComponent(id)}/status`, request),
+    );
   }
 
   private cachedGet<T>(url: string, params?: HttpParams): Observable<T> {
@@ -58,11 +68,11 @@ export class OrdersService {
     }
 
     const request = this.http.get<T>(url, params ? { params } : undefined).pipe(
-      catchError(error => {
+      catchError((error) => {
         this.readCache.delete(key);
         return throwError(() => error);
       }),
-      shareReplay({ bufferSize: 1, refCount: false })
+      shareReplay({ bufferSize: 1, refCount: false }),
     );
     this.readCache.set(key, request);
     return request;

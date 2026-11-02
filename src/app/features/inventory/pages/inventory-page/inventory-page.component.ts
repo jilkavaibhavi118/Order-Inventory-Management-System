@@ -4,7 +4,13 @@ import { PaginatorModule } from 'primeng/paginator';
 import { Select } from 'primeng/select';
 import { isPlatformBrowser, CommonModule } from '@angular/common';
 import { Component, computed, inject, OnDestroy, PLATFORM_ID, signal } from '@angular/core';
-import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormControl,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import type { PaginatorState } from 'primeng/types/paginator';
 import { finalize, Subscription } from 'rxjs';
@@ -15,7 +21,7 @@ import {
   InventoryTransactionQuery,
   LowStockRecord,
   Product,
-  Warehouse
+  Warehouse,
 } from '../../../../models/inventory.models';
 import { InventoryService } from '../../../../core/services/inventory.service';
 import { environment } from '../../../../../environments/environment';
@@ -36,26 +42,31 @@ function getMessageFromObject(value: unknown): string | null {
 function getMessageFromText(responseText: string): string | null {
   try {
     const parsed: unknown = JSON.parse(responseText);
-    return typeof parsed === 'string'
-      ? getNonEmptyMessage(parsed)
-      : getMessageFromObject(parsed);
+    return typeof parsed === 'string' ? getNonEmptyMessage(parsed) : getMessageFromObject(parsed);
   } catch {
     return responseText.startsWith('<') ? null : responseText || null;
   }
 }
 
 function getMessageFromBody(body: unknown): string | null {
-  return typeof body === 'string'
-    ? getMessageFromText(body.trim())
-    : getMessageFromObject(body);
+  return typeof body === 'string' ? getMessageFromText(body.trim()) : getMessageFromObject(body);
 }
 
 @Component({
   selector: 'app-inventory-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, PaginatorModule, Select, TabsModule, RouterLink, CheckboxModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    PaginatorModule,
+    Select,
+    TabsModule,
+    RouterLink,
+    CheckboxModule,
+  ],
   templateUrl: './inventory-page.component.html',
-  styleUrl: './inventory-page.component.scss'
+  styleUrl: './inventory-page.component.scss',
 })
 export class InventoryPageComponent implements OnDestroy {
   private readonly inventoryService = inject(InventoryService);
@@ -107,35 +118,35 @@ export class InventoryPageComponent implements OnDestroy {
 
   readonly invWarehouseOptions = computed(() => [
     { label: 'All warehouses', value: '' },
-    ...this.warehouses().map(w => ({ label: w.name, value: w.id }))
+    ...this.warehouses().map((w) => ({ label: w.name, value: w.id })),
   ]);
   readonly warehouseOptions = computed(() =>
-    this.warehouses().map(warehouse => ({ label: warehouse.name, value: warehouse.id }))
+    this.warehouses().map((warehouse) => ({ label: warehouse.name, value: warehouse.id })),
   );
   readonly activeWarehouseOptions = computed(() =>
     this.warehouses()
-      .filter(warehouse => warehouse.isActive)
-      .map(warehouse => ({
+      .filter((warehouse) => warehouse.isActive)
+      .map((warehouse) => ({
         label: `${warehouse.name} — ${warehouse.location}`,
-        value: warehouse.id
-      }))
+        value: warehouse.id,
+      })),
   );
   readonly inventoryProductOptions = computed(() =>
-    this.products().map(product => ({
+    this.products().map((product) => ({
       label: `${product.name} (${product.sku})`,
-      value: product.id
-    }))
+      value: product.id,
+    })),
   );
   readonly movementTypeOptions = [
     { label: 'IN', value: 'IN' },
-    { label: 'OUT', value: 'OUT' }
+    { label: 'OUT', value: 'OUT' },
   ];
 
   readonly invStatusOptions = [
     { label: 'All status', value: '' },
     { label: 'In Stock', value: 'in-stock' },
     { label: 'Low Stock', value: 'low-stock' },
-    { label: 'Out of Stock', value: 'out-of-stock' }
+    { label: 'Out of Stock', value: 'out-of-stock' },
   ];
 
   get invWarehouseFilterValue(): string {
@@ -158,12 +169,14 @@ export class InventoryPageComponent implements OnDestroy {
     const search = this.invSearch().trim().toLowerCase();
     const warehouseId = this.invWarehouseFilter();
     const status = this.invStatusFilter();
-    return this.inventory().filter(item => {
+    return this.inventory().filter((item) => {
       const qty = item.quantity ?? item.totalQuantity ?? 0;
       const min = item.minStock ?? 0;
-      const matchesSearch = !search || [
-        item.productName ?? '', item.productSku ?? '', item.warehouseName ?? ''
-      ].some(v => v.toLowerCase().includes(search));
+      const matchesSearch =
+        !search ||
+        [item.productName ?? '', item.productSku ?? '', item.warehouseName ?? ''].some((v) =>
+          v.toLowerCase().includes(search),
+        );
       const matchesWarehouse = !warehouseId || item.warehouseId === warehouseId;
       let matchesStatus = true;
       if (status === 'in-stock') matchesStatus = qty > min;
@@ -185,21 +198,24 @@ export class InventoryPageComponent implements OnDestroy {
     warehouseId: new FormControl('', { nonNullable: true }),
     type: new FormControl('', { nonNullable: true }),
     fromDate: new FormControl('', { nonNullable: true }),
-    toDate: new FormControl('', { nonNullable: true })
+    toDate: new FormControl('', { nonNullable: true }),
   });
 
   readonly adjustmentForm = new FormGroup({
     productId: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
     warehouseId: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-    quantity: new FormControl(1, { nonNullable: true, validators: [Validators.required, Validators.min(1)] }),
+    quantity: new FormControl(1, {
+      nonNullable: true,
+      validators: [Validators.required, Validators.min(1)],
+    }),
     adjustmentType: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.maxLength(20)]
+      validators: [Validators.required, Validators.maxLength(20)],
     }),
     reason: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.minLength(3), Validators.maxLength(250)]
-    })
+      validators: [Validators.required, Validators.minLength(3), Validators.maxLength(250)],
+    }),
   });
 
   constructor() {
@@ -208,7 +224,7 @@ export class InventoryPageComponent implements OnDestroy {
     this.activeTab.set(openMovements ? 'movements' : 'overview');
     this.movementFilterForm.patchValue({
       productId: queryParams.get('productId') ?? '',
-      warehouseId: queryParams.get('warehouseId') ?? ''
+      warehouseId: queryParams.get('warehouseId') ?? '',
     });
 
     if (this.isBrowser) {
@@ -230,8 +246,8 @@ export class InventoryPageComponent implements OnDestroy {
     this.detailRequest?.unsubscribe();
     this.transactionsRequest?.unsubscribe();
     this.transactionDetailsRequest?.unsubscribe();
-    this.imageSubscriptions.forEach(s => s.unsubscribe());
-    this.imageObjectUrls.forEach(url => URL.revokeObjectURL(url));
+    this.imageSubscriptions.forEach((s) => s.unsubscribe());
+    this.imageObjectUrls.forEach((url) => URL.revokeObjectURL(url));
   }
 
   selectTab(tab: 'overview' | 'movements'): void {
@@ -240,7 +256,6 @@ export class InventoryPageComponent implements OnDestroy {
       this.loadTransactions(1);
     }
   }
-
 
   totalInvPages(): number {
     return Math.max(1, Math.ceil(this.totalInventoryCount() / this.pageSize()));
@@ -261,7 +276,8 @@ export class InventoryPageComponent implements OnDestroy {
     if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
     const pages: number[] = [1];
     if (current > 3) pages.push(-1);
-    for (let i = Math.max(2, current - 1); i <= Math.min(total - 1, current + 1); i++) pages.push(i);
+    for (let i = Math.max(2, current - 1); i <= Math.min(total - 1, current + 1); i++)
+      pages.push(i);
     if (current < total - 2) pages.push(-1);
     pages.push(total);
     return pages;
@@ -293,7 +309,7 @@ export class InventoryPageComponent implements OnDestroy {
   getProductImage(productId: string): string | null {
     const cached = this.productImageUrls()[productId];
     if (cached) return cached;
-    const product = this.products().find(p => p.id === productId);
+    const product = this.products().find((p) => p.id === productId);
     return product?.imageUrl ? this.productImageUrl(product.imageUrl) : null;
   }
 
@@ -309,8 +325,8 @@ export class InventoryPageComponent implements OnDestroy {
 
   /** Load product images as blob URLs for faster rendering */
   private loadProductImages(products: Product[]): void {
-    this.imageSubscriptions.forEach(s => s.unsubscribe());
-    this.imageObjectUrls.forEach(url => URL.revokeObjectURL(url));
+    this.imageSubscriptions.forEach((s) => s.unsubscribe());
+    this.imageObjectUrls.forEach((url) => URL.revokeObjectURL(url));
     this.imageSubscriptions.length = 0;
     this.imageObjectUrls.length = 0;
     this.productImageUrls.set({});
@@ -322,12 +338,12 @@ export class InventoryPageComponent implements OnDestroy {
       const sub = this.http
         .get(this.productImageUrl(product.imageUrl), { responseType: 'blob' })
         .subscribe({
-          next: blob => {
+          next: (blob) => {
             const objectUrl = URL.createObjectURL(blob);
             this.imageObjectUrls.push(objectUrl);
-            this.productImageUrls.update(urls => ({ ...urls, [product.id]: objectUrl }));
+            this.productImageUrls.update((urls) => ({ ...urls, [product.id]: objectUrl }));
           },
-          error: () => undefined
+          error: () => undefined,
         });
       this.imageSubscriptions.push(sub);
     }
@@ -343,15 +359,16 @@ export class InventoryPageComponent implements OnDestroy {
 
   loadInventory(page: number = this.page()): void {
     this.inventoryLoading.set(true);
-    this.inventoryService.getInventory(page, this.pageSize())
+    this.inventoryService
+      .getInventory(page, this.pageSize())
       .pipe(finalize(() => this.inventoryLoading.set(false)))
       .subscribe({
-        next: response => {
+        next: (response) => {
           this.inventory.set(response.items);
           this.totalInventoryCount.set(response.totalCount);
           this.page.set(response.page);
         },
-        error: error => this.showApiError(error)
+        error: (error) => this.showApiError(error),
       });
   }
 
@@ -386,7 +403,7 @@ export class InventoryPageComponent implements OnDestroy {
   viewHistory(record: InventoryRecord): void {
     this.movementFilterForm.patchValue({
       productId: record.productId,
-      warehouseId: record.warehouseId ?? ''
+      warehouseId: record.warehouseId ?? '',
     });
     this.activeTab.set('movements');
     void this.router.navigate([], {
@@ -395,10 +412,10 @@ export class InventoryPageComponent implements OnDestroy {
         tab: 'movements',
         productId: record.productId,
         warehouseId: record.warehouseId ?? null,
-        transactionId: null
+        transactionId: null,
       },
       queryParamsHandling: 'merge',
-      replaceUrl: true
+      replaceUrl: true,
     });
     this.loadTransactions(1);
   }
@@ -420,14 +437,14 @@ export class InventoryPageComponent implements OnDestroy {
       warehouseId: '',
       type: '',
       fromDate: '',
-      toDate: ''
+      toDate: '',
     });
     this.movementDateError.set(null);
     void this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { tab: 'movements', productId: null, warehouseId: null, transactionId: null },
       queryParamsHandling: 'merge',
-      replaceUrl: true
+      replaceUrl: true,
     });
     this.loadTransactions(1);
   }
@@ -473,7 +490,7 @@ export class InventoryPageComponent implements OnDestroy {
       relativeTo: this.route,
       queryParams: { transactionId: null },
       queryParamsHandling: 'merge',
-      replaceUrl: true
+      replaceUrl: true,
     });
   }
 
@@ -491,22 +508,25 @@ export class InventoryPageComponent implements OnDestroy {
       warehouseId: values.warehouseId.trim() || undefined,
       type: values.type || undefined,
       fromDate: values.fromDate ? this.dateTimeBound(values.fromDate, false) : undefined,
-      toDate: values.toDate ? this.dateTimeBound(values.toDate, true) : undefined
+      toDate: values.toDate ? this.dateTimeBound(values.toDate, true) : undefined,
     };
 
-    this.transactionsRequest = this.inventoryService.getInventoryTransactions(query)
+    this.transactionsRequest = this.inventoryService
+      .getInventoryTransactions(query)
       .pipe(finalize(() => this.transactionsLoading.set(false)))
       .subscribe({
-        next: response => {
+        next: (response) => {
           this.transactions.set(response.transactions);
           this.transactionsLoaded.set(true);
           this.transactionsPage.set(response.page);
           this.transactionsPageSize.set(response.pageSize);
           this.transactionsTotalCount.set(response.totalCount);
         },
-        error: error => {
-          this.transactionsError.set(this.getApiMessage(error) ?? 'Unable to load stock movements. Try again.');
-        }
+        error: (error) => {
+          this.transactionsError.set(
+            this.getApiMessage(error) ?? 'Unable to load stock movements. Try again.',
+          );
+        },
       });
   }
 
@@ -520,15 +540,16 @@ export class InventoryPageComponent implements OnDestroy {
     this.transactionDetailsPayload.set(null);
     this.transactionDetailsError.set(null);
     this.transactionDetailsLoading.set(true);
-    this.transactionDetailsRequest = this.inventoryService.getInventoryTransaction(id)
+    this.transactionDetailsRequest = this.inventoryService
+      .getInventoryTransaction(id)
       .pipe(finalize(() => this.transactionDetailsLoading.set(false)))
       .subscribe({
-        next: payload => this.transactionDetailsPayload.set(payload),
-        error: error => {
+        next: (payload) => this.transactionDetailsPayload.set(payload),
+        error: (error) => {
           this.transactionDetailsError.set(
-            this.getApiMessage(error) ?? 'Unable to load transaction details. Try again.'
+            this.getApiMessage(error) ?? 'Unable to load transaction details. Try again.',
           );
-        }
+        },
       });
   }
 
@@ -547,31 +568,36 @@ export class InventoryPageComponent implements OnDestroy {
     this.detailPayload.set(null);
     this.detailError.set(null);
     this.detailLoading.set(true);
-    this.detailRequest = this.inventoryService.getInventoryRecord(recordId)
+    this.detailRequest = this.inventoryService
+      .getInventoryRecord(recordId)
       .pipe(finalize(() => this.detailLoading.set(false)))
       .subscribe({
-        next: payload => this.detailPayload.set(payload),
-        error: error => this.detailError.set(this.getApiMessage(error) ?? 'Unable to load inventory details. Try again.')
+        next: (payload) => this.detailPayload.set(payload),
+        error: (error) =>
+          this.detailError.set(
+            this.getApiMessage(error) ?? 'Unable to load inventory details. Try again.',
+          ),
       });
   }
 
   loadLowStock(): void {
     this.lowStockLoading.set(true);
-    this.inventoryService.getLowStock()
+    this.inventoryService
+      .getLowStock()
       .pipe(finalize(() => this.lowStockLoading.set(false)))
       .subscribe({
-        next: response => this.lowStock.set(response),
-        error: error => this.showApiError(error)
+        next: (response) => this.lowStock.set(response),
+        error: (error) => this.showApiError(error),
       });
   }
 
   loadProducts(): void {
     this.inventoryService.getProducts().subscribe({
-      next: response => {
+      next: (response) => {
         this.products.set(response);
         this.loadProductImages(response);
       },
-      error: error => this.showApiError(error)
+      error: (error) => this.showApiError(error),
     });
   }
 
@@ -581,7 +607,7 @@ export class InventoryPageComponent implements OnDestroy {
       warehouseId: '',
       quantity: 1,
       adjustmentType: '',
-      reason: ''
+      reason: '',
     });
     this.adjustmentDialogOpen.set(true);
   }
@@ -598,7 +624,8 @@ export class InventoryPageComponent implements OnDestroy {
 
     const request: InventoryAdjustmentRequest = this.adjustmentForm.getRawValue();
     this.saving.set(true);
-    this.inventoryService.adjustInventory(request)
+    this.inventoryService
+      .adjustInventory(request)
       .pipe(finalize(() => this.saving.set(false)))
       .subscribe({
         next: () => {
@@ -610,11 +637,9 @@ export class InventoryPageComponent implements OnDestroy {
             this.loadTransactions(1);
           }
         },
-        error: error => this.showApiError(error)
+        error: (error) => this.showApiError(error),
       });
   }
-
-
 
   dismissNotice(): void {
     this.notice.set(null);
@@ -622,8 +647,8 @@ export class InventoryPageComponent implements OnDestroy {
 
   private loadWarehouses(): void {
     this.inventoryService.getWarehouses().subscribe({
-      next: response => this.warehouses.set(response),
-      error: error => this.showApiError(error)
+      next: (response) => this.warehouses.set(response),
+      error: (error) => this.showApiError(error),
     });
   }
 
@@ -645,6 +670,4 @@ export class InventoryPageComponent implements OnDestroy {
 
     return getMessageFromBody(error.error);
   }
-
-
 }
