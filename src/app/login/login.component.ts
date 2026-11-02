@@ -1,14 +1,14 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { AuthService } from '../../core/services/auth.service';
+import { AuthService } from '../core/services/auth.service';
 
 @Component({
   selector: 'app-login',
   standalone: true,
   imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './login.component.html',
-  styleUrl: './login.component.scss'
+  styleUrl: './login.component.scss',
 })
 export class LoginComponent {
   private readonly authService = inject(AuthService);
@@ -28,16 +28,16 @@ export class LoginComponent {
       validators: [
         Validators.required,
         Validators.email,
-        Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)
-      ]
+        Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/),
+      ],
     }),
     password: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required]
+      validators: [Validators.required],
     }),
     rememberMe: new FormControl(false, {
-      nonNullable: true
-    })
+      nonNullable: true,
+    }),
   });
 
   // Track submission attempt for immediate validation display
@@ -52,7 +52,7 @@ export class LoginComponent {
   }
 
   togglePasswordVisibility(): void {
-    this.showPassword.update(visible => !visible);
+    this.showPassword.update((visible) => !visible);
   }
 
   isFieldInvalid(control: FormControl): boolean {
@@ -97,9 +97,9 @@ export class LoginComponent {
         this.statusMessage.set(
           error instanceof Error && error.message.includes('access token')
             ? 'The login service did not return an access token.'
-            : 'Unable to sign in. Check your credentials and try again.'
+            : 'Unable to sign in. Check your credentials and try again.',
         );
-      }
+      },
     });
   }
 

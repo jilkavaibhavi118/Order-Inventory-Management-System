@@ -8,8 +8,8 @@ export const ngrokInterceptor: HttpInterceptorFn = (req, next) => {
 
   const updatedRequest = req.clone({
     setHeaders: {
-      'ngrok-skip-browser-warning': 'true'
-    }
+      'ngrok-skip-browser-warning': 'true',
+    },
   });
 
   return next(updatedRequest);

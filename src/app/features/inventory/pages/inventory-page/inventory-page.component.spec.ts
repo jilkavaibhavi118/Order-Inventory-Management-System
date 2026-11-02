@@ -21,30 +21,36 @@ describe('InventoryPageComponent', () => {
 
   beforeEach(async () => {
     inventoryService = {
-      getInventory: vi.fn().mockReturnValue(of({
-        page: 1,
-        pageSize: 10,
-        totalCount: 0,
-        items: []
-      })),
+      getInventory: vi.fn().mockReturnValue(
+        of({
+          page: 1,
+          pageSize: 10,
+          totalCount: 0,
+          items: [],
+        }),
+      ),
       getLowStock: vi.fn().mockReturnValue(of([])),
       getProducts: vi.fn().mockReturnValue(of([])),
       getWarehouses: vi.fn().mockReturnValue(of([])),
-      getInventoryRecord: vi.fn().mockReturnValue(of({
-        id: 'inventory-record-id',
-        productId: 'product-id',
-        productName: 'Sample product',
-        warehouseId: 'warehouse-id',
-        warehouseName: 'Main warehouse',
-        quantity: 4
-      })),
-      getInventoryTransactions: vi.fn().mockReturnValue(of({
-        page: 1,
-        pageSize: 10,
-        totalCount: 0,
-        transactions: []
-      })),
-      getInventoryTransaction: vi.fn().mockReturnValue(of({ id: 'transaction-id' }))
+      getInventoryRecord: vi.fn().mockReturnValue(
+        of({
+          id: 'inventory-record-id',
+          productId: 'product-id',
+          productName: 'Sample product',
+          warehouseId: 'warehouse-id',
+          warehouseName: 'Main warehouse',
+          quantity: 4,
+        }),
+      ),
+      getInventoryTransactions: vi.fn().mockReturnValue(
+        of({
+          page: 1,
+          pageSize: 10,
+          totalCount: 0,
+          transactions: [],
+        }),
+      ),
+      getInventoryTransaction: vi.fn().mockReturnValue(of({ id: 'transaction-id' })),
     };
 
     await TestBed.configureTestingModule({
@@ -52,8 +58,8 @@ describe('InventoryPageComponent', () => {
       providers: [
         provideRouter([]),
         { provide: InventoryService, useValue: inventoryService },
-        { provide: PLATFORM_ID, useValue: 'browser' }
-      ]
+        { provide: PLATFORM_ID, useValue: 'browser' },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(InventoryPageComponent);
@@ -69,23 +75,25 @@ describe('InventoryPageComponent', () => {
       productName: 'Sample product',
       warehouseId: 'warehouse-id',
       warehouseName: 'Main warehouse',
-      quantity: 4
+      quantity: 4,
     };
 
     component.openInventoryDetails(record);
 
     expect(inventoryService.getInventoryRecord).toHaveBeenCalledWith('inventory-record-id');
-    expect(component.detailPayload()).toEqual(expect.objectContaining({
-      id: 'inventory-record-id',
-      productId: 'product-id'
-    }));
+    expect(component.detailPayload()).toEqual(
+      expect.objectContaining({
+        id: 'inventory-record-id',
+        productId: 'product-id',
+      }),
+    );
   });
 
   it('does not request record details when the list item has no inventory ID', () => {
     component.openInventoryDetails({
       productId: 'product-id',
       productSku: 'SKU-1',
-      productName: 'Sample product'
+      productName: 'Sample product',
     });
 
     expect(inventoryService.getInventoryRecord).not.toHaveBeenCalled();
@@ -98,20 +106,22 @@ describe('InventoryPageComponent', () => {
       productSku: 'SKU-1',
       productName: 'Sample product',
       warehouseId: 'warehouse-id',
-      warehouseName: 'Main warehouse'
+      warehouseName: 'Main warehouse',
     });
 
-    expect(inventoryService.getInventoryTransactions).toHaveBeenCalledWith(expect.objectContaining({
-      page: 1,
-      productId: 'product-id',
-      warehouseId: 'warehouse-id'
-    }));
+    expect(inventoryService.getInventoryTransactions).toHaveBeenCalledWith(
+      expect.objectContaining({
+        page: 1,
+        productId: 'product-id',
+        warehouseId: 'warehouse-id',
+      }),
+    );
   });
 
   it('validates movement date ranges and resets server pagination when the page size changes', () => {
     component.movementFilterForm.patchValue({
       fromDate: '2026-10-27',
-      toDate: '2026-10-26'
+      toDate: '2026-10-26',
     });
     component.applyMovementFilters();
 
@@ -123,7 +133,7 @@ describe('InventoryPageComponent', () => {
       warehouseId: '',
       type: '',
       fromDate: '',
-      toDate: ''
+      toDate: '',
     });
     component.onTransactionsPageChange({ first: 20, rows: 20 });
 
@@ -134,7 +144,7 @@ describe('InventoryPageComponent', () => {
       warehouseId: undefined,
       type: undefined,
       fromDate: undefined,
-      toDate: undefined
+      toDate: undefined,
     });
   });
 });

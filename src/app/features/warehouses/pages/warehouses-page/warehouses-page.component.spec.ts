@@ -1,3 +1,4 @@
+import { provideRouter } from '@angular/router';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MessageService } from 'primeng/api';
 import { of } from 'rxjs';
@@ -21,32 +22,39 @@ describe('WarehousesPageComponent', () => {
     inventoryService = {
       getWarehouses: vi.fn().mockReturnValue(of([])),
       getWarehouse: vi.fn(),
-      createWarehouse: vi.fn().mockReturnValue(of({
-        success: true,
-        message: 'Warehouse created.',
-        data: null,
-        errors: []
-      })),
-      updateWarehouse: vi.fn().mockReturnValue(of({
-        success: true,
-        message: 'Warehouse updated.',
-        data: null,
-        errors: []
-      })),
-      deleteWarehouse: vi.fn().mockReturnValue(of({
-        success: true,
-        message: 'Warehouse deleted.',
-        data: null,
-        errors: []
-      }))
+      createWarehouse: vi.fn().mockReturnValue(
+        of({
+          success: true,
+          message: 'Warehouse created.',
+          data: null,
+          errors: [],
+        }),
+      ),
+      updateWarehouse: vi.fn().mockReturnValue(
+        of({
+          success: true,
+          message: 'Warehouse updated.',
+          data: null,
+          errors: [],
+        }),
+      ),
+      deleteWarehouse: vi.fn().mockReturnValue(
+        of({
+          success: true,
+          message: 'Warehouse deleted.',
+          data: null,
+          errors: [],
+        }),
+      ),
     };
 
     await TestBed.configureTestingModule({
       imports: [WarehousesPageComponent],
       providers: [
+        provideRouter([]),
         { provide: InventoryService, useValue: inventoryService },
-        { provide: MessageService, useValue: messageService }
-      ]
+        { provide: MessageService, useValue: messageService },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(WarehousesPageComponent);
@@ -65,7 +73,7 @@ describe('WarehousesPageComponent', () => {
     component.warehouseForm.setValue({
       name: 'Main Warehouse',
       location: 'North building',
-      isActive: true
+      isActive: true,
     });
 
     component.saveWarehouse();
@@ -73,12 +81,14 @@ describe('WarehousesPageComponent', () => {
     expect(inventoryService.createWarehouse).toHaveBeenCalledWith({
       name: 'Main Warehouse',
       location: 'North building',
-      isActive: true
+      isActive: true,
     });
-    expect(messageService.add).toHaveBeenCalledWith(expect.objectContaining({
-      severity: 'success',
-      detail: 'Warehouse created.'
-    }));
+    expect(messageService.add).toHaveBeenCalledWith(
+      expect.objectContaining({
+        severity: 'success',
+        detail: 'Warehouse created.',
+      }),
+    );
   });
 
   it('updates a warehouse and requires confirmation before deletion', () => {
@@ -86,7 +96,7 @@ describe('WarehousesPageComponent', () => {
       id: 'warehouse-id',
       name: 'Main Warehouse',
       location: 'North building',
-      isActive: true
+      isActive: true,
     };
 
     component.openEditWarehouse(warehouse);
@@ -96,7 +106,7 @@ describe('WarehousesPageComponent', () => {
     expect(inventoryService.updateWarehouse).toHaveBeenCalledWith('warehouse-id', {
       name: 'Main Warehouse',
       location: 'South building',
-      isActive: true
+      isActive: true,
     });
 
     component.requestDelete(warehouse);
@@ -110,12 +120,14 @@ describe('WarehousesPageComponent', () => {
   });
 
   it('paginates the loaded warehouses', () => {
-    component.warehouses.set(Array.from({ length: 12 }, (_, index) => ({
-      id: `warehouse-${index + 1}`,
-      name: `Warehouse ${index + 1}`,
-      location: `Location ${index + 1}`,
-      isActive: true
-    })));
+    component.warehouses.set(
+      Array.from({ length: 12 }, (_, index) => ({
+        id: `warehouse-${index + 1}`,
+        name: `Warehouse ${index + 1}`,
+        location: `Location ${index + 1}`,
+        isActive: true,
+      })),
+    );
 
     component.onPageChange({ first: 10, rows: 10 });
 

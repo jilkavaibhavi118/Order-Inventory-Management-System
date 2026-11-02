@@ -9,9 +9,9 @@ describe('Password Validators', () => {
       form = new FormGroup(
         {
           password: new FormControl(''),
-          confirmPassword: new FormControl('')
+          confirmPassword: new FormControl(''),
         },
-        { validators: passwordMatchValidator('password', 'confirmPassword') }
+        { validators: passwordMatchValidator('password', 'confirmPassword') },
       );
     });
 
@@ -55,14 +55,14 @@ describe('Password Validators', () => {
       expect(res.level).toBe('empty');
       expect(res.score).toBe(0);
       expect(res.percent).toBe(0);
-      expect(res.rules.every(r => !r.met)).toBe(true);
+      expect(res.rules.every((r) => !r.met)).toBe(true);
     });
 
     it('should evaluate weak password', () => {
       const res = evaluatePasswordStrength('abc');
       expect(res.level).toBe('weak');
-      expect(res.rules.find(r => r.id === 'lowercase')?.met).toBe(true);
-      expect(res.rules.find(r => r.id === 'length')?.met).toBe(false);
+      expect(res.rules.find((r) => r.id === 'lowercase')?.met).toBe(true);
+      expect(res.rules.find((r) => r.id === 'length')?.met).toBe(false);
     });
 
     it('should evaluate fair password', () => {
@@ -85,7 +85,7 @@ describe('Password Validators', () => {
       expect(res.level).toBe('strong');
       expect(res.score).toBe(5);
       expect(res.percent).toBe(100);
-      expect(res.rules.every(r => r.met)).toBe(true);
+      expect(res.rules.every((r) => r.met)).toBe(true);
     });
   });
 });

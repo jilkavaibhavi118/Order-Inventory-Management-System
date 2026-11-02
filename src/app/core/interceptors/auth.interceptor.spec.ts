@@ -13,8 +13,8 @@ describe('authInterceptor', () => {
     TestBed.configureTestingModule({
       providers: [
         provideHttpClient(withInterceptors([authInterceptor])),
-        provideHttpClientTesting()
-      ]
+        provideHttpClientTesting(),
+      ],
     });
     httpTestingController = TestBed.inject(HttpTestingController);
     authService = TestBed.inject(AuthService);

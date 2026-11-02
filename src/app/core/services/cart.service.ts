@@ -15,8 +15,8 @@ export class CartService {
     if (existing) {
       this.cartItems.set(
         items.map((item) =>
-          item.product.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
-        )
+          item.product.id === product.id ? { ...item, quantity: item.quantity + 1 } : item,
+        ),
       );
       return true;
     }
@@ -33,9 +33,9 @@ export class CartService {
     this.cartItems.set(
       this.cartItems()
         .map((item) =>
-          item.product.id === productId ? { ...item, quantity: Math.max(0, quantity) } : item
+          item.product.id === productId ? { ...item, quantity: Math.max(0, quantity) } : item,
         )
-        .filter((item) => item.quantity > 0)
+        .filter((item) => item.quantity > 0),
     );
   }
 
@@ -54,7 +54,7 @@ export class CartService {
   get total(): number {
     return this.cartItems().reduce(
       (sum, item) => sum + Number(item.product.sellPrice ?? 0) * item.quantity,
-      0
+      0,
     );
   }
 }

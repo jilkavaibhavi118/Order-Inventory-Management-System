@@ -1,3 +1,4 @@
+import { CheckboxModule } from 'primeng/checkbox';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, inject, OnDestroy, PLATFORM_ID, signal } from '@angular/core';
@@ -8,7 +9,8 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PaginatorModule } from 'primeng/paginator';
 import { Select } from 'primeng/select';
 import type { PaginatorState } from 'primeng/types/paginator';
@@ -21,7 +23,15 @@ import { environment } from '../../../../../environments/environment';
 @Component({
   selector: 'app-products-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, PaginatorModule, Select],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    PaginatorModule,
+    Select,
+    RouterLink,
+    CheckboxModule,
+  ],
   templateUrl: './products-page.component.html',
   styleUrl: './products-page.component.scss',
 })
@@ -29,6 +39,7 @@ export class ProductsPageComponent implements OnDestroy {
   private readonly inventoryService = inject(InventoryService);
   private readonly messageService = inject(MessageService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly http = inject(HttpClient);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
@@ -163,6 +174,13 @@ export class ProductsPageComponent implements OnDestroy {
   });
 
   constructor() {
+    this.route.queryParamMap.pipe(takeUntilDestroyed()).subscribe((params) => {
+      const search = params.get('search');
+      if (search !== null) {
+        this.searchTerm.set(search);
+        this.page.set(1);
+      }
+    });
     this.loadProducts();
     this.inventoryService.getSuppliers().subscribe({
       next: (suppliers) => this.suppliers.set(suppliers),
@@ -181,38 +199,34 @@ export class ProductsPageComponent implements OnDestroy {
     );
   }
 
- getProductImageUrl(product: Product): string | null {
-  const imageUrl = product.imageUrl;
+  getProductImageUrl(product: Product): string | null {
+    const imageUrl = product.imageUrl;
 
-  if (!imageUrl) {
-    return null;
+    if (!imageUrl) {
+      return null;
+    }
+
+    return this.productImageUrl(imageUrl);
   }
 
-  return this.productImageUrl(imageUrl);
-}
+  productImageUrl(imageUrl: string): string {
+    if (!imageUrl) {
+      return '';
+    }
 
+    // Already a complete URL
+    if (/^(https?:|data:|blob:)/i.test(imageUrl)) {
+      return imageUrl;
+    }
 
-productImageUrl(imageUrl: string): string {
-  if (!imageUrl) {
-    return '';
+    // Remove trailing /api from the API URL
+    const baseUrl = environment.apiUrl.replace(/\/api\/?$/i, '').replace(/\/+$/, '');
+
+    // Convert relative path into an absolute URL
+    const path = imageUrl.replace(/^\/+/, '');
+
+    return `${baseUrl}/${path}`;
   }
-
-  // Already a complete URL
-  if (/^(https?:|data:|blob:)/i.test(imageUrl)) {
-    return imageUrl;
-  }
-
-  // Remove trailing /api from the API URL
-  const baseUrl = environment.apiUrl
-    .replace(/\/api\/?$/i, '')
-    .replace(/\/+$/, '');
-
-  // Convert relative path into an absolute URL
-  const path = imageUrl.replace(/^\/+/, '');
-
-  return `${baseUrl}/${path}`;
-}
-
 
   onProductImageError(event: Event): void {
     const image = event.target as HTMLImageElement;

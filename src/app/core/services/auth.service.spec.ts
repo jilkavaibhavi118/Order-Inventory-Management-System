@@ -21,7 +21,7 @@ describe('AuthService', () => {
     sessionStorage.removeItem('orderflow-user-role');
 
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting()]
+      providers: [provideHttpClient(), provideHttpClientTesting()],
     });
     service = TestBed.inject(AuthService);
     httpTestingController = TestBed.inject(HttpTestingController);
@@ -46,52 +46,61 @@ describe('AuthService', () => {
   });
 
   it('uses the API profile name for the header when present', () => {
-    service.setCurrentUser({
-      success: true,
-      message: 'Logged in',
-      data: {
-        userId: 'user-id',
-        name: 'Vaibhavi Jilka',
-        email: 'vaibhavi.jilka@example.com',
-        role: 'Admin',
-        token: 'test-token'
+    service.setCurrentUser(
+      {
+        success: true,
+        message: 'Logged in',
+        data: {
+          userId: 'user-id',
+          name: 'Vaibhavi Jilka',
+          email: 'vaibhavi.jilka@example.com',
+          role: 'Admin',
+          token: 'test-token',
+        },
+        errors: [],
       },
-      errors: []
-    }, 'vaibhavi.jilka@example.com');
+      'vaibhavi.jilka@example.com',
+    );
 
     expect(service.currentUserName()).toBe('Vaibhavi Jilka');
   });
 
   it('derives a readable header name from the login email when no profile name is returned', () => {
-    service.setCurrentUser({
-      success: true,
-      message: 'Logged in',
-      data: {
-        userId: 'user-id',
-        name: '',
-        email: 'vaibhavi.jilka@example.com',
-        role: 'Admin',
-        token: 'test-token'
+    service.setCurrentUser(
+      {
+        success: true,
+        message: 'Logged in',
+        data: {
+          userId: 'user-id',
+          name: '',
+          email: 'vaibhavi.jilka@example.com',
+          role: 'Admin',
+          token: 'test-token',
+        },
+        errors: [],
       },
-      errors: []
-    }, 'vaibhavi.jilka@example.com');
+      'vaibhavi.jilka@example.com',
+    );
 
     expect(service.currentUserName()).toBe('Vaibhavi Jilka');
   });
 
   it('clears the current user name on logout', () => {
-    service.setCurrentUser({
-      success: true,
-      message: 'Logged in',
-      data: {
-        userId: 'user-id',
-        name: 'Vaibhavi Jilka',
-        email: 'vaibhavi.jilka@example.com',
-        role: 'Admin',
-        token: 'test-token'
+    service.setCurrentUser(
+      {
+        success: true,
+        message: 'Logged in',
+        data: {
+          userId: 'user-id',
+          name: 'Vaibhavi Jilka',
+          email: 'vaibhavi.jilka@example.com',
+          role: 'Admin',
+          token: 'test-token',
+        },
+        errors: [],
       },
-      errors: []
-    }, 'vaibhavi.jilka@example.com');
+      'vaibhavi.jilka@example.com',
+    );
 
     service.logout();
 
@@ -100,11 +109,13 @@ describe('AuthService', () => {
   });
 
   it('stores the login token in persistent storage when remember me is enabled', () => {
-    service.login({
-      email: 'vaibhavi.jilka@example.com',
-      password: 'password',
-      rememberMe: true
-    }).subscribe();
+    service
+      .login({
+        email: 'vaibhavi.jilka@example.com',
+        password: 'password',
+        rememberMe: true,
+      })
+      .subscribe();
 
     httpTestingController.expectOne(`${environment.apiUrl}/api/Auth/login`).flush({
       success: true,
@@ -114,9 +125,9 @@ describe('AuthService', () => {
         name: 'Vaibhavi Jilka',
         email: 'vaibhavi.jilka@example.com',
         role: 'Admin',
-        token: 'access-token'
+        token: 'access-token',
       },
-      errors: []
+      errors: [],
     });
 
     expect(service.accessToken()).toBe('access-token');
@@ -130,11 +141,13 @@ describe('AuthService', () => {
   });
 
   it('stores the login token for the current browser session when remember me is disabled', () => {
-    service.login({
-      email: 'vaibhavi.jilka@example.com',
-      password: 'password',
-      rememberMe: false
-    }).subscribe();
+    service
+      .login({
+        email: 'vaibhavi.jilka@example.com',
+        password: 'password',
+        rememberMe: false,
+      })
+      .subscribe();
 
     httpTestingController.expectOne(`${environment.apiUrl}/api/Auth/login`).flush({
       success: true,
@@ -144,9 +157,9 @@ describe('AuthService', () => {
         name: 'Vaibhavi Jilka',
         email: 'vaibhavi.jilka@example.com',
         role: 'Admin',
-        token: 'access-token'
+        token: 'access-token',
       },
-      errors: []
+      errors: [],
     });
 
     expect(service.accessToken()).toBe('access-token');
@@ -161,11 +174,13 @@ describe('AuthService', () => {
 
   it('rejects unsuccessful login responses without storing authentication state', () => {
     const errors: unknown[] = [];
-    service.login({
-      email: 'vaibhavi.jilka@example.com',
-      password: 'password',
-      rememberMe: true
-    }).subscribe({ error: error => errors.push(error) });
+    service
+      .login({
+        email: 'vaibhavi.jilka@example.com',
+        password: 'password',
+        rememberMe: true,
+      })
+      .subscribe({ error: (error) => errors.push(error) });
 
     httpTestingController.expectOne(`${environment.apiUrl}/api/Auth/login`).flush({
       success: false,
@@ -175,9 +190,9 @@ describe('AuthService', () => {
         name: 'Vaibhavi Jilka',
         email: 'vaibhavi.jilka@example.com',
         role: 'Admin',
-        token: 'access-token'
+        token: 'access-token',
       },
-      errors: []
+      errors: [],
     });
 
     expect(errors[0]).toBeInstanceOf(AuthenticationError);

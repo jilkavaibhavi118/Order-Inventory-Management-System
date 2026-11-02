@@ -13,12 +13,14 @@ export class ProductService {
   }
 
   getProductById(productId: string): Observable<Product> {
-    return this.http.get<Product>(`${environment.apiUrl}/api/Product/${encodeURIComponent(productId)}`);
+    return this.http.get<Product>(
+      `${environment.apiUrl}/api/Product/${encodeURIComponent(productId)}`,
+    );
   }
 
   getInventoryForProduct(productId: string): Observable<ProductInventory> {
     return this.http.get<ProductInventory>(
-      `${environment.apiUrl}/api/Inventory/product/${encodeURIComponent(productId)}`
+      `${environment.apiUrl}/api/Inventory/product/${encodeURIComponent(productId)}`,
     );
   }
 }

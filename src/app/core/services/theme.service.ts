@@ -4,7 +4,7 @@ import { DOCUMENT, inject, Injectable, PLATFORM_ID, signal } from '@angular/core
 export type ColorTheme = 'light' | 'dark';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ThemeService {
   private readonly document = inject(DOCUMENT);
@@ -27,10 +27,10 @@ export class ThemeService {
 
   private getInitialTheme(): ColorTheme {
     if (!isPlatformBrowser(this.platformId)) {
-      return 'light';
+      return 'dark';
     }
 
-    return localStorage.getItem('orderflow-theme') === 'dark' ? 'dark' : 'light';
+    return localStorage.getItem('orderflow-theme') === 'light' ? 'light' : 'dark';
   }
 
   private applyTheme(theme: ColorTheme): void {

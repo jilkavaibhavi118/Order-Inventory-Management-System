@@ -15,12 +15,12 @@ import {
   SupplierRequest,
   Warehouse,
   WarehouseMutationResponse,
-  WarehouseRequest
+  WarehouseRequest,
 } from '../../models/inventory.models';
 import { PaginatedResponse } from '../../models/api.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class InventoryService {
   private readonly http = inject(HttpClient);
@@ -28,11 +28,12 @@ export class InventoryService {
   private readonly readCache = new Map<string, Observable<unknown>>();
 
   getInventory(page: number, pageSize: number): Observable<PaginatedResponse<InventoryRecord>> {
-    const params = new HttpParams()
-      .set('page', page)
-      .set('pageSize', pageSize);
+    const params = new HttpParams().set('page', page).set('pageSize', pageSize);
 
-    return this.cachedGet<PaginatedResponse<InventoryRecord>>(`${this.apiUrl}/api/Inventory`, params);
+    return this.cachedGet<PaginatedResponse<InventoryRecord>>(
+      `${this.apiUrl}/api/Inventory`,
+      params,
+    );
   }
 
   getInventoryRecord(id: string): Observable<unknown> {
@@ -40,7 +41,9 @@ export class InventoryService {
   }
 
   getProductInventory(productId: string): Observable<unknown> {
-    return this.cachedGet<unknown>(`${this.apiUrl}/api/Inventory/product/${encodeURIComponent(productId)}`);
+    return this.cachedGet<unknown>(
+      `${this.apiUrl}/api/Inventory/product/${encodeURIComponent(productId)}`,
+    );
   }
 
   getInventoryTransactions(query: InventoryTransactionQuery): Observable<InventoryTransactionPage> {
@@ -67,11 +70,16 @@ export class InventoryService {
       params = params.set('toDate', query.toDate);
     }
 
-    return this.cachedGet<InventoryTransactionPage>(`${this.apiUrl}/api/Inventory/transactions`, params);
+    return this.cachedGet<InventoryTransactionPage>(
+      `${this.apiUrl}/api/Inventory/transactions`,
+      params,
+    );
   }
 
   getInventoryTransaction(id: string): Observable<unknown> {
-    return this.cachedGet<unknown>(`${this.apiUrl}/api/Inventory/transactions/${encodeURIComponent(id)}`);
+    return this.cachedGet<unknown>(
+      `${this.apiUrl}/api/Inventory/transactions/${encodeURIComponent(id)}`,
+    );
   }
 
   getLowStock(): Observable<LowStockRecord[]> {
@@ -79,7 +87,9 @@ export class InventoryService {
   }
 
   adjustInventory(request: InventoryAdjustmentRequest): Observable<void> {
-    return this.invalidateAfter(this.http.post<void>(`${this.apiUrl}/api/Inventory/adjust`, request));
+    return this.invalidateAfter(
+      this.http.post<void>(`${this.apiUrl}/api/Inventory/adjust`, request),
+    );
   }
 
   getProducts(): Observable<Product[]> {
@@ -87,15 +97,24 @@ export class InventoryService {
   }
 
   createProduct(request: ProductRequest | FormData): Observable<ApiResult<null>> {
-    return this.invalidateAfter(this.http.post<ApiResult<null>>(`${this.apiUrl}/api/Product`, request));
+    return this.invalidateAfter(
+      this.http.post<ApiResult<null>>(`${this.apiUrl}/api/Product`, request),
+    );
   }
 
   updateProduct(id: string, request: ProductRequest | FormData): Observable<ApiResult<null>> {
-    return this.invalidateAfter(this.http.put<ApiResult<null>>(`${this.apiUrl}/api/Product/${encodeURIComponent(id)}`, request));
+    return this.invalidateAfter(
+      this.http.put<ApiResult<null>>(
+        `${this.apiUrl}/api/Product/${encodeURIComponent(id)}`,
+        request,
+      ),
+    );
   }
 
   deleteProduct(id: string): Observable<void> {
-    return this.invalidateAfter(this.http.delete<void>(`${this.apiUrl}/api/Product/${encodeURIComponent(id)}`));
+    return this.invalidateAfter(
+      this.http.delete<void>(`${this.apiUrl}/api/Product/${encodeURIComponent(id)}`),
+    );
   }
 
   getSuppliers(): Observable<Supplier[]> {
@@ -103,20 +122,26 @@ export class InventoryService {
   }
 
   createSupplier(request: SupplierRequest): Observable<ApiResult<null> | null> {
-    return this.invalidateAfter(this.http.post<ApiResult<null> | null>(`${this.apiUrl}/api/Supplier`, request));
+    return this.invalidateAfter(
+      this.http.post<ApiResult<null> | null>(`${this.apiUrl}/api/Supplier`, request),
+    );
   }
 
   updateSupplier(id: string, request: SupplierRequest): Observable<ApiResult<null> | null> {
-    return this.invalidateAfter(this.http.put<ApiResult<null> | null>(
-      `${this.apiUrl}/api/Supplier/${encodeURIComponent(id)}`,
-      request
-    ));
+    return this.invalidateAfter(
+      this.http.put<ApiResult<null> | null>(
+        `${this.apiUrl}/api/Supplier/${encodeURIComponent(id)}`,
+        request,
+      ),
+    );
   }
 
   deleteSupplier(id: string): Observable<ApiResult<null> | null> {
-    return this.invalidateAfter(this.http.delete<ApiResult<null> | null>(
-      `${this.apiUrl}/api/Supplier/${encodeURIComponent(id)}`
-    ));
+    return this.invalidateAfter(
+      this.http.delete<ApiResult<null> | null>(
+        `${this.apiUrl}/api/Supplier/${encodeURIComponent(id)}`,
+      ),
+    );
   }
 
   getWarehouses(): Observable<Warehouse[]> {
@@ -128,20 +153,26 @@ export class InventoryService {
   }
 
   createWarehouse(request: WarehouseRequest): Observable<WarehouseMutationResponse> {
-    return this.invalidateAfter(this.http.post<WarehouseMutationResponse>(`${this.apiUrl}/api/Warehouse`, request));
+    return this.invalidateAfter(
+      this.http.post<WarehouseMutationResponse>(`${this.apiUrl}/api/Warehouse`, request),
+    );
   }
 
   updateWarehouse(id: string, request: WarehouseRequest): Observable<WarehouseMutationResponse> {
-    return this.invalidateAfter(this.http.put<WarehouseMutationResponse>(
-      `${this.apiUrl}/api/Warehouse/${encodeURIComponent(id)}`,
-      request
-    ));
+    return this.invalidateAfter(
+      this.http.put<WarehouseMutationResponse>(
+        `${this.apiUrl}/api/Warehouse/${encodeURIComponent(id)}`,
+        request,
+      ),
+    );
   }
 
   deleteWarehouse(id: string): Observable<ApiResult<null> | null> {
-    return this.invalidateAfter(this.http.delete<ApiResult<null> | null>(
-      `${this.apiUrl}/api/Warehouse/${encodeURIComponent(id)}`
-    ));
+    return this.invalidateAfter(
+      this.http.delete<ApiResult<null> | null>(
+        `${this.apiUrl}/api/Warehouse/${encodeURIComponent(id)}`,
+      ),
+    );
   }
 
   private cachedGet<T>(url: string, params?: HttpParams): Observable<T> {
@@ -152,11 +183,11 @@ export class InventoryService {
     }
 
     const request = this.http.get<T>(url, params ? { params } : undefined).pipe(
-      catchError(error => {
+      catchError((error) => {
         this.readCache.delete(key);
         return throwError(() => error);
       }),
-      shareReplay({ bufferSize: 1, refCount: false })
+      shareReplay({ bufferSize: 1, refCount: false }),
     );
     this.readCache.set(key, request);
     return request;

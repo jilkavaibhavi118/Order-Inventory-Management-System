@@ -1,8 +1,17 @@
+import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
-import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormArray,
+  FormControl,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { MessageService } from 'primeng/api';
+import { CheckboxModule } from 'primeng/checkbox';
 import { PaginatorModule } from 'primeng/paginator';
 import { Select } from 'primeng/select';
 import type { PaginatorState } from 'primeng/types/paginator';
@@ -18,18 +27,28 @@ import {
   OrderItemRequest,
   OrderPage,
   OrderQuery,
-  OrderRequest
+  OrderRequest,
 } from '../../../../models/order.models';
 import { OrdersService } from '../../../../core/services/orders.service';
+import { DatePickerModule } from 'primeng/datepicker';
 
 type SortField = 'orderDate' | 'status' | 'customer' | 'total';
 
 @Component({
   selector: 'app-orders-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, PaginatorModule, Select],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    PaginatorModule,
+    Select,
+    DatePickerModule,
+    CheckboxModule,
+    RouterLink,
+  ],
   templateUrl: './orders-page.component.html',
-  styleUrl: './orders-page.component.scss'
+  styleUrl: './orders-page.component.scss',
 })
 export class OrdersPageComponent {
   private readonly authService = inject(AuthService);
@@ -57,26 +76,29 @@ export class OrdersPageComponent {
   readonly statusOrderId = signal<string | null>(null);
 
   readonly orderSearch = signal('');
+  readonly selectedOrderIds = signal<Set<string>>(new Set());
   readonly warehouseOptions = computed(() =>
-    this.warehouses().map(warehouse => ({ label: warehouse.name, value: warehouse.id }))
+    this.warehouses().map((warehouse) => ({ label: warehouse.name, value: warehouse.id })),
   );
   readonly orderProductOptions = computed(() =>
-    this.products().map(product => ({
+    this.products().map((product) => ({
       label: `${product.name} (${product.sku})`,
-      value: product.id
-    }))
+      value: product.id,
+    })),
   );
   readonly filteredOrders = computed(() => {
     const search = this.orderSearch().trim().toLowerCase();
     const status = this.statusFilter().trim().toLowerCase();
-    return this.orders().filter(order => {
+    return this.orders().filter((order) => {
       const matchesStatus = !status || (order.status || '').toLowerCase().includes(status);
-      const matchesSearch = !search || [
-        this.displayOrderId(order),
-        this.displayCustomer(order),
-        this.displayWarehouse(order),
-        order.status ?? ''
-      ].some(v => v.toLowerCase().includes(search));
+      const matchesSearch =
+        !search ||
+        [
+          this.displayOrderId(order),
+          this.displayCustomer(order),
+          this.displayWarehouse(order),
+          order.status ?? '',
+        ].some((v) => v.toLowerCase().includes(search));
       return matchesStatus && matchesSearch;
     });
   });
@@ -91,7 +113,10 @@ export class OrdersPageComponent {
     return [...this.orders()].sort((left, right) => {
       const leftValue = this.sortValue(left, field);
       const rightValue = this.sortValue(right, field);
-      return leftValue.localeCompare(rightValue, undefined, { numeric: true, sensitivity: 'base' }) * direction;
+      return (
+        leftValue.localeCompare(rightValue, undefined, { numeric: true, sensitivity: 'base' }) *
+        direction
+      );
     });
   });
 
@@ -102,27 +127,31 @@ export class OrdersPageComponent {
         nonNullable: true,
         validators: [
           Validators.required,
-          Validators.pattern(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)
-        ]
-      }
+          Validators.pattern(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i),
+        ],
+      },
     ),
     warehouseId: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-    items: new FormArray<FormGroup<OrderItemFormModel>>([], Validators.minLength(1))
+    items: new FormArray<FormGroup<OrderItemFormModel>>([], Validators.minLength(1)),
   });
 
   readonly statusForm = new FormGroup({
-    status: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.maxLength(20)] })
+    status: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required, Validators.maxLength(20)],
+    }),
   });
 
   constructor() {
     this.loadOrders();
     this.inventoryService.getProducts().subscribe({
-      next: products => this.products.set(products),
-      error: error => this.showApiError(error)
+      next: (products) => this.products.set(products),
+      error: (error) => this.showApiError(error),
     });
     this.inventoryService.getWarehouses().subscribe({
-      next: warehouses => this.warehouses.set(warehouses.filter(warehouse => warehouse.isActive)),
-      error: error => this.showApiError(error)
+      next: (warehouses) =>
+        this.warehouses.set(warehouses.filter((warehouse) => warehouse.isActive)),
+      error: (error) => this.showApiError(error),
     });
   }
 
@@ -148,7 +177,8 @@ export class OrdersPageComponent {
     if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
     const pages: number[] = [1];
     if (current > 3) pages.push(-1);
-    for (let i = Math.max(2, current - 1); i <= Math.min(total - 1, current + 1); i++) pages.push(i);
+    for (let i = Math.max(2, current - 1); i <= Math.min(total - 1, current + 1); i++)
+      pages.push(i);
     if (current < total - 2) pages.push(-1);
     pages.push(total);
     return pages;
@@ -162,6 +192,60 @@ export class OrdersPageComponent {
   updateOrderSearch(event: Event): void {
     this.orderSearch.set((event.target as HTMLInputElement).value);
     this.page.set(1);
+  }
+
+  updateFromDateFilter(value: string | null): void {
+    this.fromDateFilter.set(value ?? '');
+  }
+
+  updateToDateFilter(value: string | null): void {
+    this.toDateFilter.set(value ?? '');
+  }
+
+  orderSelectionKey(order: Order): string | null {
+    return order.id ?? order.orderId ?? null;
+  }
+
+  isOrderSelected(order: Order): boolean {
+    const key = this.orderSelectionKey(order);
+    return key !== null && this.selectedOrderIds().has(key);
+  }
+
+  areVisibleOrdersSelected(): boolean {
+    const visibleOrders = this.visibleOrders();
+    return visibleOrders.length > 0 && visibleOrders.every((order) => this.isOrderSelected(order));
+  }
+
+  toggleOrderSelection(order: Order, selected: boolean): void {
+    const key = this.orderSelectionKey(order);
+    if (!key) {
+      return;
+    }
+
+    const selectedIds = new Set(this.selectedOrderIds());
+    if (selected) {
+      selectedIds.add(key);
+    } else {
+      selectedIds.delete(key);
+    }
+    this.selectedOrderIds.set(selectedIds);
+  }
+
+  toggleVisibleOrderSelection(selected: boolean): void {
+    const selectedIds = new Set(this.selectedOrderIds());
+    for (const order of this.visibleOrders()) {
+      const key = this.orderSelectionKey(order);
+      if (!key) {
+        continue;
+      }
+
+      if (selected) {
+        selectedIds.add(key);
+      } else {
+        selectedIds.delete(key);
+      }
+    }
+    this.selectedOrderIds.set(selectedIds);
   }
 
   onPageChange(event: PaginatorState): void {
@@ -183,14 +267,15 @@ export class OrdersPageComponent {
       pageSize: this.pageSize(),
       status: this.statusFilter().trim() || undefined,
       fromDate: this.toDateTime(this.fromDateFilter(), false),
-      toDate: this.toDateTime(this.toDateFilter(), true)
+      toDate: this.toDateTime(this.toDateFilter(), true),
     };
 
-    this.ordersService.getOrders(query)
+    this.ordersService
+      .getOrders(query)
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
-        next: response => this.setOrderPage(response),
-        error: error => this.showApiError(error)
+        next: (response) => this.setOrderPage(response),
+        error: (error) => this.showApiError(error),
       });
   }
 
@@ -204,7 +289,7 @@ export class OrdersPageComponent {
         severity: 'warn',
         summary: 'Invalid date range',
         detail: 'The start date must be before or equal to the end date.',
-        life: 4000
+        life: 4000,
       });
       return;
     }
@@ -223,14 +308,6 @@ export class OrdersPageComponent {
     this.statusFilter.set((event.target as HTMLInputElement).value);
   }
 
-  setFromDateFilter(event: Event): void {
-    this.fromDateFilter.set((event.target as HTMLInputElement).value);
-  }
-
-  setToDateFilter(event: Event): void {
-    this.toDateFilter.set((event.target as HTMLInputElement).value);
-  }
-
   sortBy(field: SortField): void {
     if (this.sortField() === field) {
       this.sortDirection.set(this.sortDirection() === 'asc' ? 'desc' : 'asc');
@@ -245,7 +322,7 @@ export class OrdersPageComponent {
     this.editingOrderId.set(null);
     this.orderForm.reset({
       customerId: this.authService.currentUserId() ?? '',
-      warehouseId: ''
+      warehouseId: '',
     });
     this.orderForm.controls.items.clear();
     this.addOrderItem();
@@ -259,14 +336,15 @@ export class OrdersPageComponent {
     }
 
     this.loading.set(true);
-    this.ordersService.getOrder(id)
+    this.ordersService
+      .getOrder(id)
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
-        next: detail => {
+        next: (detail) => {
           this.editingOrderId.set(id);
           this.orderForm.reset({
             customerId: this.authService.currentUserId() ?? '',
-            warehouseId: detail.warehouseId
+            warehouseId: detail.warehouseId,
           });
           this.orderForm.controls.items.clear();
           for (const item of detail.items ?? []) {
@@ -277,7 +355,7 @@ export class OrdersPageComponent {
           }
           this.orderDialogOpen.set(true);
         },
-        error: error => this.showApiError(error)
+        error: (error) => this.showApiError(error),
       });
   }
 
@@ -311,8 +389,8 @@ export class OrdersPageComponent {
       warehouseId: formValue.warehouseId,
       items: formValue.items.map((item): OrderItemRequest => ({
         productId: item.productId,
-        quantity: item.quantity
-      }))
+        quantity: item.quantity,
+      })),
     };
     const orderId = this.editingOrderId();
 
@@ -328,11 +406,11 @@ export class OrdersPageComponent {
           severity: 'success',
           summary: orderId ? 'Order updated' : 'Order created',
           detail: orderId ? 'The order has been updated.' : 'The order has been created.',
-          life: 3500
+          life: 3500,
         });
         this.loadOrders(orderId ? this.page() : 1);
       },
-      error: error => this.showApiError(error)
+      error: (error) => this.showApiError(error),
     });
   }
 
@@ -363,7 +441,8 @@ export class OrdersPageComponent {
     }
 
     this.saving.set(true);
-    this.ordersService.updateStatus(id, this.statusForm.getRawValue())
+    this.ordersService
+      .updateStatus(id, this.statusForm.getRawValue())
       .pipe(finalize(() => this.saving.set(false)))
       .subscribe({
         next: () => {
@@ -372,11 +451,11 @@ export class OrdersPageComponent {
             severity: 'success',
             summary: 'Status updated',
             detail: 'The order status has been updated.',
-            life: 3500
+            life: 3500,
           });
           this.loadOrders();
         },
-        error: error => this.showApiError(error)
+        error: (error) => this.showApiError(error),
       });
   }
 
@@ -399,7 +478,8 @@ export class OrdersPageComponent {
 
     this.orderPendingDeletion.set(null);
     this.saving.set(true);
-    this.ordersService.deleteOrder(id)
+    this.ordersService
+      .deleteOrder(id)
       .pipe(finalize(() => this.saving.set(false)))
       .subscribe({
         next: () => {
@@ -407,11 +487,13 @@ export class OrdersPageComponent {
             severity: 'success',
             summary: 'Order deleted',
             detail: 'The order has been deleted.',
-            life: 3500
+            life: 3500,
           });
-          this.loadOrders(this.orders().length === 1 && this.page() > 1 ? this.page() - 1 : this.page());
+          this.loadOrders(
+            this.orders().length === 1 && this.page() > 1 ? this.page() - 1 : this.page(),
+          );
         },
-        error: error => this.showApiError(error)
+        error: (error) => this.showApiError(error),
       });
   }
 
@@ -433,17 +515,25 @@ export class OrdersPageComponent {
   }
 
   displayItems(order: Order): string {
-    return order.items?.map(item => `${item.productName ?? item.productSku ?? item.productId} × ${item.quantity}`).join(', ')
-      ?? '—';
+    return (
+      order.items
+        ?.map(
+          (item) => `${item.productName ?? item.productSku ?? item.productId} × ${item.quantity}`,
+        )
+        .join(', ') ?? '—'
+    );
   }
 
   private createItemForm(item?: OrderItem): FormGroup<OrderItemFormModel> {
     return new FormGroup<OrderItemFormModel>({
-      productId: new FormControl(item?.productId ?? '', { nonNullable: true, validators: [Validators.required] }),
+      productId: new FormControl(item?.productId ?? '', {
+        nonNullable: true,
+        validators: [Validators.required],
+      }),
       quantity: new FormControl(item?.quantity ?? 1, {
         nonNullable: true,
-        validators: [Validators.required, Validators.min(1), Validators.max(2147483647)]
-      })
+        validators: [Validators.required, Validators.min(1), Validators.max(2147483647)],
+      }),
     });
   }
 
@@ -486,7 +576,7 @@ export class OrdersPageComponent {
       this.messageService.add({
         severity: 'error',
         detail,
-        life: 5000
+        life: 5000,
       });
     }
   }

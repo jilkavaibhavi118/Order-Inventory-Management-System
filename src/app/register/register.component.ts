@@ -6,25 +6,13 @@ import {
   ReactiveFormsModule,
   ValidationErrors,
   ValidatorFn,
-  Validators
+  Validators,
 } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
-import { AuthService } from '../../core/services/auth.service';
-
-interface PasswordRule {
-  id: string;
-  label: string;
-  met: boolean;
-}
-
-interface PasswordStrength {
-  score: number;
-  level: 'empty' | 'weak' | 'fair' | 'good' | 'strong';
-  label: string;
-  percent: number;
-  rules: PasswordRule[];
-}
+import { ProgressBarModule } from 'primeng/progressbar';
+import { PasswordRule, PasswordStrength } from '../models/auth.models';
+import { AuthService } from '../core/services/auth.service';
 
 function passwordMatchValidator(passwordName: string, confirmationName: string): ValidatorFn {
   return (group: AbstractControl): ValidationErrors | null => {
@@ -34,7 +22,7 @@ function passwordMatchValidator(passwordName: string, confirmationName: string):
       return null;
     }
 
-    const errors = { ...(confirmation.errors ?? {}) };
+    const errors = { ...confirmation.errors };
     if (!confirmation.value) {
       delete errors['passwordMismatch'];
       confirmation.setErrors(Object.keys(errors).length ? errors : null);
@@ -58,24 +46,29 @@ function evaluatePasswordStrength(password: string): PasswordStrength {
     { id: 'uppercase', label: 'At least one uppercase letter (A-Z)', met: /[A-Z]/.test(password) },
     { id: 'lowercase', label: 'At least one lowercase letter (a-z)', met: /[a-z]/.test(password) },
     { id: 'number', label: 'At least one number (0-9)', met: /\d/.test(password) },
-    { id: 'special', label: 'At least one special character', met: /[^A-Za-z0-9]/.test(password) }
+    { id: 'special', label: 'At least one special character', met: /[^A-Za-z0-9]/.test(password) },
   ];
   const score = rules.filter((rule) => rule.met).length;
-  const level: PasswordStrength['level'] = !password
-    ? 'empty'
-    : score <= 2
-      ? 'weak'
-      : score === 3
-        ? 'fair'
-        : score === 4
-          ? 'good'
-          : 'strong';
+  let level: PasswordStrength['level'];
+
+  if (!password) {
+    level = 'empty';
+  } else if (score <= 2) {
+    level = 'weak';
+  } else if (score === 3) {
+    level = 'fair';
+  } else if (score === 4) {
+    level = 'good';
+  } else {
+    level = 'strong';
+  }
+
   const labels: Record<PasswordStrength['level'], string> = {
     empty: 'Enter password',
     weak: 'Weak',
     fair: 'Fair',
     good: 'Good',
-    strong: 'Strong'
+    strong: 'Strong',
   };
 
   return {
@@ -83,17 +76,41 @@ function evaluatePasswordStrength(password: string): PasswordStrength {
     level,
     label: labels[level],
     percent: score * 20,
-    rules
+    rules,
   };
 }
 
+function getNonEmptyMessage(value: unknown): string | null {
+  return typeof value === 'string' && value.trim() ? value : null;
+}
+
+function getMessageFromObject(value: unknown): string | null {
+  if (typeof value !== 'object' || value === null || !('message' in value)) {
+    return null;
+  }
+
+  return getNonEmptyMessage(value.message);
+}
+
+function getMessageFromText(responseText: string): string | null {
+  try {
+    const parsed: unknown = JSON.parse(responseText);
+    return typeof parsed === 'string' ? getNonEmptyMessage(parsed) : getMessageFromObject(parsed);
+  } catch {
+    return responseText.startsWith('<') ? null : responseText || null;
+  }
+}
+
+function getMessageFromBody(body: unknown): string | null {
+  return typeof body === 'string' ? getMessageFromText(body.trim()) : getMessageFromObject(body);
+}
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, ProgressBarModule],
   templateUrl: './register.component.html',
-  styleUrl: './register.component.scss'
+  styleUrl: './register.component.scss',
 })
 export class RegisterComponent {
   private readonly authService = inject(AuthService);
@@ -112,44 +129,44 @@ export class RegisterComponent {
 
   // Password strength computation signal
   readonly passwordStrength = computed<PasswordStrength>(() =>
-    evaluatePasswordStrength(this.currentPassword())
+    evaluatePasswordStrength(this.currentPassword()),
   );
 
   readonly registerForm = new FormGroup(
     {
       fullName: new FormControl('', {
         nonNullable: true,
-        validators: [Validators.required, Validators.minLength(2)]
+        validators: [Validators.required, Validators.minLength(2)],
       }),
       email: new FormControl('', {
         nonNullable: true,
         validators: [
           Validators.required,
           Validators.email,
-          Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)
-        ]
+          Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/),
+        ],
       }),
       password: new FormControl('', {
         nonNullable: true,
         validators: [
           Validators.required,
           Validators.minLength(8),
-          Validators.pattern(/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9])/)
-        ]
+          Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9])/),
+        ],
       }),
       confirmPassword: new FormControl('', {
         nonNullable: true,
-        validators: [Validators.required]
-      })
+        validators: [Validators.required],
+      }),
     },
     {
-      validators: [passwordMatchValidator('password', 'confirmPassword')]
-    }
+      validators: [passwordMatchValidator('password', 'confirmPassword')],
+    },
   );
 
   constructor() {
     // Keep currentPassword signal synced with form control for reactive strength analysis
-    this.registerForm.controls.password.valueChanges.subscribe(value => {
+    this.registerForm.controls.password.valueChanges.subscribe((value) => {
       this.currentPassword.set(value || '');
     });
   }
@@ -171,11 +188,11 @@ export class RegisterComponent {
   }
 
   togglePasswordVisibility(): void {
-    this.showPassword.update(v => !v);
+    this.showPassword.update((v) => !v);
   }
 
   toggleConfirmPasswordVisibility(): void {
-    this.showConfirmPassword.update(v => !v);
+    this.showConfirmPassword.update((v) => !v);
   }
 
   isFieldInvalid(control: FormControl): boolean {
@@ -206,26 +223,28 @@ export class RegisterComponent {
 
     const formValues = this.registerForm.getRawValue();
 
-    this.authService.register({
-      fullName: formValues.fullName,
-      email: formValues.email,
-      password: formValues.password,
-      confirmPassword: formValues.confirmPassword
-    }).subscribe({
-      next: response => {
-        this.isLoading.set(false);
-        this.submissionStatus.set('success');
-        const message = this.getResponseMessage(response) ?? 'Registration successful.';
-        this.statusMessage.set(message);
-      },
-      error: (err) => {
-        this.isLoading.set(false);
-        this.submissionStatus.set('error');
-        const message = this.getApiMessage(err);
-        const errorMessage = message ?? 'Registration failed. Please try again.';
-        this.statusMessage.set(errorMessage);
-      }
-    });
+    this.authService
+      .register({
+        fullName: formValues.fullName,
+        email: formValues.email,
+        password: formValues.password,
+        confirmPassword: formValues.confirmPassword,
+      })
+      .subscribe({
+        next: (response) => {
+          this.isLoading.set(false);
+          this.submissionStatus.set('success');
+          const message = this.getResponseMessage(response) ?? 'Registration successful.';
+          this.statusMessage.set(message);
+        },
+        error: (err) => {
+          this.isLoading.set(false);
+          this.submissionStatus.set('error');
+          const message = this.getApiMessage(err);
+          const errorMessage = message ?? 'Registration failed. Please try again.';
+          this.statusMessage.set(errorMessage);
+        },
+      });
   }
 
   private getResponseMessage(response: unknown): string | null {
@@ -242,30 +261,7 @@ export class RegisterComponent {
       return null;
     }
 
-    const body: unknown = error.error;
-    if (typeof body === 'string') {
-      const responseText = body.trim();
-      try {
-        const parsed: unknown = JSON.parse(responseText);
-        if (typeof parsed === 'string' && parsed.trim()) {
-          return parsed;
-        }
-        if (typeof parsed === 'object' && parsed !== null && 'message' in parsed) {
-          const message = parsed.message;
-          return typeof message === 'string' && message.trim() ? message : null;
-        }
-        return null;
-      } catch {
-        return responseText.startsWith('<') ? null : responseText || null;
-      }
-    }
-
-    if (typeof body !== 'object' || body === null || !('message' in body)) {
-      return null;
-    }
-
-    const message = body.message;
-    return typeof message === 'string' && message.trim() ? message : null;
+    return getMessageFromBody(error.error);
   }
 
   private focusFirstInvalidField(): void {

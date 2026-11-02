@@ -26,42 +26,70 @@ describe('DashboardPageComponent', () => {
 
   beforeEach(async () => {
     inventoryService = {
-      getInventory: vi.fn().mockReturnValue(of({
-        items: [
-          { productId: 'in-stock', productSku: 'IN-1', productName: 'In stock item', quantity: 10, minStock: 2 },
-          { productId: 'low-stock', productSku: 'LOW-1', productName: 'Low stock item', quantity: 3, minStock: 5 },
-          { productId: 'out-of-stock', productSku: 'OUT-1', productName: 'Out of stock item', quantity: 0, minStock: 2 }
-        ],
-        totalCount: 3,
-        page: 1,
-        pageSize: 100
-      })),
+      getInventory: vi.fn().mockReturnValue(
+        of({
+          items: [
+            {
+              productId: 'in-stock',
+              productSku: 'IN-1',
+              productName: 'In stock item',
+              quantity: 10,
+              minStock: 2,
+            },
+            {
+              productId: 'low-stock',
+              productSku: 'LOW-1',
+              productName: 'Low stock item',
+              quantity: 3,
+              minStock: 5,
+            },
+            {
+              productId: 'out-of-stock',
+              productSku: 'OUT-1',
+              productName: 'Out of stock item',
+              quantity: 0,
+              minStock: 2,
+            },
+          ],
+          totalCount: 3,
+          page: 1,
+          pageSize: 100,
+        }),
+      ),
       getProducts: vi.fn().mockReturnValue(of([{ id: 'product-1' }, { id: 'product-2' }])),
       getSuppliers: vi.fn().mockReturnValue(of([{ id: 'supplier-1' }])),
       getWarehouses: vi.fn().mockReturnValue(of([{ id: 'warehouse-1' }])),
-      getLowStock: vi.fn().mockReturnValue(of([{
-        productId: 'product-1',
-        productSku: 'SKU-1',
-        productName: 'Sample product',
-        productIsActive: true,
-        minStock: 4,
-        totalQuantity: 2,
-        warehouseCount: 1
-      }])),
-      getInventoryTransactions: vi.fn().mockReturnValue(of({
-        page: 1,
-        pageSize: 5,
-        totalCount: 5,
-        transactions: []
-      }))
+      getLowStock: vi.fn().mockReturnValue(
+        of([
+          {
+            productId: 'product-1',
+            productSku: 'SKU-1',
+            productName: 'Sample product',
+            productIsActive: true,
+            minStock: 4,
+            totalQuantity: 2,
+            warehouseCount: 1,
+          },
+        ]),
+      ),
+      getInventoryTransactions: vi.fn().mockReturnValue(
+        of({
+          page: 1,
+          pageSize: 5,
+          totalCount: 5,
+          transactions: [],
+        }),
+      ),
     };
     ordersService = {
-      getOrders: vi.fn().mockReturnValue(of({
-        page: 1,
-        pageSize: 1,
-        totalCount: 27,
-        orders: []
-      }))
+      getOrders: vi.fn().mockReturnValue(
+        of({
+          page: 1,
+          pageSize: 1,
+          totalCount: 27,
+          orders: [],
+        }),
+      ),
     };
 
     await TestBed.configureTestingModule({
@@ -71,8 +99,8 @@ describe('DashboardPageComponent', () => {
         { provide: InventoryService, useValue: inventoryService },
         { provide: OrdersService, useValue: ordersService },
         { provide: AuthService, useValue: { currentUserName: signal('Operator') } },
-        { provide: PLATFORM_ID, useValue: 'browser' }
-      ]
+        { provide: PLATFORM_ID, useValue: 'browser' },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(DashboardPageComponent);
@@ -91,32 +119,36 @@ describe('DashboardPageComponent', () => {
       inStock: 1,
       lowStock: 1,
       outOfStock: 1,
-      total: 3
+      total: 3,
     });
   });
 
   it('builds monthly chart paths from API order and movement dates', () => {
     const now = new Date();
-    component.recentOrders.set([{
-      customerId: 'customer-1',
-      warehouseId: 'warehouse-1',
-      orderDate: new Date(now.getFullYear(), now.getMonth(), 12).toISOString()
-    }]);
-    component.transactionsPreview.set([{
-      id: 'transaction-1',
-      productId: 'product-1',
-      productSku: 'SKU-1',
-      productName: 'Sample product',
-      warehouseId: 'warehouse-1',
-      warehouseName: 'Main warehouse',
-      quantityChanged: 2,
-      type: 'IN',
-      previousStock: 1,
-      newStock: 3,
-      reason: 'Restock',
-      referenceId: 'ref-1',
-      createdAt: new Date(now.getFullYear(), now.getMonth(), 10).toISOString()
-    }]);
+    component.recentOrders.set([
+      {
+        customerId: 'customer-1',
+        warehouseId: 'warehouse-1',
+        orderDate: new Date(now.getFullYear(), now.getMonth(), 12).toISOString(),
+      },
+    ]);
+    component.transactionsPreview.set([
+      {
+        id: 'transaction-1',
+        productId: 'product-1',
+        productSku: 'SKU-1',
+        productName: 'Sample product',
+        warehouseId: 'warehouse-1',
+        warehouseName: 'Main warehouse',
+        quantityChanged: 2,
+        type: 'IN',
+        previousStock: 1,
+        newStock: 3,
+        reason: 'Restock',
+        referenceId: 'ref-1',
+        createdAt: new Date(now.getFullYear(), now.getMonth(), 10).toISOString(),
+      },
+    ]);
 
     const currentMonth = component.chartBuckets().at(-1);
     expect(currentMonth?.orders).toBe(1);
@@ -131,7 +163,9 @@ describe('DashboardPageComponent', () => {
     fixture.detectChanges();
 
     expect(component.productsError()).toBeTruthy();
-    expect(fixture.nativeElement.textContent).toContain('Unable to load this dashboard data. Try again.');
+    expect(fixture.nativeElement.textContent).toContain(
+      'Unable to load this dashboard data. Try again.',
+    );
     expect(inventoryService.getProducts).toHaveBeenCalledTimes(2);
     expect(inventoryService.getWarehouses).toHaveBeenCalledTimes(1);
   });

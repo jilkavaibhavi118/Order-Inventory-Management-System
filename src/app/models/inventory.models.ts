@@ -68,9 +68,7 @@ export interface WarehouseRequest {
 }
 
 export type WarehouseMutationResponse =
-  | (Warehouse & { message?: string })
-  | ApiResult<Warehouse>
-  | null;
+  (Warehouse & { message?: string }) | ApiResult<Warehouse> | null;
 
 export interface ProductRequest {
   sku: string;
